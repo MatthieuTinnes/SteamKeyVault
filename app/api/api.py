@@ -5,14 +5,11 @@ from pydantic import BaseModel
 from django.shortcuts import get_object_or_404
 from ninja.security import HttpBearer
 
+from app.api import GlobalAuth
+
 User = get_user_model()
 router = Router()
 
-class GlobalAuth(HttpBearer):
-    def authenticate(self, request, token):
-        if token == "supersecrettoken":
-            return token
-        return None
 
 class UserSchema(BaseModel):
     id: int
