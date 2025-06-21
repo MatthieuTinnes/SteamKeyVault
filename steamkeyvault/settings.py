@@ -43,8 +43,11 @@ INSTALLED_APPS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]  # React app URL
+CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
 CSRF_TRUSTED_ORIGINS = ['http://localhost:5173']
+
+# FOR DEVELOPMENT ONLY
+CORS_ALLOW_ALL_ORIGINS = True
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
