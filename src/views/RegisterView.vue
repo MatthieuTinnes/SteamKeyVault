@@ -7,6 +7,10 @@
         <input id="email" v-model="email" type="email" required />
       </div>
       <div>
+        <label for="username">Username</label>
+        <input id="username" v-model="username" type="text" required />
+      </div>
+      <div>
         <label for="password">Password</label>
         <input id="password" v-model="password" type="password" required />
       </div>
@@ -27,6 +31,7 @@ import { useRouter } from 'vue-router'
 import { registerUser } from '../api/users'
 
 const email = ref('')
+const username = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const error = ref('')
@@ -41,7 +46,7 @@ const handleRegister = async () => {
     return
   }
   try {
-    await registerUser(email.value, password.value)
+    await registerUser(email.value, username.value, password.value)
     success.value = 'Registration successful! You can now log in.'
     setTimeout(() => router.push('/login'), 1500)
   } catch (err) {

@@ -32,7 +32,7 @@ const handleLogin = async () => {
   try {
     const response = await loginUser(email.value, password.value)
     localStorage.setItem('token', response.data.token)
-    router.push('/')
+    router.push('/my-keys')
   } catch (err) {
     error.value = 'Invalid credentials or server error.'
   }

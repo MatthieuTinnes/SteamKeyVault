@@ -27,6 +27,11 @@ const router = createRouter({
       name: 'register',
       component: () => import('../views/RegisterView.vue'),
     },
+    {
+      path: '/my-keys',
+      name: 'my-keys',
+      component: () => import('../views/MyKeysView.vue'),
+    },
   ],
 })
 

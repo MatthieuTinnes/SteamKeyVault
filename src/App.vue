@@ -1,5 +1,19 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { fetchUser, logoutUser, useUser } from './api/auth'
+
+const user = useUser()
+const router = useRouter()
+
+onMounted(() => {
+  fetchUser()
+})
+
+const handleLogout = async () => {
+  await logoutUser()
+  router.push('/login')
+}
 </script>
 
 <template>
@@ -10,8 +24,14 @@ import { RouterLink, RouterView } from 'vue-router'
       <nav>
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/about">About</RouterLink>
-        <RouterLink to="/login">Login</RouterLink>
-        <RouterLink to="/register">Register</RouterLink>
+        <template v-if="!user || !user.username">
+          <RouterLink to="/login">Login</RouterLink>
+          <RouterLink to="/register">Register</RouterLink>
+        </template>
+        <template v-else>
+          <span class="user-info">{{ user.username }}</span>
+          <a href="#" @click.prevent="handleLogout">Logout</a>
+        </template>
       </nav>
     </div>
   </header>

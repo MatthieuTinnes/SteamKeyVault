@@ -1,5 +1,17 @@
 <script setup lang="ts">
-// No additional logic needed for static SaaS landing page
+import { useRouter } from 'vue-router'
+import { useUser } from '../api/auth'
+
+const router = useRouter()
+const user = useUser()
+
+function goToMyKeys() {
+  if (user.value && user.value.username) {
+    router.push('/my-keys')
+  } else {
+    router.push('/login')
+  }
+}
 </script>
 
 <template>
@@ -7,7 +19,7 @@
     <section class="hero">
       <h1>SteamKeyVault</h1>
       <p class="subtitle">The SaaS solution to securely manage, organize, and share your Steam keys.</p>
-      <a href="/login" class="cta">Get Started</a>
+      <button class="cta" @click="goToMyKeys">Get Started</button>
     </section>
     <section class="features">
       <div class="feature">
