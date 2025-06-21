@@ -42,18 +42,18 @@
 }
 .hero h1 {
   font-size: 3rem;
-  color: #42b983;
+  color: var(--skv-primary);
   margin-bottom: 1rem;
 }
 .subtitle {
   font-size: 1.3rem;
-  color: #333;
+  color: var(--skv-secondary);
   margin-bottom: 2rem;
 }
 .cta {
   display: inline-block;
   padding: 0.75rem 2rem;
-  background: #42b983;
+  background: var(--skv-primary);
   color: #fff;
   border-radius: 4px;
   font-size: 1.1rem;
@@ -61,7 +61,7 @@
   transition: background 0.2s;
 }
 .cta:hover {
-  background: #369870;
+  background: var(--skv-accent);
 }
 .features {
   display: grid;
@@ -72,11 +72,11 @@
   background: #f9f9f9;
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px rgba(37,99,235,0.04);
   text-align: center;
 }
 .feature h2 {
-  color: #42b983;
+  color: var(--skv-primary);
   margin-bottom: 0.5rem;
 }
 </style>

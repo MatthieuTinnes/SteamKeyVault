@@ -16,3 +16,13 @@ export async function loginUser(email, password) {
     }	
   )
 }
+
+export async function registerUser(email, password) {
+  return axios.post(
+    `${API_BASE_URL}/register`,
+    { email, password },
+    {
+      withCredentials: true,
+    }
+  )
+}

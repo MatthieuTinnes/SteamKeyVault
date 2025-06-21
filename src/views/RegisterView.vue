@@ -1,46 +1,57 @@
 <template>
-  <div class="login-container">
-    <h1>Login</h1>
-    <form @submit.prevent="handleLogin">
+  <div class="register-container">
+    <h1>Register</h1>
+    <form @submit.prevent="handleRegister">
       <div>
-        <label for="email">email</label>
-        <input id="email" v-model="email" type="text" required />
+        <label for="email">Email</label>
+        <input id="email" v-model="email" type="email" required />
       </div>
       <div>
         <label for="password">Password</label>
         <input id="password" v-model="password" type="password" required />
       </div>
-      <button type="submit">Login</button>
+      <div>
+        <label for="confirmPassword">Confirm Password</label>
+        <input id="confirmPassword" v-model="confirmPassword" type="password" required />
+      </div>
+      <button type="submit">Register</button>
       <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="success" class="success">{{ success }}</p>
     </form>
-    <p class="register-link">Don't have an account? <router-link to="/register">Register</router-link></p>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { loginUser } from '../api/users'
+import { registerUser } from '../api/users'
 
 const email = ref('')
 const password = ref('')
+const confirmPassword = ref('')
 const error = ref('')
+const success = ref('')
 const router = useRouter()
 
-const handleLogin = async () => {
+const handleRegister = async () => {
   error.value = ''
+  success.value = ''
+  if (password.value !== confirmPassword.value) {
+    error.value = 'Passwords do not match.'
+    return
+  }
   try {
-    const response = await loginUser(email.value, password.value)
-    localStorage.setItem('token', response.data.token)
-    router.push('/')
+    await registerUser(email.value, password.value)
+    success.value = 'Registration successful! You can now log in.'
+    setTimeout(() => router.push('/login'), 1500)
   } catch (err) {
-    error.value = 'Invalid credentials or server error.'
+    error.value = err?.response?.data?.detail || 'Registration failed.'
   }
 }
 </script>
 
 <style scoped>
-.login-container {
+.register-container {
   max-width: 400px;
   margin: 60px auto;
   padding: 2rem;
@@ -78,15 +89,8 @@ button:hover {
   color: #e74c3c;
   margin-top: 1rem;
 }
-.register-link {
-  margin-top: 1.5rem;
-  text-align: center;
-}
-.register-link a {
+.success {
   color: var(--skv-primary);
-  text-decoration: underline;
-}
-.register-link a:hover {
-  color: var(--skv-accent);
+  margin-top: 1rem;
 }
 </style>

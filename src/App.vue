@@ -11,6 +11,7 @@ import { RouterLink, RouterView } from 'vue-router'
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/about">About</RouterLink>
         <RouterLink to="/login">Login</RouterLink>
+        <RouterLink to="/register">Register</RouterLink>
       </nav>
     </div>
   </header>
@@ -27,9 +28,6 @@ header {
 .logo {
   display: block;
   margin: 0 auto 2rem;
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(66, 185, 131, 0.08);
-  background: var(--skv-bg);
 }
 
 nav {
