@@ -36,11 +36,11 @@ def user(request):
     }
 
 @users_router.post("/register")
-def register(request, payload: schemas.SignInSchema):
+def register(request, payload: schemas.SignUpSchema):
     if User.objects.filter(email=payload.email).exists():
         return JsonResponse({"error": "Email already exists"}, status=400)
     try:
-        User.objects.create_user(username=payload.email, email=payload.email, password=payload.password)
-        return Response(status=201)
+        User.objects.create_user(username=payload.username, email=payload.email, password=payload.password)
+        return Response({"success": True}, status=201)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
