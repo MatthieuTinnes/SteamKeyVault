@@ -1,5 +1,5 @@
 from ninja import NinjaAPI
-from app.api.api import router as users_router
+from users.api import router as users_router
 from ninja.security import HttpBearer
 from ninja.errors import HttpError
 from django.contrib.auth import authenticate
