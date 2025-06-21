@@ -4,5 +4,9 @@ from django.db import models
 # Create your models here.
 
 class User(AbstractUser):
-    # You can add extra fields here if needed
-    pass
+    email = models.EmailField(unique=True)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
+
+    def __str__(self):
+        return self.email

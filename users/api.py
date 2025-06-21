@@ -1,59 +1,46 @@
 from ninja import Router
-from django.contrib.auth import get_user_model
-from typing import List
-from pydantic import BaseModel
-from django.shortcuts import get_object_or_404
-from ninja.security import HttpBearer
+from ninja.errors import HttpError
+from ninja.security import django_auth
+from django.contrib.auth import authenticate, login, logout
+from django.middleware.csrf import get_token
 
-User = get_user_model()
-router = Router()
+from users import schemas
+from users.models import User
+from ninja.responses import Response
+from django.http import JsonResponse
 
-class GlobalAuth(HttpBearer):
-    def authenticate(self, request, token):
-        if token == "supersecrettoken":
-            return token
-        return None
+users_router = Router()
 
-class UserSchema(BaseModel):
-    id: int
-    username: str
-    email: str
+@users_router.get("/set-csrf-token")
+def get_csrf_token(request):
+    return {"csrftoken": get_token(request)}
 
-class UserCreateSchema(BaseModel):
-    username: str
-    email: str
-    password: str
+@users_router.post("/login")
+def login_view(request, payload: schemas.SignInSchema):
+    user = authenticate(request, username=payload.email, password=payload.password)
+    if user is not None:
+        login(request, user)
+        return {"success": True}
+    raise HttpError(403, "Invalid credentials")
 
-@router.get("/", response=List[UserSchema], auth=GlobalAuth())
-def list_users(request):
-    return list(User.objects.all())
+@users_router.post("/logout", auth=django_auth)
+def logout_view(request):
+    logout(request)
+    return {"message": "Logged out"}
 
-@router.post("/", response=UserSchema, auth=GlobalAuth())
-def create_user(request, data: UserCreateSchema):
-    user = User.objects.create_user(
-        username=data.username,
-        email=data.email,
-        password=data.password
-    )
-    return user
+@users_router.get("/user", auth=django_auth)
+def user(request):
+    return {
+        "username": request.user.username,
+        "email": request.user.email
+    }
 
-@router.get("/{user_id}", response=UserSchema, auth=GlobalAuth())
-def get_user(request, user_id: int):
-    user = get_object_or_404(User, id=user_id)
-    return user
-
-@router.put("/{user_id}", response=UserSchema, auth=GlobalAuth())
-def update_user(request, user_id: int, data: UserCreateSchema):
-    user = get_object_or_404(User, id=user_id)
-    user.username = data.username
-    user.email = data.email
-    if data.password:
-        user.set_password(data.password)
-    user.save()
-    return user
-
-@router.delete("/{user_id}", auth=GlobalAuth())
-def delete_user(request, user_id: int):
-    user = get_object_or_404(User, id=user_id)
-    user.delete()
-    return {"success": True}
+@users_router.post("/register")
+def register(request, payload: schemas.SignInSchema):
+    if User.objects.filter(email=payload.email).exists():
+        return JsonResponse({"error": "Email already exists"}, status=400)
+    try:
+        User.objects.create_user(username=payload.email, email=payload.email, password=payload.password)
+        return Response(status=201)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
