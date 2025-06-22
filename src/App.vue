@@ -2,6 +2,7 @@
 import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { onMounted, computed } from 'vue'
 import { useUserStore } from './stores/user'
+import { logoutUser } from './api/auth'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -12,7 +13,7 @@ onMounted(async () => {
 })
 
 const handleLogout = async () => {
-  await import('./api/auth').then(m => m.logoutUser())
+  await logoutUser()
   router.push('/login')
 }
 </script>

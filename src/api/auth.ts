@@ -17,34 +17,42 @@ export async function fetchUser(): Promise<UserInfo | null> {
   return response.data
 }
 
-export async function logoutUser(): Promise<void> {
+function getCookie(name: string): string | null {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop()?.split(';').shift() || null
+  return null
+}
+
+async function getCSRFHeaders(): Promise<{ [key: string]: string }> {
   await axios.get(`${API_BASE_URL}/set-csrf-token`, { withCredentials: true })
   const csrftoken = getCookie('csrftoken')
+  return { 'X-CSRFToken': csrftoken || '' }
+}
+
+function getAxiosConfig(headers: Record<string, string> = {}) {
+  return {
+    withCredentials: true,
+    headers,
+  }
+}
+
+export async function logoutUser(): Promise<void> {
+  const headers = await getCSRFHeaders()
   await axios.post(
     `${API_BASE_URL}/logout`,
     {},
-    {
-      withCredentials: true,
-      headers: {
-        'X-CSRFToken': csrftoken,
-      },
-    }
+    getAxiosConfig(headers)
   )
   useUserStore().clearUser()
 }
 
 export async function loginUser(email: string, password: string) {
-  await axios.get(`${API_BASE_URL}/set-csrf-token`, { withCredentials: true })
-  const csrftoken = getCookie('csrftoken')
+  const headers = await getCSRFHeaders()
   return axios.post(
     `${API_BASE_URL}/login`,
     { email, password },
-    {
-      withCredentials: true,
-      headers: {
-        'X-CSRFToken': csrftoken,
-      },
-    }
+    getAxiosConfig(headers)
   )
 }
 
@@ -56,10 +64,4 @@ export async function registerUser(email: string, username: string, password: st
       withCredentials: true,
     }
   )
-}
-function getCookie(name: string): string | null {
-  const value = `; ${document.cookie}`
-  const parts = value.split(`; ${name}=`)
-  if (parts.length === 2) return parts.pop()?.split(';').shift() || null
-  return null
 }
