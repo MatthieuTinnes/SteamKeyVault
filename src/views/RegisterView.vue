@@ -28,7 +28,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { registerUser } from '../api/users'
+import { registerUser } from '../api/auth'
 
 const email = ref('')
 const username = ref('')
@@ -50,7 +50,7 @@ const handleRegister = async () => {
     success.value = 'Registration successful! You can now log in.'
     setTimeout(() => router.push('/login'), 1500)
   } catch (err) {
-    error.value = err?.response?.data?.detail || 'Registration failed.'
+    error.value = err?.response?.data?.error || 'Registration failed.'
   }
 }
 </script>
