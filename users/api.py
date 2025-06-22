@@ -39,6 +39,8 @@ def user(request):
 def register(request, payload: schemas.SignUpSchema):
     if User.objects.filter(email=payload.email).exists():
         return JsonResponse({"error": "Email already exists"}, status=400)
+    if User.objects.filter(username=payload.username).exists():
+        return JsonResponse({"error": "Username already exists"}, status=400)
     try:
         User.objects.create_user(username=payload.username, email=payload.email, password=payload.password)
         return Response({"success": True}, status=201)
