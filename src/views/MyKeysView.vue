@@ -9,20 +9,11 @@
 <script setup>
 import { useUserStore } from '../stores/user'
 import { useRouter } from 'vue-router'
-import { onMounted, computed } from 'vue'
+import { computed } from 'vue'
 
 const userStore = useUserStore()
 const user = computed(() => userStore.user)
 const router = useRouter()
-
-onMounted(async () => {
-  if (!user.value || !user.value.username) {
-    await userStore.fetchUser()
-    if (!user.value || !user.value.username) {
-      router.replace('/login')
-    }
-  }
-})
 </script>
 
 <style scoped>
