@@ -46,3 +46,8 @@ def fetch_and_store_steam_apps(request):
 
     logger.info("Steam app import completed. Total stored: %d", total_stored)
     return {"stored": total_stored}
+
+@steam_router.get("/search/")
+def search_steam_apps(request, name: str):
+    qs = SteamApp.objects.filter(name__istartswith=name).order_by('name')[:50]
+    return [{"appid": app.id, "name": app.name} for app in qs]
