@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { RouterLink, RouterView, useRouter } from 'vue-router'
-import { ref, onMounted } from 'vue'
-import { fetchUser, logoutUser, useUser } from './api/auth'
+import { onMounted, computed } from 'vue'
+import { useUserStore } from './stores/user'
 
-const user = useUser()
 const router = useRouter()
+const userStore = useUserStore()
+const user = computed(() => userStore.user)
 
-onMounted(() => {
-  fetchUser()
+onMounted(async () => {
+  await userStore.fetchUser()
 })
 
 const handleLogout = async () => {
-  await logoutUser()
+  await import('./api/auth').then(m => m.logoutUser())
   router.push('/login')
 }
 </script>

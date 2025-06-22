@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { useUser } from '../api/auth'
+import { useUserStore } from '../stores/user'
 
 const router = useRouter()
-const user = useUser()
+const userStore = useUserStore()
 
 function goToMyKeys() {
-  if (user.value && user.value.username) {
+  if (userStore.user && userStore.user.username) {
     router.push('/my-keys')
   } else {
     router.push('/login')

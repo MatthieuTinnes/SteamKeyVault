@@ -7,16 +7,20 @@
 </template>
 
 <script setup>
-import { useUser } from '../api/auth'
+import { useUserStore } from '../stores/user'
 import { useRouter } from 'vue-router'
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 
-const user = useUser()
+const userStore = useUserStore()
+const user = computed(() => userStore.user)
 const router = useRouter()
 
-onMounted(() => {
+onMounted(async () => {
   if (!user.value || !user.value.username) {
-    router.replace('/login')
+    await userStore.fetchUser()
+    if (!user.value || !user.value.username) {
+      router.replace('/login')
+    }
   }
 })
 </script>

@@ -21,6 +21,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { loginUser } from '../api/auth'
+import { useUserStore } from '@/stores/user'
 
 const email = ref('')
 const password = ref('')
@@ -30,8 +31,8 @@ const router = useRouter()
 const handleLogin = async () => {
   error.value = ''
   try {
-    const response = await loginUser(email.value, password.value)
-    localStorage.setItem('token', response.data.token)
+    await loginUser(email.value, password.value)
+    await useUserStore().fetchUser()
     router.push('/my-keys')
   } catch (err) {
     error.value = 'Invalid credentials or server error.'

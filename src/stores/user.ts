@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { UserInfo } from '../api/auth'
+import { fetchUser } from '../api/auth'
 
 export const useUserStore = defineStore('user', () => {
   const user = ref<UserInfo | null>(null)
@@ -10,5 +11,10 @@ export const useUserStore = defineStore('user', () => {
   function clearUser() {
     user.value = null
   }
-  return { user, setUser, clearUser }
+  async function fetchUserAndSet() {
+    const u = await fetchUser()
+    user.value = u
+    return u
+  }
+  return { user, setUser, clearUser, fetchUser: fetchUserAndSet }
 })
