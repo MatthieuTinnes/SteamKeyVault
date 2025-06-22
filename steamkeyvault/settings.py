@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-x*2709uoqb_@o_r)@h$1vnxe$vld&+76fvs$3ojcykyjl)$(wf
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+LOG_LEVEL = 'DEBUG'
 ALLOWED_HOSTS = []
 
 
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'users',
     'ninja',
     'corsheaders',
+    'steamkeyvault.steam',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
