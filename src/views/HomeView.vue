@@ -2,8 +2,10 @@
   <div class="windmill-landing">
     <div class="windmill-hero">
       <div class="hero-content">
-        <h1 class="hero-title">Your Mailbox is simplified</h1>
-        <p class="hero-subtitle">Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur expedita, ipsam nobis blanditiis provident ducimus aut, velit facere fugit praesentium.</p>
+        <h1 class="hero-title">Your Steam Keys, Simplified</h1>
+        <p class="hero-subtitle">
+          SteamKeyVault is the easiest way to securely store, organize, and trade your Steam keys.
+        </p>
         <div class="hero-actions">
           <Button label="Start Free Trial" class="p-button-lg p-button-primary" @click="goToMyKeys" />
           <Button label="Learn More" class="p-button-lg p-button-outlined" style="margin-left:1rem;" @click="goToLearnMore" />
@@ -11,7 +13,7 @@
         <img src="https://windmill.bansal.io/tablet-mockup.png" alt="Product Screenshot on Tablet" class="hero-image" />
       </div>
       <div class="trusted-by">
-        <span>Trusted by 100+ Brands</span>
+        <span>Trusted by gamers and traders worldwide</span>
         <div class="brand-logos">
           <img src="https://windmill.bansal.io/logoipsum-288.svg" alt="Brand 1" />
           <img src="https://windmill.bansal.io/logoipsum-317.svg" alt="Brand 2" />
@@ -22,8 +24,10 @@
         </div>
       </div>
       <div class="features-section">
-        <h2 class="features-title">Discover Our Amazing Features</h2>
-        <p class="features-desc">Explore the wide range of powerful features that our product offers. From advanced analytics to seamless integrations, we have everything you need to succeed.</p>
+        <h2 class="features-title">Why Choose SteamKeyVault?</h2>
+        <p class="features-desc">
+          Discover the features that make SteamKeyVault the best solution for Steam key collectors, traders, and gamers.
+        </p>
         <div class="features-grid">
           <div class="feature-card" v-for="feature in features" :key="feature.title">
             <h3 class="feature-title">{{ feature.title }}</h3>
@@ -32,8 +36,10 @@
         </div>
       </div>
       <div class="discover-section">
-        <h2 class="discover-title">Stay on top of your business</h2>
-        <p class="discover-desc">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis similique</p>
+        <h2 class="discover-title">Trade, Store, and Access Anywhere</h2>
+        <p class="discover-desc">
+          With SteamKeyVault, your keys are always at your fingertips. Trade securely, store with confidence, and access your collection from any device.
+        </p>
         <div class="discover-features-grid">
           <div class="discover-feature-card" v-for="feature in discoverFeatures" :key="feature.title">
             <h3 class="discover-feature-title">{{ feature.title }}</h3>
@@ -68,25 +74,25 @@ const userStore = useUserStore()
 const isLoggedIn = computed(() => !!userStore.user && !!userStore.user.username)
 
 const features = [
-  { title: 'Unlimited users', desc: 'Invite as many team members as you want.' },
-  { title: 'Unlimited projects', desc: 'Create as many projects as you need.' },
-  { title: 'Unlimited storage', desc: 'Store all your files and assets in one place.' },
-  { title: 'Priority support', desc: 'Get priority support for all your needs.' },
-  { title: 'Advanced analytics', desc: 'Get detailed insights and analytics.' },
-  { title: 'Custom branding', desc: 'Customize your branding and make it yours.' }
+  { title: 'End-to-End Encryption', desc: 'Your Steam keys are encrypted before they leave your device, ensuring only you can access them.' },
+  { title: 'Easy Trading', desc: 'Share and trade keys with friends or partners in just a few clicks, with full control and privacy.' },
+  { title: 'Access Anywhere', desc: 'Your collection is always available, whether you’re on desktop, tablet, or mobile.' },
+  { title: 'Organize & Search', desc: 'Tag, categorize, and search your keys for instant access and better management.' },
+  { title: 'One-Click Import', desc: 'Quickly import keys from bundles, emails, or CSV files.' },
+  { title: 'Secure Sharing', desc: 'Generate secure, time-limited links to share keys safely.' }
 ]
 
 const discoverFeatures = [
-  { title: 'Unlimited users', desc: 'Invite as many team members as you want.' },
-  { title: 'Unlimited projects', desc: 'Create as many projects as you need.' },
-  { title: 'Unlimited storage', desc: 'Store all your files and assets in one place.' }
+  { title: 'Trade with Confidence', desc: 'Built-in escrow and audit trail for every trade.' },
+  { title: 'Store Securely', desc: 'All keys are protected with industry-leading encryption.' },
+  { title: 'Access Anywhere', desc: 'Your vault is always available, on any device.' }
 ]
 
 const faqs = [
-  { q: 'What is a FAQ?', a: 'A FAQ is a list of frequently asked questions and answers on a particular topic.' },
-  { q: 'Why do I need a FAQ?', a: 'A FAQ helps your users get quick answers to common questions.' },
-  { q: 'How do I create a FAQ?', a: 'Just add your questions and answers to the FAQ section.' },
-  { q: 'How do I display a FAQ?', a: 'Use a simple layout like this to show your FAQs.' }
+  { q: 'How secure is SteamKeyVault?', a: 'All keys are encrypted end-to-end. Only you have the decryption key, not even we can see your keys.' },
+  { q: 'Can I trade keys with others?', a: 'Yes! You can securely trade or share keys with anyone, even if they don’t have a SteamKeyVault account.' },
+  { q: 'How do I import my existing keys?', a: 'Use our one-click import tool to add keys from bundles, emails, or CSV files.' },
+  { q: 'Is SteamKeyVault free?', a: 'You can get started for free. Premium features are available for power users and traders.' }
 ]
 
 function goTo(path: string) {
@@ -188,6 +194,7 @@ async function handleLogout() {
   font-size: 1.2rem;
   margin-bottom: 1.5rem;
   color: #555;
+  max-width: 30vw;
 }
 .hero-actions {
   margin-bottom: 2rem;
