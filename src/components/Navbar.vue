@@ -10,12 +10,10 @@
       <span :class="{'bar': true, 'open': menuOpen}"></span>
     </button>
     <div class="navbar-links" :class="{ open: menuOpen }">
-      <a @click.prevent="goTo('/')" :class="{active: isActive('/')}" >Home</a>
-      <a @click.prevent="goTo('/about')" :class="{active: isActive('/about')}">About</a>
       <a @click.prevent="goTo('/my-keys')" v-if="isLoggedIn" :class="{active: isActive('/my-keys')}">My Keys</a>
-      <Button v-if="!isLoggedIn" label="Login" class="p-button-text p-button-sm" @click="goTo('/login')" />
-      <Button v-if="!isLoggedIn" label="Register" class="p-button-text p-button-sm" @click="goTo('/register')" />
-      <Button v-if="isLoggedIn" icon="pi pi-sign-out" label="Logout" class="p-button-text p-button-sm" @click="handleLogout" />
+      <Button v-if="!isLoggedIn" label="Login" class="p-button-lg p-button-outlined" @click="goTo('/login')" />
+      <Button v-if="!isLoggedIn" label="Register" class="p-button-lg p-button-outlined" @click="goTo('/register')" />
+      <Button v-if="isLoggedIn" icon="pi pi-sign-out" label="Logout" class="p-button-lg p-button-outlined" @click="handleLogout" />
     </div>
   </nav>
 </template>

@@ -7,7 +7,7 @@
           SteamKeyVault is the easiest way to securely store, organize, and trade your Steam keys.
         </p>
         <div class="hero-actions">
-          <Button label="Start Free Trial" class="p-button-lg p-button-primary" @click="goToMyKeys" />
+          <Button label="Get started" class="p-button-lg p-button-primary" @click="goToMyKeys" />
           <Button label="Learn More" class="p-button-lg p-button-outlined" style="margin-left:1rem;" @click="goToLearnMore" />
         </div>
         <img src="https://windmill.bansal.io/tablet-mockup.png" alt="Product Screenshot on Tablet" class="hero-image" />
@@ -131,7 +131,7 @@ async function handleLogout() {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 2.5rem 1.5rem 2.5rem;
-  background: #fff;
+  background: linear-gradient(90deg, #296aa2 0%, #15406b 100%);
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   position: sticky;
   top: 0;
@@ -157,16 +157,17 @@ async function handleLogout() {
   gap: 1.5rem;
 }
 .navbar-links a {
-  color: #222;
+  color: #fff;
   font-weight: 500;
   text-decoration: none;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
-  transition: background 0.2s;
-  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  background: transparent;
 }
 .navbar-links a.active, .navbar-links a:hover {
-  background: #e5e7eb;
+  background: #7fbdee;
+  color: #15406b;
 }
 .windmill-hero {
   width: 100vw;
