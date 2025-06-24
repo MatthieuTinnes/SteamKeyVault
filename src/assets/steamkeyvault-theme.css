@@ -1,9 +1,0 @@
-/* SteamKeyVault blue palette */
-:root {
-  --skv-primary: #2563eb; /* blue-600 */
-  --skv-secondary: #1e293b; /* slate-800 */
-  --skv-accent: #38bdf8; /* sky-400 */
-  --skv-gray: #e0e7ef; /* light blue-gray */
-  --skv-bg: #f1f5fa; /* very light blue */
-  --skv-text: #1e293b;
-}
