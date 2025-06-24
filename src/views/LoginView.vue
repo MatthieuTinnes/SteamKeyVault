@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <Card class="login-card">
-      <template #title>Login</template>
+      <template #title><h2>Login</h2></template>
       <template #content>
         <form @submit.prevent="handleLogin">
           <div class="p-field">
@@ -10,7 +10,7 @@
           </div>
           <div class="p-field">
             <label for="password">Password</label>
-            <Password id="password" v-model="password" toggleMask required class="p-inputtext-sm" />
+            <Password :feedback="false" id="password" v-model="password" toggleMask required class="p-inputtext-sm" />
           </div>
           <Button type="submit" label="Login" class="p-mt-2 p-button-primary p-button-sm" />
           <Message v-if="error" severity="error" class="p-mt-2">{{ error }}</Message>
@@ -64,15 +64,57 @@ function goToRegister() {
   min-height: 60vh;
 }
 .login-card {
-  width: 350px;
+  width: 400px;
+  padding: 2.5rem 2rem 2rem 2rem;
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 16px rgba(41, 106, 162, 0.08);
+  background: #fff;
+  border: 1px solid #e5e7eb;
 }
-.p-field {
-  margin-bottom: 1.5rem;
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.p-field label {
+  font-weight: 600;
+  color: #15406b;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+.p-inputtext-sm,
+.p-password-input,
+.p-password {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 0.5rem;
+  border: 1px solid #bcd6ee;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  background: #f8fafc;
+  color: #222;
+  transition: border 0.2s;
+}
+.p-inputtext-sm:focus, .p-password-input:focus {
+  border-color: #296aa2;
+  outline: none;
+}
+.p-button-primary {
+  margin-top: 0.5rem;
+  font-size: 1.1rem;
+  border-radius: 0.5rem;
+  padding: 0.75rem 0;
 }
 .register-link {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+.p-message {
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  margin-top: 0.5rem;
 }
 </style>

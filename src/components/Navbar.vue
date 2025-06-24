@@ -1,7 +1,9 @@
 <template>
   <nav class="navbar">
     <div class="navbar-left">
-      <img src="../assets/logo.png" alt="Logo" class="navbar-logo" />
+      <RouterLink to="/" class="navbar-logo-link">
+        <img src="../assets/logo.png" alt="Logo" class="navbar-logo" />
+      </RouterLink>
       <span class="navbar-title">SteamKeyVault</span>
     </div>
     <button class="navbar-toggle" @click="toggleMenu" aria-label="Toggle navigation">
@@ -10,7 +12,7 @@
       <span :class="{'bar': true, 'open': menuOpen}"></span>
     </button>
     <div class="navbar-links" :class="{ open: menuOpen }">
-      <a @click.prevent="goTo('/my-keys')" v-if="isLoggedIn" :class="{active: isActive('/my-keys')}">My Keys</a>
+      <Button v-if="isLoggedIn" label="My Keys" class="p-button-lg p-button-outlined" @click="goTo('/my-keys')" />
       <Button v-if="!isLoggedIn" label="Login" class="p-button-lg p-button-outlined" @click="goTo('/login')" />
       <Button v-if="!isLoggedIn" label="Register" class="p-button-lg p-button-outlined" @click="goTo('/register')" />
       <Button v-if="isLoggedIn" icon="pi pi-sign-out" label="Logout" class="p-button-lg p-button-outlined" @click="handleLogout" />
