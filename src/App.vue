@@ -1,5 +1,5 @@
 <template>
-  <WindmillNavbar />
+  <Navbar />
   <main>
     <RouterView />
   </main>
@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import WindmillNavbar from './components/Navbar.vue'
+import Navbar from './components/Navbar.vue'
 </script>
 
 <style scoped>
