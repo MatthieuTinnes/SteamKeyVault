@@ -37,7 +37,6 @@ import { ref } from 'vue'
 import { searchSteamGames } from '../api/games'
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
-import InputText from 'primevue/inputtext';
 import AutoComplete from 'primevue/autocomplete';
 import ProgressSpinner from 'primevue/progressspinner';
 import Message from 'primevue/message';
