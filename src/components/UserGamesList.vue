@@ -1,20 +1,31 @@
 <template>
   <div class="user-games-list">
     <h2>Your Games</h2>
-    <div v-if="games.length === 0" class="empty">No games found.</div>
+    <div v-if="games.length === 0" class="empty">
+      <Message severity="info">No games found.</Message>
+    </div>
     <div v-else class="games-scroll">
-      <ul>
-        <li v-for="game in games" :key="game.id" class="game-item">
-          <img :src="game.image" :alt="game.name" class="game-image" />
-          <span class="game-name">{{ game.name }}</span>
-        </li>
-      </ul>
+      <DataView :value="games" layout="grid">
+        <template #grid="slotProps">
+          <div class="game-item">
+            <Card>
+              <template #content>
+                <img :src="slotProps.items.image" :alt="slotProps.items.name" class="game-image" />
+                <div class="game-name">{{ slotProps.items.name }}</div>
+              </template>
+            </Card>
+          </div>
+        </template>
+      </DataView>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { defineProps } from 'vue'
+import Card from 'primevue/card';
+import DataView from 'primevue/dataview';
+import Message from 'primevue/message';
 
 interface Game {
   id: number | string
@@ -38,21 +49,17 @@ defineProps<{ games: Game[] }>()
   display: flex;
   align-items: center;
   margin-bottom: 1rem;
+  min-width: 180px;
+  max-width: 220px;
 }
 .game-image {
-  width: 64px;
-  height: 64px;
-  object-fit: cover;
+  width: 100%;
+  max-width: 180px;
   border-radius: 8px;
-  margin-right: 1rem;
-  background: #eee;
+  margin-bottom: 0.5rem;
 }
 .game-name {
-  font-size: 1.1rem;
-  color: var(--skv-primary);
-}
-.empty {
-  color: var(--skv-secondary);
-  font-style: italic;
+  font-weight: 600;
+  text-align: center;
 }
 </style>

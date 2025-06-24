@@ -1,27 +1,31 @@
 <template>
   <div class="register-container">
-    <h1>Register</h1>
-    <form @submit.prevent="handleRegister">
-      <div>
-        <label for="email">Email</label>
-        <input id="email" v-model="email" type="email" required />
-      </div>
-      <div>
-        <label for="username">Username</label>
-        <input id="username" v-model="username" type="text" required />
-      </div>
-      <div>
-        <label for="password">Password</label>
-        <input id="password" v-model="password" type="password" required />
-      </div>
-      <div>
-        <label for="confirmPassword">Confirm Password</label>
-        <input id="confirmPassword" v-model="confirmPassword" type="password" required />
-      </div>
-      <button type="submit">Register</button>
-      <p v-if="error" class="error">{{ error }}</p>
-      <p v-if="success" class="success">{{ success }}</p>
-    </form>
+    <Card class="register-card">
+      <template #title>Register</template>
+      <template #content>
+        <form @submit.prevent="handleRegister">
+          <div class="p-field">
+            <label for="email">Email</label>
+            <InputText id="email" v-model="email" type="email" required class="p-inputtext-sm" />
+          </div>
+          <div class="p-field">
+            <label for="username">Username</label>
+            <InputText id="username" v-model="username" type="text" required class="p-inputtext-sm" />
+          </div>
+          <div class="p-field">
+            <label for="password">Password</label>
+            <Password id="password" v-model="password" toggleMask required class="p-inputtext-sm" />
+          </div>
+          <div class="p-field">
+            <label for="confirmPassword">Confirm Password</label>
+            <Password id="confirmPassword" v-model="confirmPassword" toggleMask required class="p-inputtext-sm" />
+          </div>
+          <Button type="submit" label="Register" class="p-mt-2 p-button-primary p-button-sm" />
+          <Message v-if="error" severity="error" class="p-mt-2">{{ error }}</Message>
+          <Message v-if="success" severity="success" class="p-mt-2">{{ success }}</Message>
+        </form>
+      </template>
+    </Card>
   </div>
 </template>
 
@@ -29,6 +33,11 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { registerUser } from '../api/auth'
+import Card from 'primevue/card';
+import InputText from 'primevue/inputtext';
+import Password from 'primevue/password';
+import Button from 'primevue/button';
+import Message from 'primevue/message';
 
 const email = ref('')
 const username = ref('')
@@ -57,45 +66,15 @@ const handleRegister = async () => {
 
 <style scoped>
 .register-container {
-  max-width: 400px;
-  margin: 60px auto;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
-  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
 }
-form > div {
-  margin-bottom: 1rem;
+.register-card {
+  width: 400px;
 }
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-}
-input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid var(--skv-gray);
-  border-radius: 4px;
-}
-button {
-  width: 100%;
-  padding: 0.75rem;
-  background: var(--skv-primary);
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-}
-button:hover {
-  background: var(--skv-accent);
-}
-.error {
-  color: #e74c3c;
-  margin-top: 1rem;
-}
-.success {
-  color: var(--skv-primary);
-  margin-top: 1rem;
+.p-field {
+  margin-bottom: 1.5rem;
 }
 </style>

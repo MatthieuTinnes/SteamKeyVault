@@ -1,4 +1,5 @@
 @import './base.css';
+@import './primevue-overrides.css';
 
 #app {
   max-width: 1280px;

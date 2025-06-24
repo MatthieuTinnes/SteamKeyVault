@@ -1,33 +1,41 @@
 <template>
   <div>
-    <button class="add-game-btn" @click="openModal">Add a Game</button>
-    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
-      <div class="modal-content">
-        <h2>Add a Game</h2>
-        <input
+    <Button class="add-game-btn" label="Add a Game" icon="pi pi-plus" @click="openModal" />
+    <Dialog v-model:visible="showModal" modal header="Add a Game" :style="{ width: '400px' }" :closable="true" @hide="closeModal">
+      <div class="p-fluid">
+        <InputText
           v-model="searchQuery"
           @input="searchGames"
           type="text"
           placeholder="Search for a Steam game..."
           class="search-bar"
         />
-        <div v-if="loading" class="loading">Searching...</div>
+        <ProgressSpinner v-if="loading" style="width:40px;height:40px" strokeWidth="4" fill="var(--surface-ground)" animationDuration=".5s" aria-label="Loading" />
         <ul v-if="results.length > 0" class="results-list">
           <li v-for="game in results" :key="game.appid" @click="selectGame(game)" class="result-item">
             <img :src="getGameImage(game.appid)" :alt="game.name" class="result-image" />
             <span>{{ game.name }}</span>
           </li>
         </ul>
-        <div v-else-if="searchQuery && !loading" class="no-results">No results found.</div>
-        <button class="close-btn" @click="closeModal">Close</button>
+        <div v-else-if="searchQuery && !loading" class="no-results">
+          <Message severity="warn">No results found.</Message>
+        </div>
+        <div class="modal-footer">
+          <Button label="Close" class="p-button-text" @click="closeModal" />
+        </div>
       </div>
-    </div>
+    </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { searchSteamGames } from '../api/games'
+import Button from 'primevue/button';
+import Dialog from 'primevue/dialog';
+import InputText from 'primevue/inputtext';
+import ProgressSpinner from 'primevue/progressspinner';
+import Message from 'primevue/message';
 
 const showModal = ref(false)
 const searchQuery = ref('')
@@ -72,87 +80,41 @@ function getGameImage(appid: number) {
 
 <style scoped>
 .add-game-btn {
-  margin-bottom: 1.5rem;
-  padding: 0.6rem 1.5rem;
-  background: var(--skv-primary);
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-}
-.add-game-btn:hover {
-  background: var(--skv-accent);
-}
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-.modal-content {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 10px;
-  min-width: 350px;
-  max-width: 90vw;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.15);
-  position: relative;
+  margin-bottom: 1rem;
 }
 .search-bar {
   width: 100%;
-  padding: 0.5rem;
   margin-bottom: 1rem;
-  border-radius: 4px;
-  border: 1px solid var(--skv-gray);
 }
 .results-list {
-  max-height: 250px;
-  overflow-y: auto;
-  margin-bottom: 1rem;
-  padding: 0;
   list-style: none;
+  padding: 0;
+  margin: 0 0 1rem 0;
 }
 .result-item {
   display: flex;
   align-items: center;
-  padding: 0.5rem 0;
+  gap: 0.5rem;
+  padding: 0.5rem;
   cursor: pointer;
-  border-bottom: 1px solid #eee;
+  border-radius: 6px;
+  transition: background 0.2s;
 }
 .result-item:hover {
-  background: #f0f6ff;
+  background: #f0f4fa;
 }
 .result-image {
-  width: 48px;
-  height: 48px;
-  object-fit: cover;
-  border-radius: 6px;
-  margin-right: 1rem;
-  background: #eee;
-}
-.close-btn {
-  margin-top: 1rem;
-  background: var(--skv-secondary);
-  color: #fff;
-  border: none;
+  width: 40px;
+  height: 40px;
   border-radius: 4px;
-  padding: 0.5rem 1.2rem;
-  cursor: pointer;
-}
-.close-btn:hover {
-  background: var(--skv-accent);
-}
-.loading {
-  color: var(--skv-primary);
-  margin-bottom: 1rem;
 }
 .no-results {
-  color: var(--skv-secondary);
-  font-style: italic;
-  margin-bottom: 1rem;
+  margin: 1rem 0;
+  text-align: center;
+}
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
 }
 </style>
