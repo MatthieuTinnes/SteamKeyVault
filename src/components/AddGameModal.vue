@@ -3,12 +3,16 @@
     <Button class="add-game-btn" label="Add a Game" icon="pi pi-plus" @click="openModal" />
     <Dialog v-model:visible="showModal" modal header="Add a Game" :style="{ width: '400px' }" :closable="true" @hide="closeModal">
       <div class="p-fluid">
-        <InputText
+        <AutoComplete
           v-model="searchQuery"
-          @input="searchGames"
+          :suggestions="results.flatMap(game => (game.name))"
+          @complete="onComplete"
+          field="name"
           type="text"
           placeholder="Search for a Steam game..."
           class="search-bar"
+          :loading="loading"
+          @item-select="selectGame"
         />
         <ProgressSpinner v-if="loading" style="width:40px;height:40px" strokeWidth="4" fill="var(--surface-ground)" animationDuration=".5s" aria-label="Loading" />
         <ul v-if="results.length > 0" class="results-list">
@@ -34,6 +38,7 @@ import { searchSteamGames } from '../api/games'
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
+import AutoComplete from 'primevue/autocomplete';
 import ProgressSpinner from 'primevue/progressspinner';
 import Message from 'primevue/message';
 
@@ -41,6 +46,7 @@ const showModal = ref(false)
 const searchQuery = ref('')
 const results = ref<any[]>([])
 const loading = ref(false)
+const debounceTimeout = ref<Timeout | null>(null)
 
 function openModal() {
   showModal.value = true
@@ -51,19 +57,23 @@ function closeModal() {
   showModal.value = false
 }
 
-async function searchGames() {
-  if (!searchQuery.value.trim()) {
+function onComplete(event: { query: string }) {
+  if (debounceTimeout.value) clearTimeout(debounceTimeout.value)
+  const query = event.query.trim()
+  if (!query) {
     results.value = []
     return
   }
   loading.value = true
-  try {
-    results.value = await searchSteamGames(searchQuery.value)
-  } catch (e) {
-    results.value = []
-  } finally {
-    loading.value = false
-  }
+  debounceTimeout.value = setTimeout(async () => {
+    try {
+      results.value = await searchSteamGames(query)
+    } catch (e) {
+      results.value = []
+    } finally {
+      loading.value = false
+    }
+  }, 350)
 }
 
 function selectGame(game: any) {
