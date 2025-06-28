@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'steamkeyvault.steam',
     'steamkeyvault.games',
+    'steamkeyvault.keys',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
