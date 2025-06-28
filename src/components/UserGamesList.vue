@@ -12,11 +12,7 @@
 import { defineProps, ref } from 'vue'
 import Message from 'primevue/message';
 import Listbox from 'primevue/listbox';
-interface Game {
-  id: number | string
-  name: string
-  steamappid: number
-}
+import type { Game } from '../models/Game';
 
 defineProps<{ games: Game[] }>()
 const selectedGame = ref<Game | null>(null)
