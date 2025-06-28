@@ -1,9 +1,15 @@
-const API_BASE_URL = 'http://localhost:8000/api'
+import axios from 'axios'
+import { API_BASE_URL, getCookie, getCSRFHeaders, getAxiosConfig } from './apiHelper'
 
 export async function searchSteamGames(query: string) {
   if (!query.trim()) return []
-  const res = await fetch(API_BASE_URL + `/steam/search/?name=${encodeURIComponent(query)}`)
+  const res = await fetch(`${API_BASE_URL}/steam/search/?name=${encodeURIComponent(query)}`)
   if (!res.ok) throw new Error('API error')
   const data = await res.json()
   return data
+}
+
+export async function addUserGame({ name, steamappid }: { name: string; steamappid?: number }) {
+  const headers = await getCSRFHeaders()
+  return axios.post(`${API_BASE_URL}/games/add`, { name, steamappid }, getAxiosConfig(headers))
 }

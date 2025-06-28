@@ -2,66 +2,35 @@ import { ref } from 'vue'
 import type { Ref } from 'vue'
 import axios from 'axios'
 import { useUserStore } from '../stores/user'
+import { API_BASE_URL, getAxiosConfig, getCSRFHeaders } from './apiHelper'
 
 export interface UserInfo {
   username: string
   email: string
 }
 
-const API_BASE_URL = 'http://localhost:8000/api/users'
-
-
-
 export async function fetchUser(): Promise<UserInfo | null> {
-  const response = await axios.get<UserInfo>(`${API_BASE_URL}/user`, { withCredentials: true })
+  const response = await axios.get<UserInfo>(`${API_BASE_URL}/users/user`, { withCredentials: true })
   return response.data
-}
-
-function getCookie(name: string): string | null {
-  const value = `; ${document.cookie}`
-  const parts = value.split(`; ${name}=`)
-  if (parts.length === 2) return parts.pop()?.split(';').shift() || null
-  return null
-}
-
-async function getCSRFHeaders(): Promise<{ [key: string]: string }> {
-  await axios.get(`${API_BASE_URL}/set-csrf-token`, { withCredentials: true })
-  const csrftoken = getCookie('csrftoken')
-  return { 'X-CSRFToken': csrftoken || '' }
-}
-
-function getAxiosConfig(headers: Record<string, string> = {}) {
-  return {
-    withCredentials: true,
-    headers,
-  }
 }
 
 export async function logoutUser(): Promise<void> {
   const headers = await getCSRFHeaders()
-  await axios.post(
-    `${API_BASE_URL}/logout`,
-    {},
-    getAxiosConfig(headers)
-  )
+  await axios.post(`${API_BASE_URL}/users/logout`, {}, getAxiosConfig(headers))
   useUserStore().clearUser()
 }
 
 export async function loginUser(email: string, password: string) {
   const headers = await getCSRFHeaders()
-  return axios.post(
-    `${API_BASE_URL}/login`,
-    { email, password },
-    getAxiosConfig(headers)
-  )
+  return axios.post(`${API_BASE_URL}/users/login`, { email, password }, getAxiosConfig(headers))
 }
 
 export async function registerUser(email: string, username: string, password: string) {
   return axios.post(
-    `${API_BASE_URL}/register`,
+    `${API_BASE_URL}/users/register`,
     { email, username, password },
     {
       withCredentials: true,
-    }
+    },
   )
 }

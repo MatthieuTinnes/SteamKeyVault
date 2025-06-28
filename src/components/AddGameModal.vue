@@ -5,16 +5,24 @@
       <div class="p-fluid">
         <AutoComplete
           v-model="searchQuery"
-          :suggestions="results.flatMap(game => (game.name))"
+          :suggestions="results"
           @complete="onComplete"
-          field="name"
+          optionLabel="name"
           type="text"
           placeholder="Search for a Steam game..."
           class="search-bar"
           :loading="loading"
           @item-select="selectGame"
         />
+        <div v-if="selectedGame">
+          <img :src="getGameImage(selectedGame.appid)" :alt="selectedGame.name" class="result-image" />
+
+        </div>
+        <div v-else class="no-results">
+          <span>Search and select a game to add</span>
+        </div>
         <div class="modal-footer">
+          <Button label="Add" class="p-button-primary" :disabled="!selectedGame" @click="handleAddGame" />
           <Button label="Close" class="p-button-text" @click="closeModal" />
         </div>
       </div>
@@ -24,7 +32,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { searchSteamGames } from '../api/games'
+import { searchSteamGames, addUserGame } from '../api/games'
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import AutoComplete from 'primevue/autocomplete';
@@ -34,6 +42,7 @@ const searchQuery = ref('')
 const results = ref<any[]>([])
 const loading = ref(false)
 const debounceTimeout = ref<Timeout | null>(null)
+const selectedGame = ref<any | null>(null)
 
 function openModal() {
   showModal.value = true
@@ -41,6 +50,7 @@ function openModal() {
   results.value = []
 }
 function closeModal() {
+  selectedGame.value = null
   showModal.value = false
 }
 
@@ -63,10 +73,13 @@ function onComplete(event: { query: string }) {
   }, 350)
 }
 
-function selectGame(game: any) {
-  // Emit event to parent (to be handled in MyKeysView)
-  // You can use defineEmits if you want to handle the add in parent
-  // For now, just close modal
+function selectGame(event: { value: any }) {
+  selectedGame.value = event.value
+}
+
+async function handleAddGame() {
+  if (!selectedGame.value) return
+  await addUserGame({ name: selectedGame.value.name, steamappid: selectedGame.value.appid })
   closeModal()
 }
 
@@ -83,26 +96,11 @@ function getGameImage(appid: number) {
   width: 100%;
   margin-bottom: 1rem;
 }
-.results-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1rem 0;
-}
-.result-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: background 0.2s;
-}
-.result-item:hover {
-  background: #f0f4fa;
-}
 .result-image {
-  width: 40px;
-  height: 40px;
+  display: flex;
+  margin: 0 auto;
+  width: 50%;
+  height: 50%;
   border-radius: 4px;
 }
 .no-results {
