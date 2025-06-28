@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'ninja',
     'corsheaders',
     'steamkeyvault.steam',
+    'steamkeyvault.games',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
