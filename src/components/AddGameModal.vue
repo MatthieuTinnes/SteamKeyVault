@@ -14,16 +14,6 @@
           :loading="loading"
           @item-select="selectGame"
         />
-        <ProgressSpinner v-if="loading" style="width:40px;height:40px" strokeWidth="4" fill="var(--surface-ground)" animationDuration=".5s" aria-label="Loading" />
-        <ul v-if="results.length > 0" class="results-list">
-          <li v-for="game in results" :key="game.appid" @click="selectGame(game)" class="result-item">
-            <img :src="getGameImage(game.appid)" :alt="game.name" class="result-image" />
-            <span>{{ game.name }}</span>
-          </li>
-        </ul>
-        <div v-else-if="searchQuery && !loading" class="no-results">
-          <Message severity="warn">No results found.</Message>
-        </div>
         <div class="modal-footer">
           <Button label="Close" class="p-button-text" @click="closeModal" />
         </div>
@@ -38,8 +28,6 @@ import { searchSteamGames } from '../api/games'
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import AutoComplete from 'primevue/autocomplete';
-import ProgressSpinner from 'primevue/progressspinner';
-import Message from 'primevue/message';
 
 const showModal = ref(false)
 const searchQuery = ref('')

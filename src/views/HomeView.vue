@@ -125,50 +125,6 @@ async function handleLogout() {
   background: #f8fafc;
   color: #222;
 }
-.windmill-navbar {
-  width: 100vw;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem 2.5rem 1.5rem 2.5rem;
-  background: linear-gradient(90deg, #296aa2 0%, #15406b 100%);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-.navbar-left {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-.navbar-logo {
-  height: 32px;
-}
-.navbar-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #222;
-  letter-spacing: -1px;
-}
-.navbar-links {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-.navbar-links a {
-  color: #fff;
-  font-weight: 500;
-  text-decoration: none;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  transition: background 0.2s, color 0.2s;
-  background: transparent;
-}
-.navbar-links a.active, .navbar-links a:hover {
-  background: #7fbdee;
-  color: #15406b;
-}
 .windmill-hero {
   width: 100vw;
   max-width: 100vw;
