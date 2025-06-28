@@ -3,7 +3,7 @@ from typing import List, Optional
 from .models import Key
 from steamkeyvault.games.models import Game, UserGame
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
+from ninja.security import django_auth
 
 router = Router()
 
@@ -24,7 +24,7 @@ class KeyUpdateIn(Schema):
     used: Optional[bool] = None
     current_use: Optional[str] = None
 
-@router.post('/add', response={200: KeyOut, 400: dict})
+@router.post('/add', response={200: KeyOut, 400: dict}, auth=django_auth)
 def add_key(request, data: KeyIn):
     user_game = get_object_or_404(UserGame, id=data.user_game_id, user=request.user)
     if Key.objects.filter(key=data.key, userGame=user_game).exists():
@@ -43,7 +43,7 @@ def add_key(request, data: KeyIn):
         current_use=key_obj.current_use
     )
 
-@router.get('/list/{user_game_id}', response=List[KeyOut])
+@router.get('/list/{user_game_id}', response=List[KeyOut], auth=django_auth)
 def list_keys(request, user_game_id: int):
     user_game = get_object_or_404(UserGame, id=user_game_id, user=request.user)
     keys = Key.objects.filter(userGame=user_game)
@@ -57,7 +57,7 @@ def list_keys(request, user_game_id: int):
         ) for k in keys
     ]
 
-@router.delete('/{user_game_id}/remove/{key}', response={200: dict, 404: dict})
+@router.delete('/{user_game_id}/remove/{key}', response={200: dict, 404: dict}, auth=django_auth)
 def remove_key(request, user_game_id: int, key: str):
     user_game = get_object_or_404(UserGame, id=user_game_id, user=request.user)
     try:
@@ -67,7 +67,7 @@ def remove_key(request, user_game_id: int, key: str):
     except Key.DoesNotExist:
         return 404, {"error": "Key not found for this user and game."}
 
-@router.put('/{user_game_id}/update/{key}', response={200: KeyOut, 404: dict, 400: dict})
+@router.put('/{user_game_id}/update/{key}', response={200: KeyOut, 404: dict, 400: dict}, auth=django_auth)
 def update_key(request, user_game_id: int, key: str, data: KeyUpdateIn):
     user_game = get_object_or_404(UserGame, id=user_game_id, user=request.user)
     try:

@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from ninja import Schema
 from typing import Optional
 from django.shortcuts import get_object_or_404
+from ninja.security import django_auth
 
 router = Router()
 
@@ -16,7 +17,7 @@ class GameOut(Schema):
     name: str
     steamappid: Optional[int] = None
 
-@router.post('/add', response={200: GameOut, 400: dict})
+@router.post('/add', response={200: GameOut, 400: dict}, auth=django_auth)
 def add_game(request, data: GameIn):
     if not data.name:
         return 400, {"error": "Name is required."}
@@ -29,7 +30,7 @@ def list_games(request):
     user_games = UserGame.objects.filter(user=request.user).select_related('game')
     return [GameOut(id=ug.game.id, name=ug.game.name, steamappid=ug.game.steamappid) for ug in user_games]
 
-@router.delete('/remove/{game_id}', response={200: dict, 404: dict})
+@router.delete('/remove/{game_id}', response={200: dict, 404: dict}, auth=django_auth)
 def remove_game(request, game_id: int):
     user_game_qs = UserGame.objects.filter(user=request.user, game_id=game_id)
     if not user_game_qs.exists():

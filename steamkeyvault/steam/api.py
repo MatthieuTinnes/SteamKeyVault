@@ -3,12 +3,13 @@ from django.http import JsonResponse
 import requests
 from .models import SteamApp
 import logging
+from ninja.security import django_auth
 
 steam_router = Router()
 
 logger = logging.getLogger(__name__)
 
-@steam_router.get("/fetch-steam-apps/")
+@steam_router.get("/fetch-steam-apps/", auth=django_auth)
 def fetch_and_store_steam_apps(request):
     url = "https://api.steampowered.com/ISteamApps/GetAppList/v2/"
     logger.info("Fetching Steam apps from %s", url)
@@ -47,7 +48,7 @@ def fetch_and_store_steam_apps(request):
     logger.info("Steam app import completed. Total stored: %d", total_stored)
     return {"stored": total_stored}
 
-@steam_router.get("/search/")
+@steam_router.get("/search/", auth=django_auth)
 def search_steam_apps(request, name: str):
     qs = SteamApp.objects.filter(name__istartswith=name).order_by('name')[:50]
     return [{"appid": app.id, "name": app.name} for app in qs]

@@ -13,7 +13,7 @@ users_router = Router()
 
 @users_router.get("/set-csrf-token")
 def get_csrf_token(request):
-    return {"csrftoken": get_token(request)}
+    return {"csrftoken": 'get_token(request)'}
 
 @users_router.post("/login")
 def login_view(request, payload: schemas.SignInSchema):
