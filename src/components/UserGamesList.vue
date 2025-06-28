@@ -4,62 +4,24 @@
     <div v-if="games.length === 0" class="empty">
       <Message severity="info">No games found.</Message>
     </div>
-    <div v-else class="games-scroll">
-      <DataView :value="games" layout="grid">
-        <template #grid="slotProps">
-          <div class="game-item">
-            <Card>
-              <template #content>
-                <img :src="slotProps.items.image" :alt="slotProps.items.name" class="game-image" />
-                <div class="game-name">{{ slotProps.items.name }}</div>
-              </template>
-            </Card>
-          </div>
-        </template>
-      </DataView>
-    </div>
+    <Listbox v-model="selectedGame" :options="games" optionLabel="name" class="w-full md:w-56" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue'
-import Card from 'primevue/card';
-import DataView from 'primevue/dataview';
+import { defineProps, ref } from 'vue'
 import Message from 'primevue/message';
-
+import Listbox from 'primevue/listbox';
 interface Game {
   id: number | string
   name: string
-  image: string
+  steamappid: number
 }
 
 defineProps<{ games: Game[] }>()
+const selectedGame = ref<Game | null>(null)
+
 </script>
 
 <style scoped>
-.user-games-list {
-  margin-top: 2rem;
-}
-.games-scroll {
-  max-height: 320px;
-  overflow-y: auto;
-  padding-right: 8px;
-}
-.game-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-  min-width: 180px;
-  max-width: 220px;
-}
-.game-image {
-  width: 100%;
-  max-width: 180px;
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
-}
-.game-name {
-  font-weight: 600;
-  text-align: center;
-}
 </style>

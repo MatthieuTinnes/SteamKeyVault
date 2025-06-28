@@ -13,3 +13,9 @@ export async function addUserGame({ name, steamappid }: { name: string; steamapp
   const headers = await getCSRFHeaders()
   return axios.post(`${API_BASE_URL}/games/add`, { name, steamappid }, getAxiosConfig(headers))
 }
+
+export async function getUserGames() {
+  const headers = await getCSRFHeaders()
+  const res = await axios.get(`${API_BASE_URL}/games/list`, getAxiosConfig(headers))
+  return res.data
+}
