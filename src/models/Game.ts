@@ -1,5 +1,5 @@
 export interface Game {
-  id: number | string
+  id: number
   name: string
   steamappid: number
 }

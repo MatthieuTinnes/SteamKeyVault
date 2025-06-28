@@ -7,8 +7,8 @@
         <div class="my-keys-actions">
           <AddGameModal @close="showAddGameModal = false" />
         </div>
-        <UserGamesList :games="games" />
-        <KeysTable :keys="keys" />
+        <UserGamesList :games="games" @gameSelected="handleGameSelected" />
+        <KeysTable :keys="keys" :gameId="selectedGameId" @refresh="refreshKeys" />
       </template>
     </Card>
   </div>
@@ -22,12 +22,15 @@ import KeysTable from '../components/KeysTable.vue'
 import AddGameModal from '../components/AddGameModal.vue'
 import Card from 'primevue/card';
 import { getUserGames } from '../api/games'
+import { getKeysForGame } from '../api/keys'
 import type { Game } from '@/models/Game';
 
 const userStore = useUserStore()
 const user = computed(() => userStore.user)
 const showAddGameModal = ref(false)
 const games = ref([])
+const keys = ref([])
+const selectedGameId = ref<number | null>(null)
 
 onMounted(async () => {
   const apiGames = await getUserGames()
@@ -38,11 +41,19 @@ onMounted(async () => {
   }))
 })
 
-const keys = ref([
-  { key: 'ABC123', used: false, date_added: '2023-10-01' },
-  { key: 'XYZ456', used: true, date_added: '2023-09-15', date_used: '2023-10-02', current_use: 'User1' },
-  { key: 'LMN789', used: false, date_added: '2023-08-20' },
-])
+function handleGameSelected(game: Game) {
+  selectedGameId.value = game.id
+  refreshKeys()
+}
+
+async function refreshKeys() {
+  if (!selectedGameId.value) {
+    keys.value = []
+    return
+  }
+  const apiKeys = await getKeysForGame(selectedGameId.value)
+  keys.value = apiKeys
+}
 </script>
 
 <style scoped>

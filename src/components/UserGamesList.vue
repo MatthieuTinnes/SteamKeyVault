@@ -9,14 +9,18 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref } from 'vue'
+import { defineProps, ref, watch, defineEmits } from 'vue'
 import Message from 'primevue/message';
 import Listbox from 'primevue/listbox';
 import type { Game } from '../models/Game';
 
 defineProps<{ games: Game[] }>()
+const emit = defineEmits(['gameSelected'])
 const selectedGame = ref<Game | null>(null)
 
+watch(selectedGame, (game) => {
+  if (game) emit('gameSelected', game)
+})
 </script>
 
 <style scoped>
