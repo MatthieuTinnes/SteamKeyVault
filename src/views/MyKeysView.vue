@@ -34,15 +34,12 @@ const selectedGameId = ref<number | null>(null)
 
 onMounted(async () => {
   const apiGames = await getUserGames()
-  games.value = apiGames.map((g: Game) => ({
-    id: g.id,
-    name: g.name,
-    steamappid: g.steamappid,
-  }))
+  games.value = apiGames;
 })
 
 function handleGameSelected(game: Game) {
-  selectedGameId.value = game.id
+  selectedGameId.value = game.user_game_id
+  console.log('Selected game:', game)
   refreshKeys()
 }
 
