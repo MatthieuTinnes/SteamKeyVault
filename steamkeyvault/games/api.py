@@ -14,6 +14,7 @@ class GameIn(Schema):
 
 class GameOut(Schema):
     id: int
+    user_game_id: int
     name: str
     steamappid: Optional[int] = None
 
@@ -25,10 +26,10 @@ def add_game(request, data: GameIn):
     UserGame.objects.get_or_create(user=request.user, game=game)
     return 200, GameOut(id=game.id, name=game.name, steamappid=game.steamappid)
 
-@router.get('/list', response=list[GameOut])
+@router.get('/list', response=list[GameOut],auth=django_auth)
 def list_games(request):
     user_games = UserGame.objects.filter(user=request.user).select_related('game')
-    return [GameOut(id=ug.game.id, name=ug.game.name, steamappid=ug.game.steamappid) for ug in user_games]
+    return [GameOut(id=ug.game.id, user_game_id=ug.id , name=ug.game.name, steamappid=ug.game.steamappid) for ug in user_games]
 
 @router.delete('/remove/{user_game_id}', response={200: dict, 404: dict}, auth=django_auth)
 def remove_game(request, user_game_id: int):
