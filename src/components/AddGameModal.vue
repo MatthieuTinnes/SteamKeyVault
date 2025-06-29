@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Button label="Add Game" icon="pi pi-plus" class="p-button-sm w-full" @click="visible = true" />
+    <Button label="Add Game" icon="pi pi-plus" class="p-button-sm w-full" @click="openModal" />
     <Dialog v-model:visible="visible" header="Add a Game" :style="{ width: '400px' }" :closable="true">
       <div class="p-fluid">
         <AutoComplete
