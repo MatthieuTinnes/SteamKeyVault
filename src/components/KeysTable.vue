@@ -1,6 +1,5 @@
 <template>
   <div class="keys-table">
-    <h2>Your Steam Keys</h2>
     <div class="add-key-row">
       <InputText v-model="newKey" placeholder="Key" class="add-key-input" />
       <InputText v-model="newCurrentUse" placeholder="Current use (optional)" class="add-key-input" />
@@ -39,7 +38,7 @@
           </template>
         </template>
       </Column>
-      <Column header="Actions">
+      <Column header="Actions" >
         <template #body="{ data }">
           <template v-if="editingKey === data.key">
             <Button label="Save" class="p-button-sm p-button-success" @click="saveEdit(data)" />
@@ -105,4 +104,13 @@ async function handleAdd() {
   emit('refresh')
 }
 </script>
-<style scoped></style>
+<style scoped>
+.keys-table .p-button-sm {
+  font-size: 0.9rem;
+  padding: 0.3rem 0.8rem;
+  margin-right: 0.5rem;
+}
+.keys-table .p-button-sm:last-child {
+  margin-right: 0;
+}
+</style>
