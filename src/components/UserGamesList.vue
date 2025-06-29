@@ -1,16 +1,14 @@
 <template>
   <div class="user-games-list">
     <h2>Your Games</h2>
-    <div v-if="games.length === 0" class="empty">
-      <Message severity="info">No games found.</Message>
-    </div>
+
     <div class="filter-row">
       <span class="p-input-icon-left">
         <i class="pi pi-search"></i>
         <InputText v-model="filter" type="text" class="p-inputtext-sm filter-input" placeholder="Filter games..." />
       </span> 
     </div>
-    <Listbox v-model="selectedGame" :options="filteredGames" optionLabel="name" class="w-full md:w-56" />
+    <Listbox v-model="selectedGame" :options="filteredGames" emptyMessage="No games found" optionLabel="name" class="w-full md:w-56" />
   </div>
 </template>
 

@@ -1,4 +1,5 @@
 export interface Key {
+  id: number
   key: string
   used: boolean
   date_added: string

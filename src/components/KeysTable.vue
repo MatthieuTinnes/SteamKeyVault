@@ -49,7 +49,7 @@
           </template>
           <template v-else>
             <Button label="Edit" class="p-button-sm p-button-info" @click="startEdit(data)" />
-            <Button label="Delete" class="p-button-sm p-button-danger" @click="handleRemove(data.key)" />
+            <Button label="Delete" class="p-button-sm p-button-danger" @click="handleRemove(data.id)" />
           </template>
         </template>
       </Column>
@@ -89,13 +89,13 @@ function cancelEdit() {
 }
 
 async function saveEdit(key: Key) {
-  await updateKey(props.gameId,key.key, { key: editKeyValue.value, used: editUsed.value, current_use: editCurrentUse.value })
+  await updateKey(props.gameId,key.id, { key: editKeyValue.value, used: editUsed.value, current_use: editCurrentUse.value })
   editingKey.value = null
   emit('refresh')
 }
 
-async function handleRemove(key: string) {
-  await removeKey(props.gameId,key)
+async function handleRemove(keyId: string) {
+  await removeKey(props.gameId,keyId)
   emit('refresh')
 }
 
