@@ -1,15 +1,13 @@
 <template>
   <div class="keys-table">
     <h2>Your Steam Keys</h2>
-    <div v-if="keys.length === 0" class="empty">
-      <Message severity="info">No keys found.</Message>
-    </div>
     <div class="add-key-row">
       <InputText v-model="newKey" placeholder="Key" class="add-key-input" />
       <InputText v-model="newCurrentUse" placeholder="Current use (optional)" class="add-key-input" />
       <Button label="Add" class="p-button-sm" @click="handleAdd" :disabled="!newKey || !gameId" />
     </div>
     <DataTable :value="keys" tableStyle="min-width: 50rem" striped-rows>
+      <template #empty> <Message severity="info">No keys found.</Message> </template>
       <Column field="key" header="Key">
         <template #body="{ data }">
           <template v-if="editingKey === data.key">
