@@ -45,8 +45,8 @@
             <Button label="Cancel" class="p-button-sm p-button-secondary" @click="cancelEdit" />
           </template>
           <template v-else>
-            <Button label="Edit" class="p-button-sm p-button-info" @click="startEdit(data)" />
-            <Button label="Delete" class="p-button-sm p-button-danger" @click="handleRemove(data.id)" />
+            <Button class="p-button-sm p-button-info" @click="startEdit(data)" ><i class="pi pi-pencil"></i></Button>
+            <Button label="Delete" class="p-button-sm p-button-danger" @click="handleRemove(data.id)"><i class="pi pi-trash"></i></Button>
           </template>
         </template>
       </Column>
