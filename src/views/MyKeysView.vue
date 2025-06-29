@@ -1,16 +1,20 @@
 <template>
-  <div class="my-keys-container">
-    <Card class="my-keys-card">
-      <template #title>My Steam Keys</template>
-      <template #content>
-        <p>Welcome, {{ user?.username }}! </p>
-        <div class="my-keys-actions">
-          <AddGameModal @close="showAddGameModal = false" />
-        </div>
-        <UserGamesList :games="games" @gameSelected="handleGameSelected" />
-        <KeysTable :keys="keys" :gameId="selectedGameId" @refresh="refreshKeys" />
-      </template>
-    </Card>
+  <div class="my-keys-layout">
+    <div class="my-keys-sidebar">
+      <UserGamesList :games="games" @gameSelected="handleGameSelected" />
+      <div class="my-keys-actions">
+        <AddGameModal @added="reloadGames"/>
+      </div>
+    </div>
+    <div class="my-keys-main">
+      <Card class="my-keys-card">
+        <template #title>My Steam Keys</template>
+        <template #content>
+          <p>Welcome, {{ user?.username }} !</p>
+          <KeysTable :keys="keys" :gameId="selectedGameId" @refresh="refreshKeys" />
+        </template>
+      </Card>
+    </div>
   </div>
 </template>
 
@@ -21,6 +25,7 @@ import UserGamesList from '../components/UserGamesList.vue'
 import KeysTable from '../components/KeysTable.vue'
 import AddGameModal from '../components/AddGameModal.vue'
 import Card from 'primevue/card';
+import Button from 'primevue/button';
 import { getUserGames } from '../api/games'
 import { getKeysForGame } from '../api/keys'
 import type { Game } from '@/models/Game';
@@ -51,7 +56,55 @@ async function refreshKeys() {
   const apiKeys = await getKeysForGame(selectedGameId.value)
   keys.value = apiKeys
 }
+
+async function reloadGames() {
+  const apiGames = await getUserGames()
+  games.value = apiGames;
+  showModal.value = false;
+}
 </script>
 
 <style scoped>
+.my-keys-layout {
+  display: flex;
+  min-height: 60vh;
+  gap: 2rem;
+}
+.my-keys-sidebar {
+  width: 260px;
+  min-width: 220px;
+  max-width: 320px;
+  background: #f8fafc;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(41, 106, 162, 0.04);
+  padding: 2rem 1rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  height: fit-content;
+}
+.my-keys-main {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.my-keys-card {
+  width: 100%;
+  max-width: 100%;
+}
+.my-keys-actions {
+  margin-top: 2rem;
+}
+@media (max-width: 900px) {
+  .my-keys-layout {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .my-keys-sidebar {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 1rem;
+  }
+}
 </style>

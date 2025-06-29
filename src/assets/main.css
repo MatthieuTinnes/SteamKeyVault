@@ -1,4 +1,5 @@
 @import './primevue-overrides.css';
+@import 'primeicons/primeicons.css';
 
 @media (min-width: 1024px) {
   body {

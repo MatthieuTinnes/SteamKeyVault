@@ -1,7 +1,7 @@
 <template>
   <div>
-    <Button class="add-game-btn" label="Add a Game" icon="pi pi-plus" @click="openModal" />
-    <Dialog v-model:visible="showModal" modal header="Add a Game" :style="{ width: '400px' }" :closable="true" @hide="closeModal">
+    <Button label="Add Game" icon="pi pi-plus" class="p-button-sm w-full" @click="visible = true" />
+    <Dialog v-model:visible="visible" header="Add a Game" :style="{ width: '400px' }" :closable="true">
       <div class="p-fluid">
         <AutoComplete
           v-model="searchQuery"
@@ -31,27 +31,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, defineEmits } from 'vue'
 import { searchSteamGames, addUserGame } from '../api/games'
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import AutoComplete from 'primevue/autocomplete';
 
-const showModal = ref(false)
 const searchQuery = ref('')
 const results = ref<any[]>([])
 const loading = ref(false)
 const debounceTimeout = ref<Timeout | null>(null)
 const selectedGame = ref<any | null>(null)
+const emit = defineEmits(['gameSelected'])
+
+const visible = ref(false)
 
 function openModal() {
-  showModal.value = true
+  visible.value = true
   searchQuery.value = ''
   results.value = []
 }
 function closeModal() {
   selectedGame.value = null
-  showModal.value = false
+  visible.value = false
 }
 
 function onComplete(event: { query: string }) {
@@ -79,7 +81,10 @@ function selectGame(event: { value: any }) {
 
 async function handleAddGame() {
   if (!selectedGame.value) return
-  await addUserGame({ name: selectedGame.value.name, steamappid: selectedGame.value.appid })
+  const response = await addUserGame({ name: selectedGame.value.name, steamappid: selectedGame.value.appid })
+  if (response && response.status === 201) {
+    emit('added')
+  }
   closeModal()
 }
 
