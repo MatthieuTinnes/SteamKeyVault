@@ -3,7 +3,7 @@ from django.conf import settings
 from steamkeyvault.games.models import Game, UserGame
 
 class Key(models.Model):
-    key = models.CharField(max_length=255, primary_key=True)
+    key = models.CharField(max_length=255)
     userGame = models.ForeignKey(UserGame, on_delete=models.CASCADE, related_name='keys')
     used = models.BooleanField(default=False)
     date_added = models.DateTimeField(auto_now_add=True)
