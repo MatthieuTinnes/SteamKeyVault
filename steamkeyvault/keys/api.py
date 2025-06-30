@@ -4,13 +4,26 @@ from .models import Key
 from steamkeyvault.games.models import Game, UserGame
 from django.shortcuts import get_object_or_404
 from ninja.security import django_auth
+from ninja.errors import ValidationError
 
 router = Router()
 
-class KeyIn(Schema):
+class CurrentUseValidatorMixin:
+    @classmethod
+    def validate_current_use(cls, value):
+        allowed = {None, "KEEP", "TRADE", "GIVEAWAY", "SELL", "OTHER"}
+        if value.get("current_use") not in allowed:
+            raise ValidationError(f"current_use must be one of {allowed - {None}} or null.")
+        return value
+
+class KeyIn(Schema, CurrentUseValidatorMixin):
     key: str
     user_game_id: int
     current_use: Optional[str] = None
+
+    @classmethod
+    def validate(cls, value):
+        return cls.validate_current_use(value)
 
 class KeyOut(Schema):
     id: int
@@ -20,10 +33,14 @@ class KeyOut(Schema):
     date_used: Optional[str] = None
     current_use: Optional[str] = None
 
-class KeyUpdateIn(Schema):
+class KeyUpdateIn(Schema, CurrentUseValidatorMixin):
     key: Optional[str] = None
     used: Optional[bool] = None
     current_use: Optional[str] = None
+
+    @classmethod
+    def validate(cls, value):
+        return cls.validate_current_use(value)
 
 @router.post('/add', response={200: None, 400: dict}, auth=django_auth)
 def add_key(request, data: KeyIn):
