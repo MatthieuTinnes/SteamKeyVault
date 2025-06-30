@@ -5,7 +5,9 @@
       <Button label="Add Key" icon="pi pi-plus" class="p-button-sm p-button-success" @click="showAddKeyDialog = true" />
     </div>
     <DataTable :value="keys" tableStyle="min-width: 50rem" paginator :rows="10" striped-rows>
-      <template #empty> <Message severity="info">No keys found.</Message> </template>
+      <template #empty>
+        <Message severity="info">No keys found.</Message>
+      </template>
       <Column field="key" header="Key">
         <template #body="{ data }">
           <template v-if="editingKey === data.key">
@@ -16,14 +18,19 @@
           </template>
         </template>
       </Column>
-      <Column sortable field="date_added" header="Date added"></Column>
+      <Column sortable field="date_added" header="Date added">
+        <template #body="{ data }">
+          {{ formatDate(data.date_added) }}
+        </template>
+      </Column>
       <Column sortable field="current_use" header="Current use">
         <template #body="{ data }">
           <template v-if="editingKey === data.key">
-            <InputText v-model="editCurrentUse" class="edit-key-input" />
+            <Dropdown v-model="editCurrentUse" :options="CURRENT_USE_OPTIONS" optionLabel="label" optionValue="value"
+              placeholder="Select usage" class="edit-key-input" />
           </template>
           <template v-else>
-            {{ data.current_use }}
+            {{ getCurrentUseLabel(data.current_use) }}
           </template>
         </template>
       </Column>
@@ -33,14 +40,21 @@
             <Checkbox v-model="editUsed" :binary="true" />
           </template>
           <template v-else>
-            <span>{{ data.used ? 'Yes' : 'No' }}</span>
+            <span v-if="data.used">
+              <i class="pi pi-check text-green-600" aria-label="Used"></i>
+            </span>
+            <span v-else>
+              <i class="pi pi-times text-red-600" aria-label="Not used"></i>
+            </span>
           </template>
         </template>
       </Column>
-      <Column header="Actions" >
+      <Column header="Actions">
         <template #body="{ data }">
-          <Button class="p-button-sm p-button-info mr-2" @click="openEditDialog(data)"><i class="pi pi-pencil"></i></Button>
-          <Button class="p-button-sm p-button-danger" @click="openDeleteDialog(data)"><i class="pi pi-trash"></i></Button>
+          <Button class="p-button-sm p-button-info mr-2" @click="openEditDialog(data)"><i
+              class="pi pi-pencil"></i></Button>
+          <Button class="p-button-sm p-button-danger" @click="openDeleteDialog(data)"><i
+              class="pi pi-trash"></i></Button>
         </template>
       </Column>
     </DataTable>
@@ -53,8 +67,9 @@
           <label for="add_key">Key</label>
         </FloatLabel>
         <FloatLabel variant="on">
-          <InputText id="add_current_use" v-model="newCurrentUse" class="add-key-input" />
-          <label for="add_current_use">Current use (optional)</label>
+          <Dropdown id="add_current_use" v-model="newCurrentUse" :options="CURRENT_USE_OPTIONS" optionLabel="label"
+            optionValue="value" class="add-key-input" />
+          <label for="add_current_use">Current use</label>
         </FloatLabel>
       </div>
       <template #footer>
@@ -71,8 +86,9 @@
           <label for="edit_key">Key</label>
         </FloatLabel>
         <FloatLabel variant="on">
-          <InputText id="edit_current_use" v-model="editCurrentUse" class="edit-key-input" />
-          <label for="edit_current_use">Current use (optional)</label>
+          <Dropdown id="edit_current_use" v-model="editCurrentUse" :options="CURRENT_USE_OPTIONS" optionLabel="label"
+            optionValue="value" class="edit-key-input" />
+          <label for="edit_current_use">Current use</label>
         </FloatLabel>
         <div class="flex items-center gap-2">
           <Checkbox v-model="editUsed" :binary="true" id="edit_used" />
@@ -109,7 +125,9 @@ import Checkbox from 'primevue/checkbox';
 import Message from 'primevue/message';
 import Dialog from 'primevue/dialog';
 import FloatLabel from 'primevue/floatlabel';
+import Dropdown from 'primevue/dropdown';
 import type { Key } from '@/models/Key';
+import { CURRENT_USE_OPTIONS } from '@/models/Key';
 import { addKey, updateKey, removeKey } from '../api/keys'
 
 const props = defineProps<{ keys: Key[], gameId: number }>()
@@ -163,6 +181,23 @@ async function handleAddKey() {
   showAddKeyDialog.value = false
   emit('refresh')
 }
+
+function formatDate(dateStr: string) {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  return date.toLocaleString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+function getCurrentUseLabel(value: string | undefined) {
+  const found = CURRENT_USE_OPTIONS.find(opt => opt.value === value)
+  return found ? found.label : ''
+}
 </script>
 
 <style scoped>
@@ -171,14 +206,25 @@ async function handleAddKey() {
   padding: 0.3rem 0.8rem;
   margin-right: 0.5rem;
 }
+
 .keys-table .p-button-sm:last-child {
   margin-right: 0;
 }
 
 /* Fix for PrimeVue FloatLabel being masked in modal dialogs */
- .p-float-label {
+.p-float-label {
   margin-top: 0.5rem;
 }
 
-
+/* Make Dropdown larger than label for better UX */
+.p-float-label .p-dropdown {
+  min-width: 180px;
+  width: 100%;
+}
+.p-float-label label {
+  max-width: 80%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 </style>
