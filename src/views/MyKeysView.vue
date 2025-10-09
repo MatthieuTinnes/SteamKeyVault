@@ -10,7 +10,7 @@
       <Card class="my-keys-card">
         <template #title>My Steam Keys</template>
         <template #content>
-          <p>Welcome, {{ user?.username }} !</p>
+          <GameInfo :steamAppId="selectedSteamAppId" class="mb-4" />
           <KeysTable :keys="keys" :gameId="selectedGameId" @refresh="refreshKeys" />
         </template>
       </Card>
@@ -23,9 +23,9 @@ import { useUserStore } from '../stores/user'
 import { computed, ref, onMounted } from 'vue'
 import UserGamesList from '../components/UserGamesList.vue'
 import KeysTable from '../components/KeysTable.vue'
+import GameInfo from '../components/GameInfo.vue'
 import AddGameModal from '../components/AddGameModal.vue'
 import Card from 'primevue/card';
-import Button from 'primevue/button';
 import { getUserGames } from '../api/games'
 import { getKeysForGame } from '../api/keys'
 import type { Game } from '@/models/Game';
@@ -36,6 +36,7 @@ const showAddGameModal = ref(false)
 const games = ref([])
 const keys = ref([])
 const selectedGameId = ref<number | null>(null)
+const selectedSteamAppId = ref<number | null>(null)
 
 onMounted(async () => {
   const apiGames = await getUserGames()
@@ -44,6 +45,7 @@ onMounted(async () => {
 
 function handleGameSelected(game: Game) {
   selectedGameId.value = game.user_game_id
+  selectedSteamAppId.value = game.steamappid
   console.log('Selected game:', game)
   refreshKeys()
 }

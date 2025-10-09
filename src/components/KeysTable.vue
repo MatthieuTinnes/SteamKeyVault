@@ -130,7 +130,7 @@ import type { Key } from '@/models/Key';
 import { CURRENT_USE_OPTIONS } from '@/models/Key';
 import { addKey, updateKey, removeKey } from '../api/keys'
 
-const props = defineProps<{ keys: Key[], gameId: number }>()
+const props = defineProps<{ keys: Key[], gameId: number | null }>()
 const emit = defineEmits(['refresh'])
 
 const newKey = ref('')
