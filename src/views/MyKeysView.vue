@@ -8,9 +8,8 @@
     </div>
     <div class="my-keys-main">
       <Card class="my-keys-card">
-        <template #title>My Steam Keys</template>
         <template #content>
-          <GameInfo :steamAppId="selectedSteamAppId" class="mb-4" />
+          <GameInfo :steamAppId="selectedSteamAppId" style="margin-bottom: 1em;" />
           <KeysTable :keys="keys" :gameId="selectedGameId" @refresh="refreshKeys" />
         </template>
       </Card>

@@ -2,7 +2,7 @@
   <div class="keys-table">
     <!-- Toolbar for Add Key -->
     <div class="mb-4 flex items-center gap-2">
-      <Button label="Add Key" icon="pi pi-plus" class="p-button-sm p-button-success" @click="showAddKeyDialog = true" />
+      <Button label="Add Key" icon="pi pi-plus" class="p-button-sm p-button-success" @click="showAddKeyDialog = true" :disabled="!gameId" :tooltip="!gameId ? 'Please select a game first' : undefined" />
     </div>
     <DataTable :value="keys" tableStyle="min-width: 50rem" paginator :rows="10" striped-rows>
       <template #empty>

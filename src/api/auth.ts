@@ -26,11 +26,10 @@ export async function loginUser(email: string, password: string) {
 }
 
 export async function registerUser(email: string, username: string, password: string) {
+  const headers = await getCSRFHeaders()
   return axios.post(
     `${API_BASE_URL}/users/register`,
     { email, username, password },
-    {
-      withCredentials: true,
-    },
+    getAxiosConfig(headers)
   )
 }
