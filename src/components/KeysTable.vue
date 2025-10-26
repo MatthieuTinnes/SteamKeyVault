@@ -4,7 +4,7 @@
     <div class="mb-4 flex items-center gap-2">
       <Button label="Add Key" icon="pi pi-plus" class="p-button-sm p-button-success" @click="showAddKeyDialog = true" :disabled="!gameId" :tooltip="!gameId ? 'Please select a game first' : undefined" />
     </div>
-    <DataTable :value="keys" tableStyle="min-width: 50rem" paginator :rows="10" striped-rows>
+    <DataTable :value="keys" tableStyle="min-width: 50rem" paginator :rows="6" striped-rows>
       <template #empty>
         <Message severity="info">No keys found.</Message>
       </template>
@@ -61,8 +61,8 @@
 
     <!-- Add Key Dialog -->
     <Dialog v-model:visible="showAddKeyDialog" :style="{ width: '400px' }" header="Add Key" :modal="true">
-      <div class="flex flex-col gap-4">
-        <FloatLabel variant="on">
+      <div class="flex flex-col gap-4 float-label">
+        <FloatLabel variant="on" >
           <InputText id="add_key" v-model="newKey" class="add-key-input" />
           <label for="add_key">Key</label>
         </FloatLabel>
@@ -80,7 +80,7 @@
 
     <!-- Edit Key Dialog -->
     <Dialog v-model:visible="showEditKeyDialog" :style="{ width: '400px' }" header="Edit Key" :modal="true">
-      <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-4 float-label">
         <FloatLabel variant="on">
           <InputText id="edit_key" v-model="editKeyValue" class="edit-key-input" />
           <label for="edit_key">Key</label>
@@ -210,21 +210,15 @@ function getCurrentUseLabel(value: string | undefined) {
 .keys-table .p-button-sm:last-child {
   margin-right: 0;
 }
-
-/* Fix for PrimeVue FloatLabel being masked in modal dialogs */
-.p-float-label {
-  margin-top: 0.5rem;
+.float-label {
+  margin-top: 0.3rem;
 }
 
-/* Make Dropdown larger than label for better UX */
-.p-float-label .p-dropdown {
-  min-width: 180px;
+/* Ensure text inputs and dropdown wrapper use full available width */
+.add-key-input,
+.edit-key-input,
+.p-float-label .p-inputtext {
   width: 100%;
-}
-.p-float-label label {
-  max-width: 80%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  box-sizing: border-box;
 }
 </style>
