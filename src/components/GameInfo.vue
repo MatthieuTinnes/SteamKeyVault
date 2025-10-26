@@ -29,9 +29,9 @@
                            title="View Trading Cards on Steam Market">
                             <i class="pi pi-credit-card"></i>
                         </a>
-                        <span v-if="hasAchievements" class="feature-badge" title="Has Achievements">
-                            <i class="pi pi-star"></i>
-                        </span>
+            <a v-if="hasAchievements && steamAchievementsUrl" :href="steamAchievementsUrl" target="_blank" rel="noopener" class="feature-badge clickable" title="View Achievements on Steam">
+              <i class="pi pi-star"></i>
+            </a>
                     </div>
                     <div class="external-links">
                         <a v-if="steamStoreUrl" :href="steamStoreUrl" target="_blank" rel="noopener" class="steam-link" title="View on Steam Store">
@@ -109,6 +109,10 @@ async function copyAsfCommand() {
     }
   }
 }
+
+const steamAchievementsUrl = computed(() =>
+  props.steamAppId ? `https://steamcommunity.com/stats/${props.steamAppId}/achievements` : null
+)
 
 const backgroundStyle = computed(() => ({
   backgroundImage: backgroundImage.value ? `url(${backgroundImage.value})` : 'none'

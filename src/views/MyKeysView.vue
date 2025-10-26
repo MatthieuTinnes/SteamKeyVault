@@ -9,8 +9,13 @@
     <div class="my-keys-main">
       <Card class="my-keys-card">
         <template #content>
-          <GameInfo :steamAppId="selectedSteamAppId" style="margin-bottom: 1em;" />
-          <KeysTable :keys="keys" :gameId="selectedGameId" @refresh="refreshKeys" />
+          <div v-if="selectedGameId">
+            <GameInfo :steamAppId="selectedSteamAppId" />
+            <KeysTable :keys="keys" :gameId="selectedGameId" @refresh="refreshKeys" />
+          </div>
+          <div v-else class="no-selection">
+            <p>Please select a game from the left to view details and keys.</p>
+          </div>
         </template>
       </Card>
     </div>
@@ -61,7 +66,7 @@ async function refreshKeys() {
 async function reloadGames() {
   const apiGames = await getUserGames()
   games.value = apiGames;
-  showModal.value = false;
+  showAddGameModal.value = false;
 }
 </script>
 
@@ -83,12 +88,14 @@ async function reloadGames() {
   flex-direction: column;
   align-items: stretch;
   height: fit-content;
+  margin-left: 1em;
 }
 .my-keys-main {
   flex: 1 1 0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  margin-right: 1em;
 }
 .my-keys-card {
   width: 100%;
@@ -107,5 +114,16 @@ async function reloadGames() {
     max-width: 100%;
     margin-bottom: 1rem;
   }
+}
+.game-info {
+  margin-bottom: 1em;
+}
+
+.no-selection {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+  background: #fff;
+  border-radius: 8px;
 }
 </style>
