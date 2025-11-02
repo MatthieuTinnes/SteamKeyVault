@@ -201,13 +201,8 @@ function getCurrentUseLabel(value: string | undefined) {
 </script>
 
 <style scoped>
-
-
-.keys-table .p-button-sm:last-child {
-  margin-right: 0;
-}
 .float-label {
-  margin-top: 0.5rem;
+  margin-top: 0.3rem;
 }
 
 .add-key-input,
