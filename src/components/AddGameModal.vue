@@ -14,12 +14,19 @@
           :loading="loading"
           @item-select="selectGame"
         />
-        <div v-if="selectedGame">
-          <img :src="getGameImage(selectedGame.appid)" :alt="selectedGame.name" class="result-image" />
-
-        </div>
-        <div v-else class="no-results">
-          <span>Search and select a game to add</span>
+        <div class="image-wrapper">
+          <img
+            v-if="selectedGame"
+            :src="getGameImage(selectedGame.appid)"
+            :alt="selectedGame.name"
+            class="result-image"
+          />
+          <img
+            v-else
+            src="../assets/placeholder-460x215.svg"
+            alt="placeholder"
+            class="result-image placeholder"
+          />
         </div>
         <div class="modal-footer">
           <Button label="Add" class="p-button-primary" :disabled="!selectedGame" @click="handleAddGame" />
@@ -40,9 +47,12 @@ import AutoComplete from 'primevue/autocomplete';
 const searchQuery = ref('')
 const results = ref<any[]>([])
 const loading = ref(false)
-const debounceTimeout = ref<Timeout | null>(null)
+const debounceTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 const selectedGame = ref<any | null>(null)
-const emit = defineEmits(['gameSelected'])
+const emit = defineEmits<{
+  (e: 'gameSelected', game: any): void
+  (e: 'added'): void
+}>()
 
 const visible = ref(false)
 
@@ -101,12 +111,24 @@ function getGameImage(appid: number) {
   width: 100%;
   margin-bottom: 1rem;
 }
-.result-image {
+.image-wrapper {
   display: flex;
-  margin: 0 auto;
-  width: 50%;
-  height: 50%;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0;
+}
+.result-image {
+  width: 460px;
+  max-width: 100%;
+  height: 215px;
+  object-fit: cover;
   border-radius: 4px;
+  background: #f3f4f6;
+}
+.result-image.placeholder {
+  display: block;
+  object-fit: cover;
+  opacity: 0.9;
 }
 .no-results {
   margin: 1rem 0;
