@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Button label="Add Game" icon="pi pi-plus" class="p-button-sm w-full" @click="openModal" />
+  <Button label="Add Game" icon="pi pi-plus" class="p-button-sm w-full" @click="openModal" />
     <Dialog v-model:visible="visible" header="Add a Game" :style="{ width: '400px' }" :closable="true">
       <div class="p-fluid">
         <AutoComplete
@@ -104,9 +104,6 @@ function getGameImage(appid: number) {
 </script>
 
 <style scoped>
-.add-game-btn {
-  margin-bottom: 1rem;
-}
 .search-bar {
   width: 100%;
   margin-bottom: 1rem;
@@ -129,10 +126,6 @@ function getGameImage(appid: number) {
   display: block;
   object-fit: cover;
   opacity: 0.9;
-}
-.no-results {
-  margin: 1rem 0;
-  text-align: center;
 }
 .modal-footer {
   display: flex;

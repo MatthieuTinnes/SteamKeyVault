@@ -1,12 +1,12 @@
 <template>
   <div class="keys-table">
     <!-- Toolbar for Add Key -->
-    <div class="mb-4 flex items-center gap-2">
+    <div class="toolbar">
       <Button label="Add Key" icon="pi pi-plus" class="p-button-sm p-button-success" @click="showAddKeyDialog = true" :disabled="!gameId" :tooltip="!gameId ? 'Please select a game first' : undefined" />
     </div>
     <DataTable :value="keys" tableStyle="min-width: 50rem" paginator :rows="6" striped-rows>
       <template #empty>
-        <Message severity="info">No keys found.</Message>
+            <p>Add a key to start</p>
       </template>
       <Column field="key" header="Key">
         <template #body="{ data }">
@@ -41,17 +41,17 @@
           </template>
           <template v-else>
             <span v-if="data.used">
-              <i class="pi pi-check text-green-600" aria-label="Used"></i>
+              <i class="pi pi-check used-icon" aria-label="Used"></i>
             </span>
             <span v-else>
-              <i class="pi pi-times text-red-600" aria-label="Not used"></i>
+              <i class="pi pi-times unused-icon" aria-label="Not used"></i>
             </span>
           </template>
         </template>
       </Column>
       <Column header="Actions">
         <template #body="{ data }">
-          <Button class="p-button-sm p-button-info mr-2" @click="openEditDialog(data)"><i
+          <Button class="p-button-sm p-button-info" @click="openEditDialog(data)"><i
               class="pi pi-pencil"></i></Button>
           <Button class="p-button-sm p-button-danger" @click="openDeleteDialog(data)"><i
               class="pi pi-trash"></i></Button>
@@ -61,7 +61,7 @@
 
     <!-- Add Key Dialog -->
     <Dialog v-model:visible="showAddKeyDialog" :style="{ width: '400px' }" header="Add Key" :modal="true">
-      <div class="flex flex-col gap-4 float-label">
+      <div class="form-column float-label">
         <FloatLabel variant="on" >
           <InputText id="add_key" v-model="newKey" class="add-key-input" />
           <label for="add_key">Key</label>
@@ -80,7 +80,7 @@
 
     <!-- Edit Key Dialog -->
     <Dialog v-model:visible="showEditKeyDialog" :style="{ width: '400px' }" header="Edit Key" :modal="true">
-      <div class="flex flex-col gap-4 float-label">
+      <div class="form-column float-label">
         <FloatLabel variant="on">
           <InputText id="edit_key" v-model="editKeyValue" class="edit-key-input" />
           <label for="edit_key">Key</label>
@@ -90,7 +90,7 @@
             optionValue="value" class="edit-key-input" />
           <label for="edit_current_use">Current use</label>
         </FloatLabel>
-        <div class="flex items-center gap-2">
+        <div class="checkbox-row">
           <Checkbox v-model="editUsed" :binary="true" id="edit_used" />
           <label for="edit_used">Used</label>
         </div>
@@ -103,8 +103,8 @@
 
     <!-- Delete Key Dialog -->
     <Dialog v-model:visible="showDeleteKeyDialog" :style="{ width: '350px' }" header="Confirm Delete" :modal="true">
-      <div class="flex items-center gap-4">
-        <i class="pi pi-exclamation-triangle !text-2xl" />
+      <div class="confirm-row">
+        <i class="pi pi-exclamation-triangle confirm-icon" />
         <span>Are you sure you want to delete this key?</span>
       </div>
       <template #footer>
@@ -201,24 +201,63 @@ function getCurrentUseLabel(value: string | undefined) {
 </script>
 
 <style scoped>
-.keys-table .p-button-sm {
-  font-size: 0.9rem;
-  padding: 0.3rem 0.8rem;
-  margin-right: 0.5rem;
-}
+
 
 .keys-table .p-button-sm:last-child {
   margin-right: 0;
 }
 .float-label {
-  margin-top: 0.3rem;
+  margin-top: 0.5rem;
 }
 
-/* Ensure text inputs and dropdown wrapper use full available width */
 .add-key-input,
 .edit-key-input,
 .p-float-label .p-inputtext {
   width: 100%;
   box-sizing: border-box;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-top: 1em;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.confirm-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.confirm-icon {
+  font-size: 1.5rem;
+  color: #f59e0b; /* amber-ish like warning */
+}
+
+.used-icon {
+  color: #16a34a; /* green */
+}
+
+.unused-icon {
+  color: #dc2626; /* red */
+}
+
+/* Ensure adjacent PrimeVue buttons have consistent spacing when not using Tailwind */
+.keys-table .p-button + .p-button {
+  margin-left: 0.5rem;
 }
 </style>

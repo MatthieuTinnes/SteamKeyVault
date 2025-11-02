@@ -11,11 +11,16 @@ import router from './router'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import Toast from 'primevue/toast'
+import Aura from '@primeuix/themes/aura';
 
 const app = createApp(App)
 const pinia = createPinia()
 
-app.use(PrimeVue)
+app.use(PrimeVue, {
+    theme: {
+        preset: Aura
+    }
+});
 app.use(router)
 app.use(pinia)
 app.use(ToastService)

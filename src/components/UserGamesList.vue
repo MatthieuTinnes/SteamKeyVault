@@ -14,7 +14,6 @@
 
 <script setup lang="ts">
 import { defineProps, ref, watch, defineEmits, computed } from 'vue'
-import Message from 'primevue/message';
 import Listbox from 'primevue/listbox';
 import InputText from 'primevue/inputtext';
 import type { Game } from '../models/Game';
