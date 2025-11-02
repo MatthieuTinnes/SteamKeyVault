@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { showErrorToast } from '../utils/toast'
 
 export const API_BASE_URL = 'http://localhost:8000/api'
 
@@ -21,3 +22,14 @@ export function getAxiosConfig(headers: Record<string, string> = {}) {
     headers,
   }
 }
+
+// Add a response interceptor to show toasts on errors
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // try to extract a useful message
+    const msg = error?.response?.data?.error || error?.response?.data?.detail || error?.message || 'Unknown error'
+    showErrorToast('Error', String(msg))
+    return Promise.reject(error)
+  }
+)

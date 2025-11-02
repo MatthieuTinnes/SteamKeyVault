@@ -13,7 +13,6 @@
             <Password :feedback="false" id="password" v-model="password" toggleMask required class="p-inputtext-sm" />
           </div>
           <Button type="submit" label="Login" class="p-mt-2 p-button-primary p-button-sm" />
-          <Message v-if="error" severity="error" class="p-mt-2">{{ error }}</Message>
         </form>
         <div class="register-link p-mt-3">
           <span>Don't have an account?</span>
@@ -33,22 +32,15 @@ import Card from 'primevue/card';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import Button from 'primevue/button';
-import Message from 'primevue/message';
 
 const email = ref('')
 const password = ref('')
-const error = ref('')
 const router = useRouter()
 
 const handleLogin = async () => {
-  error.value = ''
-  try {
     await loginUser(email.value, password.value)
     await useUserStore().fetchUser()
     router.push('/my-keys')
-  } catch (err) {
-    error.value = 'Invalid credentials or server error.'
-  }
 }
 
 function goToRegister() {
