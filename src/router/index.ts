@@ -31,6 +31,12 @@ const router = createRouter({
       component: () => import('../views/MyKeysView.vue'),
       beforeEnter: requireAuth,
     },
+    {
+      path: '/my-account',
+      name: 'my-account',
+      component: () => import('../views/MyAccountView.vue'),
+      beforeEnter: requireAuth,
+    },
   ],
 })
 

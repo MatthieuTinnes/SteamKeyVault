@@ -80,7 +80,6 @@ async function reloadGames() {
   width: 260px;
   min-width: 220px;
   max-width: 320px;
-  background: #f8fafc;
   border-radius: 1rem;
   box-shadow: 0 2px 8px rgba(41, 106, 162, 0.04);
   padding: 2rem 1rem 1rem 1rem;

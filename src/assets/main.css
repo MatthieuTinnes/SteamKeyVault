@@ -10,11 +10,7 @@
     padding: 0;
   }
 }
-main {
-margin-top: 2em;
-}
 body {
-  background-color: #7fbdee;
   min-height: 100vh;
   transition:
     color 0.5s,
@@ -50,8 +46,4 @@ body {
 .p-button ,
 .p-button .p-button-icon {
   margin-right: 0.5rem;
-}
-
-.Message {
-  padding: 50rem;
 }

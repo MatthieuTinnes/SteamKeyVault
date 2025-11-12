@@ -18,3 +18,18 @@ export function showErrorToast(summary: string, detail?: string) {
     console.error('Toast not initialized:', summary, detail)
   }
 }
+
+export function showSuccessToast(summary: string, detail?: string) {
+  if (globalToast && typeof globalToast.add === 'function') {
+    try {
+      globalToast.add({ severity: 'success', summary, detail, life: 4000 })
+    } catch (e) {
+      // fallback to console if toast fails
+      // eslint-disable-next-line no-console
+      console.error('Failed to show toast', e, summary, detail)
+    }
+  } else {
+    // eslint-disable-next-line no-console
+    console.log('Toast not initialized:', summary, detail)
+  }
+}

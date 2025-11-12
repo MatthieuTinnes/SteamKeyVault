@@ -12,7 +12,8 @@
       <span :class="{'bar': true, 'open': menuOpen}"></span>
     </button>
     <div class="navbar-links" :class="{ open: menuOpen }">
-      <Button v-if="isLoggedIn" label="My Keys" class="p-button-lg p-button-outlined" @click="goTo('/my-keys')" />
+  <Button v-if="isLoggedIn" label="My Keys" class="p-button-lg p-button-outlined" @click="goTo('/my-keys')" />
+  <Button v-if="isLoggedIn" label="My Account" class="p-button-lg p-button-outlined" @click="goTo('/my-account')" />
       <Button v-if="!isLoggedIn" label="Login" class="p-button-lg p-button-outlined" @click="goTo('/login')" />
       <Button v-if="!isLoggedIn" label="Register" class="p-button-lg p-button-outlined" @click="goTo('/register')" />
       <Button v-if="isLoggedIn" icon="pi pi-sign-out" label="Logout" class="p-button-lg p-button-outlined" @click="handleLogout" />
@@ -57,7 +58,6 @@ function toggleMenu() {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 2.5rem 1.5rem 2.5rem;
-  background: #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   position: sticky;
   top: 0;

@@ -33,3 +33,18 @@ export async function registerUser(email: string, username: string, password: st
     getAxiosConfig(headers)
   )
 }
+
+export async function updateEmail(payload: { email: string }) {
+  const headers = await getCSRFHeaders()
+  return axios.put(`${API_BASE_URL}/users/account`, payload, getAxiosConfig(headers))
+}
+
+export async function changePassword(payload: { current_password: string; new_password: string }) {
+  const headers = await getCSRFHeaders()
+  return axios.post(`${API_BASE_URL}/users/change-password`, payload, getAxiosConfig(headers))
+}
+
+export async function fetchUserStats() {
+  const headers = await getCSRFHeaders()
+  return axios.get(`${API_BASE_URL}/users/stats`, getAxiosConfig(headers))
+}

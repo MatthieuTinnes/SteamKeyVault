@@ -76,7 +76,6 @@ const handleRegister = async () => {
   padding: 2.5rem 2rem 2rem 2rem;
   border-radius: 1.25rem;
   box-shadow: 0 2px 16px rgba(41, 106, 162, 0.08);
-  background: #fff;
   border: 1px solid #e5e7eb;
 }
 form {
