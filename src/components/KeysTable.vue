@@ -250,9 +250,4 @@ function getCurrentUseLabel(value: string | undefined) {
 .unused-icon {
   color: #dc2626; /* red */
 }
-
-/* Ensure adjacent PrimeVue buttons have consistent spacing when not using Tailwind */
-.keys-table .p-button + .p-button {
-  margin-left: 0.5rem;
-}
 </style>

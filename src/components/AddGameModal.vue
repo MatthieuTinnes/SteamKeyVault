@@ -125,7 +125,7 @@ function getGameImage(appid: number) {
 .result-image.placeholder {
   display: block;
   object-fit: cover;
-  opacity: 0.9;
+  opacity: 1;
 }
 .modal-footer {
   display: flex;
