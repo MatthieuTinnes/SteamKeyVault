@@ -22,10 +22,20 @@ class GameOut(Schema):
 def add_game(request, data: GameIn):
     if not data.name:
         return 400, {"error": "Name is required."}
-    game, _ = Game.objects.get_or_create(name=data.name, defaults={"steamapp_id": data.steamapp_id})
-    # If the user already has this game, return an error
-    if UserGame.objects.filter(user=request.user, game=game).exists():
-        return 400, {"error": "User already has this game."}
+    # If a steamapp_id is provided, ensure uniqueness is checked by steamapp_id only
+    if data.steamapp_id:
+        # try to find existing Game by steamapp_id
+        game = Game.objects.filter(steamapp_id=data.steamapp_id).first()
+        if game:
+            # If the user already has this game (by steamapp_id), return an error
+            if UserGame.objects.filter(user=request.user, game=game).exists():
+                return 400, {"error": "User already has this game."}
+        else:
+            # create the Game with steamapp_id
+            game = Game.objects.create(name=data.name, steamapp_id=data.steamapp_id)
+    else:
+        # No steamapp_id provided: create or reuse by name but DO NOT enforce uniqueness on user's collection
+        game, _ = Game.objects.get_or_create(name=data.name, defaults={"steamapp_id": None})
 
     UserGame.objects.create(user=request.user, game=game)
     return 201, None
