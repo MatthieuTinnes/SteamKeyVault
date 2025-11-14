@@ -10,7 +10,10 @@ export async function searchSteamGames(query: string) {
 
 export async function addUserGame({ name, steamappid }: { name: string; steamappid?: number }) {
   const headers = await getCSRFHeaders()
-  return axios.post(`${API_BASE_URL}/games/add`, { name, steamappid }, getAxiosConfig(headers))
+  // send backend field name as steamapp_id when present
+  const payload: any = { name }
+  if (typeof steamappid !== 'undefined') payload.steamapp_id = steamappid
+  return axios.post(`${API_BASE_URL}/games/add`, payload, getAxiosConfig(headers))
 }
 
 export async function getUserGames() {
