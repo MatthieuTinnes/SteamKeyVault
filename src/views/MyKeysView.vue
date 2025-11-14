@@ -9,10 +9,15 @@
     <div class="my-keys-main">
       <Card class="my-keys-card">
         <template #content>
-          <div v-if="selectedGameId">
-            <GameInfo :steamAppId="selectedSteamAppId" />
-            <KeysTable :keys="keys" :gameId="selectedGameId" @refresh="refreshKeys" />
-          </div>
+                <div v-if="selectedGameId">
+                  <template v-if="selectedSteamAppId">
+                    <GameInfo :steamAppId="selectedSteamAppId" />
+                  </template>
+                  <template v-else>
+                    <CustomGameInfo v-if="selectedGameName" :gameName="selectedGameName" />
+                  </template>
+                  <KeysTable :keys="keys" :gameId="selectedGameId" @refresh="refreshKeys" />
+                </div>
           <div v-else class="no-selection">
             <p>Please select a game from the left to view details and keys.</p>
           </div>
@@ -28,6 +33,7 @@ import { computed, ref, onMounted } from 'vue'
 import UserGamesList from '../components/UserGamesList.vue'
 import KeysTable from '../components/KeysTable.vue'
 import GameInfo from '../components/GameInfo.vue'
+import CustomGameInfo from '../components/CustomGameInfo.vue'
 import AddGameModal from '../components/AddGameModal.vue'
 import Card from 'primevue/card';
 import { getUserGames } from '../api/games'
@@ -41,6 +47,7 @@ const games = ref([])
 const keys = ref([])
 const selectedGameId = ref<number | null>(null)
 const selectedSteamAppId = ref<number | null>(null)
+const selectedGameName = ref<string | null>(null)
 
 onMounted(async () => {
   const apiGames = await getUserGames()
@@ -50,6 +57,7 @@ onMounted(async () => {
 function handleGameSelected(game: Game) {
   selectedGameId.value = game.user_game_id
   selectedSteamAppId.value = game.steamapp_id
+  selectedGameName.value = (game as any).name ?? null
   refreshKeys()
 }
 
