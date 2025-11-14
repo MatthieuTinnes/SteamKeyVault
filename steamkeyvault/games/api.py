@@ -10,19 +10,19 @@ router = Router()
 
 class GameIn(Schema):
     name: str
-    steamappid: Optional[int] = None
+    steamapp_id: Optional[int] = None
 
 class GameOut(Schema):
     id: int
     user_game_id: int
     name: str
-    steamappid: Optional[int] = None
+    steamapp_id: Optional[int] = None
 
 @router.post('/add', response={201: None, 400: dict}, auth=django_auth)
 def add_game(request, data: GameIn):
     if not data.name:
         return 400, {"error": "Name is required."}
-    game, _ = Game.objects.get_or_create(name=data.name, defaults={"steamappid": data.steamappid})
+    game, _ = Game.objects.get_or_create(name=data.name, defaults={"steamapp_id": data.steamapp_id})
     # If the user already has this game, return an error
     if UserGame.objects.filter(user=request.user, game=game).exists():
         return 400, {"error": "User already has this game."}
@@ -33,7 +33,7 @@ def add_game(request, data: GameIn):
 @router.get('/list', response=list[GameOut],auth=django_auth)
 def list_games(request):
     user_games = UserGame.objects.filter(user=request.user).select_related('game')
-    return [GameOut(id=ug.game.id, user_game_id=ug.id , name=ug.game.name, steamappid=ug.game.steamappid) for ug in user_games]
+    return [GameOut(id=ug.game.id, user_game_id=ug.id , name=ug.game.name, steamapp_id=ug.game.steamapp_id) for ug in user_games]
 
 @router.delete('/remove/{user_game_id}', response={204: None, 404: dict}, auth=django_auth)
 def remove_game(request, user_game_id: int):
