@@ -24,6 +24,9 @@
           <div class="stat-label">Total keys</div>
           <div class="stat-value">{{ stats.keys_count ?? '-' }}</div>
         </div>
+        <div style="margin-top:0.75rem; text-align:center;">
+          <Button label="Importer des jeux" icon="pi pi-upload" @click="router.push('/import')" />
+        </div>
       </aside>
 
       <section class="card">
@@ -52,6 +55,7 @@
 import { ref, computed, onMounted } from 'vue'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
+import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { updateEmail, changePassword, fetchUser, fetchUserStats } from '@/api/auth'
 import { showErrorToast, showSuccessToast } from '@/utils/toast'
@@ -64,6 +68,7 @@ const confirmPassword = ref('')
 const saving = ref(false)
 const stats = ref<{ games_count?: number; keys_count?: number }>({})
 const statsLoading = ref(false)
+const router = useRouter()
 
 onMounted(async () => {
   if (!userStore.user) {

@@ -25,3 +25,4 @@ export async function removeKey(userGameId: number, keyId: number | string) {
   const res = await axios.delete(`${API_BASE_URL}/keys/${userGameId}/remove/${keyId}`, getAxiosConfig(headers))
   return res.data
 }
+

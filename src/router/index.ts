@@ -37,6 +37,12 @@ const router = createRouter({
       component: () => import('../views/MyAccountView.vue'),
       beforeEnter: requireAuth,
     },
+    {
+      path: '/import',
+      name: 'import',
+      component: () => import('../views/ImportView.vue'),
+      beforeEnter: requireAuth,
+    },
   ],
 })
 
