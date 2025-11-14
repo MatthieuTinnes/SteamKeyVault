@@ -23,7 +23,11 @@ def add_game(request, data: GameIn):
     if not data.name:
         return 400, {"error": "Name is required."}
     game, _ = Game.objects.get_or_create(name=data.name, defaults={"steamappid": data.steamappid})
-    UserGame.objects.get_or_create(user=request.user, game=game)
+    # If the user already has this game, return an error
+    if UserGame.objects.filter(user=request.user, game=game).exists():
+        return 400, {"error": "User already has this game."}
+
+    UserGame.objects.create(user=request.user, game=game)
     return 201, None
 
 @router.get('/list', response=list[GameOut],auth=django_auth)
