@@ -1,7 +1,7 @@
 <template>
   <div class="my-account">
     <div class="card">
-      <h2 class="page-title">Importer des jeux depuis CSV</h2>
+      <h2 class="page-title">Import game and keys from CSV</h2>
 
       <div
         class="import-dropzone"
@@ -9,33 +9,32 @@
         @dragover.prevent
         @click="openFilePicker"
       >
-        <p class="drop-text">Déposez votre fichier CSV ici ou cliquez pour sélectionner</p>
-        <input type="file" ref="fileInput" @change="onFileChange" accept=".csv,text/csv" style="display:none" />
+        <p class="drop-text">Drop your CSV file here or click to select</p>
+        <input type="file" ref="fileInput" @change="onFileChange" accept=".csv,text/csv,.txt,text/plain" style="display:none" />
         <div class="actions" style="justify-content:center; margin-top:0.75rem;">
-          <Button label="Choisir un fichier" class="p-button-secondary" @click="openFilePicker" />
+          <Button label="Choose a file" class="p-button-secondary" @click="openFilePicker" />
         </div>
       </div>
 
       <div v-if="jobId" class="status-section">
-        <h3>Suivi de l'import</h3>
-        <div class="stat-row"><div class="stat-label">Job ID</div><div class="stat-value">{{ jobId }}</div></div>
-        <div class="stat-row" v-if="status"><div class="stat-label">Status</div><div class="stat-value">{{ status }}</div></div>
-        <div class="stat-row" v-if="total"><div class="stat-label">Progress</div><div class="stat-value">{{ progress }} / {{ total }}</div></div>
+        <h3>Import progress</h3>
+        <div class="stat-row" v-if="status"><div class="stat-label">Status :&nbsp;</div><div class="stat-value"> {{ status }}</div></div>
+        <div class="stat-row" v-if="total"><div class="stat-label">Progress :&nbsp;</div><div class="stat-value">{{ progress }} / {{ total }}</div></div>
         <div class="progress-wrap" v-if="total"><progress :value="progress" :max="total"></progress></div>
-        <div v-if="error" class="p-error">Erreur: {{ error }}</div>
+        <div v-if="error" class="p-error">Error: {{ error }}</div>
         <div v-if="result" class="result-list">
-          <h4>Résultats</h4>
+          <h4>Results</h4>
           <ul>
             <li v-for="(r, i) in result" :key="i">
               <strong>{{ r.game }}</strong>
-              <span v-if="r.created_keys"> - {{ r.created_keys.length }} clés ajoutées</span>
-              <span v-if="r.error" class="p-error"> - Erreur: {{ r.error }}</span>
+              <span v-if="r.created_keys"> - {{ r.created_keys.length }} keys added</span>
+              <span v-if="r.error" class="p-error"> - Error: {{ r.error }}</span>
             </li>
           </ul>
         </div>
       </div>
 
-      <div v-if="!jobId" class="hint">Utilisez un fichier CSV au format: <code>gameName;key1;key2</code></div>
+      <div v-if="!jobId" class="hint">Use a TXT/CSV file with the format: <code>gameName;key1;key2</code></div>
     </div>
   </div>
 </template>
@@ -123,7 +122,7 @@ async function poll() {
 .drop-text { color: #444; margin: 0; }
 .hint { margin-top: 1rem; color: #666 }
 .status-section { margin-top: 1rem }
-.stat-row { display:flex; justify-content:space-between; padding:0.5rem 0; border-bottom: 1px solid rgba(0,0,0,0.04) }
+.stat-row { display:flex; justify-content:flex-start; padding:0.5rem 0; border-bottom: 1px solid rgba(0,0,0,0.04) }
 .stat-label { color:#555; font-weight:600 }
 .stat-value { font-weight:700 }
 .progress-wrap { margin-top:0.5rem }
