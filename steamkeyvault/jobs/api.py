@@ -1,5 +1,5 @@
 from ninja import Router, Schema
-from typing import Optional
+from typing import Optional, List, Dict
 from steamkeyvault.jobs.models import ImportJob
 from steamkeyvault.keys.models import Key
 from steamkeyvault.games.models import Game, UserGame
@@ -102,7 +102,7 @@ class ImportStatusOut(Schema):
     progress: int
     total: int
     error: Optional[str] = None
-    result: Optional[dict] = None
+    result: Optional[List[Dict]] = None
 
 
 @jobs_router.get('/import/status/{job_id}/', response=ImportStatusOut, auth=django_auth)
