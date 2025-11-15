@@ -14,6 +14,11 @@ class GameIn(Schema):
     name: str
     steamapp_id: Optional[int] = None
 
+
+class GameUpdateIn(Schema):
+    name: Optional[str] = None
+    steamapp_id: Optional[int] = None
+
 class GameOut(Schema):
     id: int
     user_game_id: int
@@ -55,6 +60,29 @@ def remove_game(request, user_game_id: int):
         return 404, {"error": "Game not found for this user."}
     user_game_qs.delete()
     return 204, None
+
+
+@router.patch('/{user_game_id}/update', response={200: None, 400: dict, 404: dict}, auth=django_auth)
+def update_user_game(request, user_game_id: int, data: GameUpdateIn):
+    try:
+        ug = UserGame.objects.get(id=user_game_id, user=request.user)
+    except UserGame.DoesNotExist:
+        return 404, {"error": "UserGame not found."}
+
+    if data.steamapp_id is not None:
+        # if setting a steamapp_id, ensure user doesn't already have another entry with same steamapp_id
+        if UserGame.objects.filter(user=request.user, steamapp_id=data.steamapp_id).exclude(id=ug.id).exists():
+            return 400, {"error": "User already has a game with this Steam App ID."}
+        ug.steamapp_id = data.steamapp_id
+
+    if data.name is not None:
+        name = data.name.strip()
+        if not name:
+            return 400, {"error": "Name cannot be empty."}
+        ug.name = name
+
+    ug.save()
+    return 200, None
 
 
 @router.get('/export_csv', auth=django_auth)
