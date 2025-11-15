@@ -2,19 +2,7 @@
   <div class="my-account">
     <h2>My account</h2>
     <div class="account-grid">
-      <section class="card main-card">
-      <h3>Change email</h3>
-      <div class="form-row">
-        <label for="email">Email</label>
-        <InputText id="email" v-model="email" type="email" />
-        <p v-if="email && !isEmailValid" class="error-text">Please enter a valid email address.</p>
-      </div>
-      <div class="actions">
-        <Button label="Save email" icon="pi pi-check" @click="saveEmail" :disabled="!email || !isEmailValid || saving" />
-      </div>
-      </section>
-
-      <aside class="card stats-card">
+      <div class="card stats-card">
         <h3>Account stats</h3>
         <div class="stat-row">
           <div class="stat-label">Total games</div>
@@ -28,27 +16,38 @@
           <Button label="Import games" icon="pi pi-upload" @click="router.push('/import')" />
           <Button label="Export games" icon="pi pi-download" class="p-button-secondary" @click="exportCsv" />
         </div>
-      </aside>
-
+      </div>
+      <section class="card main-card">
+        <h3>Change email</h3>
+        <div class="form-row">
+          <label for="email">Email</label>
+          <InputText id="email" v-model="email" type="email" />
+          <p v-if="email && !isEmailValid" class="error-text">Please enter a valid email address.</p>
+        </div>
+        <div class="actions">
+          <Button label="Save email" icon="pi pi-check" @click="saveEmail"
+            :disabled="!email || !isEmailValid || saving" />
+        </div>
+      </section>
       <section class="card">
-      <h3>Change password</h3>
-      <div class="form-row">
-        <label for="current">Current password</label>
-        <InputText id="current" v-model="currentPassword" type="password" />
-      </div>
-      <div class="form-row">
-        <label for="new">New password</label>
-        <InputText id="new" v-model="newPassword" type="password" />
-      </div>
-      <div class="form-row">
-        <label for="confirm">Confirm new password</label>
-        <InputText id="confirm" v-model="confirmPassword" type="password" />
-      </div>
-      <div class="actions">
-        <Button label="Change password" icon="pi pi-key" @click="changePwd" :disabled="!canChange || saving" />
-      </div>
-    </section>
-  </div>
+        <h3>Change password</h3>
+        <div class="form-row">
+          <label for="current">Current password</label>
+          <InputText id="current" v-model="currentPassword" type="password" />
+        </div>
+        <div class="form-row">
+          <label for="new">New password</label>
+          <InputText id="new" v-model="newPassword" type="password" />
+        </div>
+        <div class="form-row">
+          <label for="confirm">Confirm new password</label>
+          <InputText id="confirm" v-model="confirmPassword" type="password" />
+        </div>
+        <div class="actions">
+          <Button label="Change password" icon="pi pi-key" @click="changePwd" :disabled="!canChange || saving" />
+        </div>
+      </section>
+    </div>
   </div>
 </template>
 
@@ -159,12 +158,12 @@ async function exportCsv() {
 </script>
 
 <style scoped>
-.card{
+.card {
   border-radius: 8px;
-  padding: 1rem 1.25rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-  margin-bottom: 1.25rem;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
+
 .my-account {
   max-width: 720px;
   margin: 2rem auto;
@@ -177,14 +176,16 @@ async function exportCsv() {
   gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
+
 .form-row label {
   font-weight: 600;
-  font-size: 0.95rem;
 }
+
 .actions {
   display: flex;
   justify-content: flex-end;
 }
+
 .error-text {
   color: #dc2626;
   font-size: 0.9rem;
@@ -193,7 +194,6 @@ async function exportCsv() {
 
 .account-grid {
   display: grid;
-  grid-template-columns: 1fr 280px;
   gap: 1rem;
   align-items: start;
 }
@@ -206,11 +206,22 @@ async function exportCsv() {
   display: flex;
   justify-content: space-between;
   padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(0,0,0,0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
-.stat-row:last-child { border-bottom: none; }
-.stat-label { color: #555; font-weight: 600 }
-.stat-value { font-weight: 700; font-size: 1.1rem }
+
+.stat-row:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  color: #555;
+  font-weight: 600
+}
+
+.stat-value {
+  font-weight: 700;
+  font-size: 1.1rem
+}
 
 @media (max-width: 900px) {
   .account-grid {
