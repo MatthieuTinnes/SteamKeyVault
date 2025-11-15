@@ -118,16 +118,16 @@ async function handleLogout() {
 
 .windmill-landing {
   font-family: 'Inter', Arial, sans-serif;
-  width: 100vw;
-  max-width: 100vw;
+  width: 100%;
+  max-width: 100%;
   margin: 0;
   padding: 0;
   background: #f8fafc;
   color: #222;
 }
 .windmill-hero {
-  width: 100vw;
-  max-width: 100vw;
+  width: 100%;
+  max-width: 100%;
   margin: 0;
   padding: 0 0 2rem 0;
   background: none;
@@ -145,23 +145,23 @@ async function handleLogout() {
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  letter-spacing: -1px;
+  letter-spacing: -0.0625rem;
 }
 .hero-subtitle {
   font-size: 1.2rem;
   margin-bottom: 1.5rem;
   color: #555;
-  max-width: 30vw;
+  max-width: min(32rem, 90vw);
 }
 .hero-actions {
   margin-bottom: 2rem;
 }
 .hero-image {
   margin: 2rem auto 0 auto;
-  max-width: 500px;
+  max-width: min(31.25rem, 90vw);
   width: 100%;
   border-radius: 1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.08);
 }
 .trusted-by {
   text-align: center;
@@ -177,7 +177,7 @@ async function handleLogout() {
   margin-top: 1rem;
 }
 .brand-logos img {
-  height: 32px;
+  height: 2rem;
   opacity: 0.8;
 }
 .features-section {
@@ -195,7 +195,7 @@ async function handleLogout() {
 }
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(13.75rem, 1fr));
   gap: 2rem;
   margin-top: 2rem;
 }
@@ -203,7 +203,7 @@ async function handleLogout() {
   background: #fff;
   border-radius: 1rem;
   padding: 2rem 1.5rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  box-shadow: 0 0.0625rem 0.25rem rgba(0,0,0,0.03);
 }
 .feature-title {
   font-size: 1.2rem;
@@ -228,7 +228,7 @@ async function handleLogout() {
 }
 .discover-features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(13.75rem, 1fr));
   gap: 2rem;
   margin-top: 2rem;
 }
@@ -236,7 +236,7 @@ async function handleLogout() {
   background: #fff;
   border-radius: 1rem;
   padding: 2rem 1.5rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  box-shadow: 0 0.0625rem 0.25rem rgba(0,0,0,0.03);
 }
 .discover-feature-title {
   font-size: 1.2rem;
@@ -248,10 +248,10 @@ async function handleLogout() {
 }
 .discover-image {
   margin: 3rem auto 0 auto;
-  max-width: 350px;
+  max-width: min(21.875rem, 90vw);
   width: 100%;
   border-radius: 1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.08);
 }
 .faq-section {
   margin-top: 4rem;
@@ -264,7 +264,7 @@ async function handleLogout() {
 }
 .faq-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
   gap: 2rem;
   margin-top: 2rem;
 }
@@ -272,7 +272,7 @@ async function handleLogout() {
   background: #fff;
   border-radius: 1rem;
   padding: 2rem 1.5rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  box-shadow: 0 0.0625rem 0.25rem rgba(0,0,0,0.03);
   text-align: left;
 }
 .faq-question {

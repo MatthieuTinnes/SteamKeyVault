@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" header="Confirm Delete" :modal="true" :style="{ width: '420px' }">
+  <Dialog v-model:visible="visible" header="Confirm Delete" :modal="true" :style="{ width: 'min(24rem, 90vw)' }">
     <div style="display:flex;flex-direction:column;gap:1rem">
       <div>
         <p v-if="hasKeys">This game has associated keys. Deleting the game will also delete all its keys. Are you sure?</p>

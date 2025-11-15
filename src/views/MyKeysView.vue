@@ -108,27 +108,26 @@ async function onGameDeleted() {
 .my-keys-layout {
   display: flex;
   min-height: 60vh;
-  gap: 2rem;
+  gap: 1rem;
 }
 .my-keys-sidebar {
-  width: 260px;
-  min-width: 220px;
-  max-width: 320px;
+  flex: 0 0 clamp(14rem, 20vw, 20rem);
+  max-width: clamp(14rem, 20vw, 20rem);
   border-radius: 1rem;
-  box-shadow: 0 2px 8px rgba(41, 106, 162, 0.04);
+  box-shadow: 0 0.125rem 0.5rem rgba(41, 106, 162, 0.04);
   padding: 2rem 1rem 1rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   height: fit-content;
-  margin-left: 1em;
+  margin-left: 1rem;
 }
 .my-keys-main {
   flex: 1 1 0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  margin-right: 1em;
+  margin-right: 1rem;
 }
 .my-keys-card {
   width: 100%;
@@ -137,17 +136,7 @@ async function onGameDeleted() {
 .my-keys-actions {
   margin-top: 2rem;
 }
-@media (max-width: 900px) {
-  .my-keys-layout {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .my-keys-sidebar {
-    width: 100%;
-    max-width: 100%;
-    margin-bottom: 1rem;
-  }
-}
+
 .game-info {
   margin-bottom: 1em;
 }
@@ -157,6 +146,6 @@ async function onGameDeleted() {
   text-align: center;
   color: #666;
   background: #fff;
-  border-radius: 8px;
+  border-radius: 0.5rem;
 }
 </style>

@@ -6,9 +6,12 @@
       <span class="p-input-icon-left">
         <i class="pi pi-search"></i>
         <InputText v-model="filter" type="text" class="p-inputtext-sm filter-input" placeholder="Filter games..." />
-      </span> 
+      </span>
     </div>
-    <Listbox v-model="selectedGame" :options="filteredGames" emptyMessage="No games found" optionLabel="name" class="w-full md:w-56" />
+
+    <div class="listbox-wrapper">
+      <Listbox v-model="selectedGame" :options="filteredGames" emptyMessage="No games found" optionLabel="name" class="user-listbox" />
+    </div>
   </div>
 </template>
 
@@ -63,5 +66,16 @@ watch(selectedGame, (game) => {
   right: 0.75rem;
   color: #888;
   cursor: pointer;
+}
+
+.listbox-wrapper {
+  /* make the left column scroll internally when content overflows */
+  max-height: calc(100vh - 20rem);
+  overflow: auto;
+}
+
+.user-listbox {
+  width: 100%;
+  box-sizing: border-box;
 }
 </style>

@@ -14,7 +14,7 @@ import Card from 'primevue/card';
 </script>
 
 <style>
-@media (min-width: 1024px) {
+@media (min-width: 64rem) {
   .about {
     min-height: 100vh;
     display: flex;

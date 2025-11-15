@@ -206,8 +206,8 @@ function handleOpenDelete() {
 .game-info {
   padding: 1.5rem;
   color: white;
-  border-radius: 8px;
-  min-height: 200px;
+  border-radius: 0.5rem;
+  min-height: 12.5rem;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -217,14 +217,14 @@ function handleOpenDelete() {
 .game-info.has-background::before {
   content: '';
   position: absolute;
-  top: -5px;
-  left: -5px;
-  right: -5px;
-  bottom: -5px;
+  top: -0.3125rem;
+  left: -0.3125rem;
+  right: -0.3125rem;
+  bottom: -0.3125rem;
   background-image: inherit;
   background-size: cover;
   background-position: center;
-  filter: blur(15px);
+  filter: blur(0.9375rem);
   opacity: 0.2;
   z-index: 0;
 }
@@ -247,9 +247,9 @@ function handleOpenDelete() {
 }
 
 .header-image {
-  width: 200px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  width: 12.5rem;
+  border-radius: 0.25rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.2);
 }
 
 .title-section {
@@ -272,7 +272,7 @@ function handleOpenDelete() {
   justify-content: space-between;
   align-items: center;
   padding-top: 1rem;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 0.0625rem solid rgba(255,255,255,0.1);
 }
 
 .price-reviews {
@@ -295,7 +295,7 @@ function handleOpenDelete() {
 
 .review-score {
   padding: 0.2rem 0.5rem;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   font-weight: 600;
 }
 
@@ -315,7 +315,7 @@ function handleOpenDelete() {
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   background-color: rgba(255,255,255,0.1);
-  border-radius: 4px;
+  border-radius: 0.25rem;
   color: white;
   text-decoration: none;
   transition: background-color 0.2s;
@@ -331,7 +331,7 @@ function handleOpenDelete() {
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   background-color: rgba(255,255,255,0.1);
-  border-radius: 4px;
+  border-radius: 0.25rem;
   color: white;
   border: none;
   cursor: pointer;
@@ -342,7 +342,7 @@ function handleOpenDelete() {
 }
 
 .asf-button:active {
-  transform: translateY(1px);
+  transform: translateY(0.0625rem);
   background-color: rgba(255,255,255,0.3);
 }
 
@@ -352,7 +352,7 @@ function handleOpenDelete() {
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   background-color: rgba(255,255,255,0.1);
-  border-radius: 4px;
+  border-radius: 0.25rem;
   color: white;
   text-decoration: none;
   transition: background-color 0.2s;
@@ -377,7 +377,7 @@ function handleOpenDelete() {
   width: 2rem;
   height: 2rem;
   background-color: rgba(255,255,255,0.1);
-  border-radius: 4px;
+  border-radius: 0.25rem;
   color: #66c0f4;
   transition: all 0.2s ease;
   text-decoration: none;
@@ -389,13 +389,13 @@ function handleOpenDelete() {
 
 .feature-badge.clickable:hover {
   background-color: rgba(102, 192, 244, 0.2);
-  transform: translateY(-1px);
+  transform: translateY(-0.0625rem);
   color: white;
 }
 
 .feature-badge:hover {
   background-color: rgba(255,255,255,0.2);
-  transform: translateY(-1px);
+  transform: translateY(-0.0625rem);
 }
 
 .loading {
@@ -408,7 +408,7 @@ function handleOpenDelete() {
   color: #ff4444;
   background: rgba(255,0,0,0.1);
   padding: 1rem;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   margin: 1rem 0;
 }
 

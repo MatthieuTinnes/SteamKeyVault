@@ -116,13 +116,13 @@ async function poll() {
 </script>
 
 <style scoped>
-.card { border-radius: 8px; padding: 1.25rem; box-shadow: 0 2px 6px rgba(0,0,0,0.04); background: #fff; }
+.card { border-radius: 0.5rem; padding: 1.25rem; box-shadow: 0 0.125rem 0.375rem rgba(0,0,0,0.04); background: #fff; }
 .page-title { font-size: 1.5rem; margin-bottom: 1rem; }
-.import-dropzone { cursor: pointer; border: 2px dashed rgba(0,0,0,0.08); padding: 1.25rem; border-radius: 8px; text-align: center; background: #fbfbfd }
+.import-dropzone { cursor: pointer; border: 0.125rem dashed rgba(0,0,0,0.08); padding: 1.25rem; border-radius: 0.5rem; text-align: center; background: #fbfbfd }
 .drop-text { color: #444; margin: 0; }
 .hint { margin-top: 1rem; color: #666 }
 .status-section { margin-top: 1rem }
-.stat-row { display:flex; justify-content:flex-start; padding:0.5rem 0; border-bottom: 1px solid rgba(0,0,0,0.04) }
+.stat-row { display:flex; justify-content:flex-start; padding:0.5rem 0; border-bottom: 0.0625rem solid rgba(0,0,0,0.04) }
 .stat-label { color:#555; font-weight:600 }
 .stat-value { font-weight:700 }
 .progress-wrap { margin-top:0.5rem }

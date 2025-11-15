@@ -72,11 +72,11 @@ const handleRegister = async () => {
   min-height: 60vh;
 }
 .register-card {
-  width: 400px;
+  width: min(90vw, 25rem);
   padding: 2.5rem 2rem 2rem 2rem;
   border-radius: 1.25rem;
-  box-shadow: 0 2px 16px rgba(41, 106, 162, 0.08);
-  border: 1px solid #e5e7eb;
+  box-shadow: 0 0.125rem 1rem rgba(41, 106, 162, 0.08);
+  border: 0.0625rem solid #e5e7eb;
 }
 form {
   display: flex;
@@ -95,7 +95,7 @@ form {
   width: 100%;
   box-sizing: border-box;
   border-radius: 0.5rem;
-  border: 1px solid #bcd6ee;
+  border: 0.0625rem solid #bcd6ee;
   padding: 0.75rem 1rem;
   font-size: 1rem;
   background: #f8fafc;

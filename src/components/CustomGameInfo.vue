@@ -10,7 +10,7 @@
     </div>
   </div>
 
-  <Dialog v-model:visible="convertVisible" header="Convert to Steam game" :style="{ width: '520px' }">
+  <Dialog v-model:visible="convertVisible" header="Convert to Steam game" :style="{ width: 'min(32rem, 95vw)' }">
     <div class="p-fluid">
       <AutoComplete
         v-model="searchQuery"
@@ -111,11 +111,11 @@ async function applySelection() {
 .custom-game-info {
   display: flex;
   align-items: center;
-  min-height: 120px;
+  min-height: 7.5rem;
   padding: 1.5rem;
   background: #1b2838;
   color: white;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   margin-bottom: 2em;
 }
 .custom-game-info .title {

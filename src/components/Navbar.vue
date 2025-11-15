@@ -53,12 +53,12 @@ function toggleMenu() {
 
 <style scoped>
 .navbar {
-  width: 100vw;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem 2.5rem 1.5rem 2.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: clamp(1rem, 2vw, 1.5rem) clamp(1rem, 4vw, 2.5rem);
+  box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.04);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -75,7 +75,7 @@ function toggleMenu() {
   font-size: 1.5rem;
   font-weight: 700;
   color: #222;
-  letter-spacing: -1px;
+  letter-spacing: -0.0625rem;
 }
 .navbar-toggle {
   display: none;
@@ -91,10 +91,10 @@ function toggleMenu() {
 }
 .bar {
   width: 2rem;
-  height: 3px;
+  height: 0.1875rem;
   background: #222;
   margin: 0.25rem 0;
-  border-radius: 2px;
+  border-radius: 0.125rem;
   transition: all 0.3s;
   display: block;
 }
@@ -109,17 +109,17 @@ function toggleMenu() {
   font-weight: 500;
   text-decoration: none;
   padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   transition: background 0.2s;
   cursor: pointer;
 }
 .navbar-links a.active, .navbar-links a:hover {
   background: #e5e7eb;
 }
-@media (max-width: 900px) {
+@media (max-width: 56.25rem) {
   .navbar {
     flex-wrap: wrap;
-    padding: 1rem 1rem 1rem 1rem;
+    padding: clamp(0.75rem, 2vw, 1rem);
   }
   .navbar-toggle {
     display: flex;
@@ -131,14 +131,14 @@ function toggleMenu() {
     top: 100%;
     right: 0;
     background: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    width: 220px;
+    box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.08);
+    width: min(85vw, 13.75rem);
     padding: 1.5rem 1rem;
     gap: 1rem;
     border-radius: 0 0 1rem 1rem;
     opacity: 0;
     pointer-events: none;
-    transform: translateY(-10px);
+    transform: translateY(-0.625rem);
     transition: all 0.3s;
     z-index: 1001;
   }

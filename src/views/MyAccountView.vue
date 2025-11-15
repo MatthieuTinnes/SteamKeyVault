@@ -159,13 +159,13 @@ async function exportCsv() {
 
 <style scoped>
 .card {
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 1rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.2);
 }
 
 .my-account {
-  max-width: 720px;
+  max-width: 45rem;
   margin: 2rem auto;
   padding: 0 1rem;
 }
@@ -194,6 +194,7 @@ async function exportCsv() {
 
 .account-grid {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
   gap: 1rem;
   align-items: start;
 }
@@ -206,7 +207,7 @@ async function exportCsv() {
   display: flex;
   justify-content: space-between;
   padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  border-bottom: 0.0625rem solid rgba(0, 0, 0, 0.04);
 }
 
 .stat-row:last-child {
@@ -223,7 +224,7 @@ async function exportCsv() {
   font-size: 1.1rem
 }
 
-@media (max-width: 900px) {
+@media (max-width: 56.25rem) {
   .account-grid {
     grid-template-columns: 1fr;
   }

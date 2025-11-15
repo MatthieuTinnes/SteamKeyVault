@@ -1,7 +1,7 @@
 <template>
   <div>
   <Button label="Add Game" icon="pi pi-plus" class="p-button-sm w-full" @click="openModal" />
-    <Dialog v-model:visible="visible" header="Add a Game" :style="{ width: '400px' }" :closable="true">
+    <Dialog v-model:visible="visible" header="Add a Game" :style="{ width: 'min(26rem, 90vw)' }" :closable="true">
       <div class="p-fluid">
         <div class="option-row">
           <Checkbox inputId="nonsteam" v-model="isCustom" :binary="true" @update:modelValue="onToggleNonSteam" />
@@ -163,11 +163,10 @@ function getGameImage(appid: number) {
   margin: 1rem 0;
 }
 .result-image {
-  width: 460px;
-  max-width: 100%;
-  height: 215px;
+  width: min(100%, 28.75rem);
+  aspect-ratio: 460 / 215;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   background: #f3f4f6;
 }
 .result-image.placeholder {

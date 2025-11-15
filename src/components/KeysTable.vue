@@ -4,7 +4,15 @@
     <div class="toolbar">
       <Button label="Add Key" icon="pi pi-plus" class="p-button-sm p-button-success" @click="showAddKeyDialog = true" :disabled="!gameId" :tooltip="!gameId ? 'Please select a game first' : undefined" />
     </div>
-    <DataTable :value="keys" tableStyle="min-width: 50rem" paginator :rows="6" striped-rows>
+    <div ref="tableContainer" class="datatable-wrapper">
+      <DataTable
+        :value="keys"
+        :tableStyle="{ minWidth: 'min(100%, 30rem)' }"
+        paginator
+        :rows="rowsPerPage"
+        striped-rows
+        responsiveLayout="stack"
+      >
       <template #empty>
             <p>Add a key to start</p>
       </template>
@@ -51,16 +59,17 @@
       </Column>
       <Column header="Actions">
         <template #body="{ data }">
-          <Button class="p-button-sm p-button-info" @click="openEditDialog(data)"><i
+            <Button class="p-button-sm p-button-info" @click="openEditDialog(data)"><i
               class="pi pi-pencil"></i></Button>
-          <Button class="p-button-sm p-button-danger" @click="openDeleteDialog(data)"><i
+            <Button class="p-button-sm p-button-danger" @click="openDeleteDialog(data)"><i
               class="pi pi-trash"></i></Button>
         </template>
       </Column>
-    </DataTable>
+      </DataTable>
+    </div>
 
     <!-- Add Key Dialog -->
-    <Dialog v-model:visible="showAddKeyDialog" :style="{ width: '400px' }" header="Add Key" :modal="true">
+        <Dialog v-model:visible="showAddKeyDialog" :style="{ width: 'min(26rem, 90vw)' }" header="Add Key" :modal="true">
       <div class="form-column float-label">
         <FloatLabel variant="on" >
           <InputText id="add_key" v-model="newKey" class="add-key-input" />
@@ -79,7 +88,7 @@
     </Dialog>
 
     <!-- Edit Key Dialog -->
-    <Dialog v-model:visible="showEditKeyDialog" :style="{ width: '400px' }" header="Edit Key" :modal="true">
+    <Dialog v-model:visible="showEditKeyDialog" :style="{ width: 'min(26rem, 90vw)' }" header="Edit Key" :modal="true">
       <div class="form-column float-label">
         <FloatLabel variant="on">
           <InputText id="edit_key" v-model="editKeyValue" class="edit-key-input" />
@@ -102,7 +111,7 @@
     </Dialog>
 
     <!-- Delete Key Dialog -->
-    <Dialog v-model:visible="showDeleteKeyDialog" :style="{ width: '350px' }" header="Confirm Delete" :modal="true">
+    <Dialog v-model:visible="showDeleteKeyDialog" :style="{ width: 'min(22rem, 85vw)' }" header="Confirm Delete" :modal="true">
       <div class="confirm-row">
         <i class="pi pi-exclamation-triangle confirm-icon" />
         <span>Are you sure you want to delete this key?</span>
@@ -116,13 +125,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
-import Message from 'primevue/message';
 import Dialog from 'primevue/dialog';
 import FloatLabel from 'primevue/floatlabel';
 import Dropdown from 'primevue/dropdown';
@@ -139,12 +147,68 @@ const editingKey = ref<string | null>(null)
 const editKeyValue = ref('')
 const editCurrentUse = ref('')
 const editUsed = ref(false)
+const rowsPerPage = ref(4)
+const tableContainer = ref<HTMLElement | null>(null)
+
+function estimateRowsFromHeight(availableHeight: number) {
+  // estimate a single row height (including gap/padding) and toolbar/pagination heights
+  const toolbarHeight = 60 // ~ toolbar
+  const paginationHeight = 64 // paginator controls
+  const rowHeight = 70 // approximate row height
+  const availableForRows = Math.max(0, availableHeight - toolbarHeight - paginationHeight)
+  const count = Math.max(1, Math.floor(availableForRows / rowHeight))
+  return count
+}
+
+let ro: ResizeObserver | null = null
+
+function updateRowsFromContainer() {
+  if (tableContainer.value) {
+    const rect = tableContainer.value.getBoundingClientRect()
+    rowsPerPage.value = estimateRowsFromHeight(rect.height)
+  } else if (typeof window !== 'undefined') {
+    rowsPerPage.value = computeRowsPerPage(window.innerWidth)
+  }
+}
 
 const showAddKeyDialog = ref(false)
 const showEditKeyDialog = ref(false)
 const showDeleteKeyDialog = ref(false)
 const keyToDelete = ref<Key | null>(null)
 const keyToEdit = ref<Key | null>(null)
+
+function computeRowsPerPage(width: number) {
+  if (width < 480) return 3
+  if (width < 768) return 4
+  if (width < 1024) return 6
+  return 8
+}
+
+const handleResize = () => {
+  if (typeof window === 'undefined') {
+    return
+  }
+  rowsPerPage.value = computeRowsPerPage(window.innerWidth)
+}
+
+onMounted(() => {
+  handleResize()
+  updateRowsFromContainer()
+  if (typeof window !== 'undefined') {
+    window.addEventListener('resize', handleResize)
+  }
+  if (typeof ResizeObserver !== 'undefined' && tableContainer.value) {
+    ro = new ResizeObserver(() => updateRowsFromContainer())
+    ro.observe(tableContainer.value)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('resize', handleResize)
+  }
+  if (ro && tableContainer.value) ro.disconnect()
+})
 
 function openEditDialog(key: Key) {
   keyToEdit.value = key
@@ -160,14 +224,14 @@ function openDeleteDialog(key: Key) {
 }
 
 async function saveEditKey() {
-  if (!keyToEdit.value) return
+  if (!keyToEdit.value || !props.gameId) return
   await updateKey(props.gameId, keyToEdit.value.id, { key: editKeyValue.value, used: editUsed.value, current_use: editCurrentUse.value })
   showEditKeyDialog.value = false
   emit('refresh')
 }
 
 async function confirmDeleteKey() {
-  if (!keyToDelete.value) return
+  if (!keyToDelete.value || !props.gameId) return
   await removeKey(props.gameId, keyToDelete.value.id)
   showDeleteKeyDialog.value = false
   emit('refresh')
@@ -249,5 +313,17 @@ function getCurrentUseLabel(value: string | undefined) {
 
 .unused-icon {
   color: #dc2626; /* red */
+}
+
+.datatable-wrapper {
+  /* allow a max height and internal scrolling while keeping layout stable */
+  max-height: calc(100vh - 30rem);
+  overflow: auto;
+  padding-right: 0.25rem; /* avoid overlay with scrollbar */
+}
+
+.keys-table .p-datatable {
+  /* make sure the primevue table fills the wrapper */
+  height: auto;
 }
 </style>
