@@ -132,7 +132,7 @@ async function handleAddGame() {
   let appid: number | undefined = undefined
   if (isCustom.value) {
     if (!manualName.value) return
-    nameToSend = manualName.value
+    nameToSend = manualName.value.trim()
   } else {
     if (!selectedGame.value) return
     nameToSend = selectedGame.value.name

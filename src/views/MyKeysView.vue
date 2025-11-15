@@ -57,7 +57,7 @@ onMounted(async () => {
 function handleGameSelected(game: Game) {
   selectedGameId.value = game.user_game_id
   selectedSteamAppId.value = game.steamapp_id
-  selectedGameName.value = (game as any).name ?? null
+  selectedGameName.value = game.name ?? null
   refreshKeys()
 }
 
