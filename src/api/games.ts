@@ -28,3 +28,11 @@ export async function getSteamAppDetails(appid: number, lang?: string) {
   const url = `${API_BASE_URL}/steam/appdetails/${appid}/${langParam}`
   return axios.get(url, getAxiosConfig(headers)).then(response => response.data)
 }
+
+export async function exportUserGamesCsv() {
+  const headers = await getCSRFHeaders()
+  const url = `${API_BASE_URL}/games/export_csv`
+  // Request as blob so we can trigger download
+  const res = await axios.get(url, { ...getAxiosConfig(headers), responseType: 'blob' })
+  return res
+}

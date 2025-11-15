@@ -24,8 +24,9 @@
           <div class="stat-label">Total keys</div>
           <div class="stat-value">{{ stats.keys_count ?? '-' }}</div>
         </div>
-        <div style="margin-top:0.75rem; text-align:center;">
-          <Button label="Importer des jeux" icon="pi pi-upload" @click="router.push('/import')" />
+        <div style="margin-top:0.75rem; display:flex; gap:0.5rem; justify-content:center;">
+          <Button label="Import games" icon="pi pi-upload" @click="router.push('/import')" />
+          <Button label="Export games" icon="pi pi-download" class="p-button-secondary" @click="exportCsv" />
         </div>
       </aside>
 
@@ -57,7 +58,8 @@ import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { updateEmail, changePassword, fetchUser, fetchUserStats } from '@/api/auth'
+import { updateEmail, changePassword, fetchUserStats } from '@/api/auth'
+import { exportUserGamesCsv } from '@/api/games'
 import { showErrorToast, showSuccessToast } from '@/utils/toast'
 
 const userStore = useUserStore()
@@ -128,6 +130,30 @@ async function loadStats() {
     showErrorToast('Failed to load account stats')
   } finally {
     statsLoading.value = false
+  }
+}
+
+async function exportCsv() {
+  try {
+    const res = await exportUserGamesCsv()
+    const blob = res.data
+    // Use server-provided 'x-filename' header only
+    let filename = 'user_games.csv'
+    const headers = res.headers || {}
+    if (headers['X-Filename']) {
+      filename = headers['X-Filename']
+    }
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    window.URL.revokeObjectURL(url)
+    showSuccessToast('Export', `CSV downloaded: ${filename}`)
+  } catch (e: any) {
+    showErrorToast(e?.response?.data?.error || e.message || String(e))
   }
 }
 </script>
