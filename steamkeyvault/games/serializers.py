@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from .models import Game
+from .models import UserGame
 
-class GameSerializer(serializers.ModelSerializer):
+
+class UserGameSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Game
-        fields = ['id', 'name', 'steamapp_id']
+        model = UserGame
+        fields = ['id', 'name', 'steamapp_id', 'added_at']

@@ -1,7 +1,7 @@
 from ninja import Router, Schema
 from typing import List, Optional
 from .models import Key
-from steamkeyvault.games.models import Game, UserGame
+from steamkeyvault.games.models import UserGame
 from django.shortcuts import get_object_or_404
 from ninja.security import django_auth
 from ninja.errors import ValidationError

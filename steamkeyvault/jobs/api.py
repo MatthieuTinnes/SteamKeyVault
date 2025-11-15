@@ -2,7 +2,7 @@ from ninja import Router, Schema
 from typing import Optional, List, Dict
 from steamkeyvault.jobs.models import ImportJob
 from steamkeyvault.keys.models import Key
-from steamkeyvault.games.models import Game, UserGame
+from steamkeyvault.games.models import UserGame
 from steamkeyvault.steam.models import SteamApp
 from ninja.security import django_auth
 import csv
@@ -62,12 +62,20 @@ def create_import(request, file: bytes = None):
                     # attempt steam search: prefix search then fallback to custom
                     steam_match = SteamApp.objects.filter(name__istartswith=game_name).order_by('name').first()
                     if steam_match:
-                        # find or create Game and UserGame
-                        game_obj, _ = Game.objects.get_or_create(steamapp_id=steam_match.id, defaults={"name": steam_match.name})
+                        user_game, created = UserGame.objects.get_or_create(
+                            user=job.user,
+                            steamapp_id=steam_match.id,
+                            defaults={"name": steam_match.name},
+                        )
+                        if not created and user_game.name != steam_match.name:
+                            user_game.name = steam_match.name
+                            user_game.save(update_fields=["name"])
                     else:
-                        game_obj, _ = Game.objects.get_or_create(name=game_name, steamapp_id=None)
-
-                    user_game, _ = UserGame.objects.get_or_create(user=job.user, game=game_obj)
+                        user_game, _ = UserGame.objects.get_or_create(
+                            user=job.user,
+                            name=game_name,
+                            steamapp_id=None,
+                        )
 
                     created_keys = []
                     for k in keys:

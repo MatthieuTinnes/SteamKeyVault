@@ -1,6 +1,5 @@
 from django.db import models
-from django.conf import settings
-from steamkeyvault.games.models import Game, UserGame
+from steamkeyvault.games.models import UserGame
 
 class Key(models.Model):
     key = models.CharField(max_length=255)
