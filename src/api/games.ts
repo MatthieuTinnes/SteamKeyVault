@@ -42,3 +42,9 @@ export async function updateUserGame(user_game_id: number, payload: { name?: str
   const url = `${API_BASE_URL}/games/${user_game_id}/update`
   return axios.patch(url, payload, getAxiosConfig(headers))
 }
+
+export async function removeUserGame(user_game_id: number) {
+  const headers = await getCSRFHeaders()
+  const url = `${API_BASE_URL}/games/remove/${user_game_id}`
+  return axios.delete(url, getAxiosConfig(headers))
+}

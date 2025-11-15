@@ -11,10 +11,10 @@
         <template #content>
                 <div v-if="selectedGameId">
                   <template v-if="selectedSteamAppId">
-                    <GameInfo :steamAppId="selectedSteamAppId" />
+                    <GameInfo :steamAppId="selectedSteamAppId" :userGameId="selectedGameId" @deleted="onGameDeleted" />
                   </template>
                   <template v-else>
-                    <CustomGameInfo v-if="selectedGameName" :gameName="selectedGameName" :userGameId="selectedGameId" @converted="reloadGamesAndRefreshSelection" />
+                    <CustomGameInfo v-if="selectedGameName" :gameName="selectedGameName" :userGameId="selectedGameId" @converted="reloadGamesAndRefreshSelection" @deleted="onGameDeleted" />
                   </template>
                   <KeysTable :keys="keys" :gameId="selectedGameId" @refresh="refreshKeys" />
                 </div>
@@ -91,6 +91,16 @@ async function reloadGamesAndRefreshSelection() {
     }
     await refreshKeys()
   }
+}
+
+async function onGameDeleted() {
+  // reload games and reset selection
+  const apiGames = await getUserGames()
+  games.value = apiGames
+  selectedGameId.value = null
+  selectedSteamAppId.value = null
+  selectedGameName.value = null
+  keys.value = []
 }
 </script>
 

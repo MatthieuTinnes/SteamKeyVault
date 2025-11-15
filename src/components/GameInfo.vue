@@ -9,6 +9,10 @@
                     <h2 class="title">{{ appName }}</h2>
                     <div class="publisher" v-if="publisher">by {{ publisher }}</div>
                 </div>
+              <div style="display:flex;align-items:flex-start;gap:0.5rem">
+              <Button class="p-button-sm p-button-danger" @click="handleOpenDelete"><i
+              class="pi pi-trash"></i></Button>
+              </div>
             </div>
             <div class="details">
                 <div class="price-reviews">
@@ -50,16 +54,22 @@
         <div v-else class="no-data">
             <h1>{{ steamAppId }}</h1>
         </div>
+        <DeleteGameModal :modelValue="showDeleteModal" :hasKeys="hasKeys" @update:modelValue="onModalUpdate" @confirmed="handleConfirmDelete" />
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import { getSteamAppDetails } from '@/api/games'
+import DeleteGameModal from './DeleteGameModal.vue'
+import Button from 'primevue/button'
+import { useDeleteGame } from '@/composables/useDeleteGame'
 import { useToast } from 'primevue/usetoast'
 
-const toast = useToast()
-const props = defineProps<{ steamAppId: number | null }>()
+const props = defineProps<{ steamAppId: number | null; userGameId?: number | null }>()
+const emit = defineEmits<{
+  (e: 'deleted'): void
+}>()
 
 const appName = ref<string | null>(null)
 const price = ref<string | null>(null)
@@ -71,6 +81,8 @@ const backgroundImage = ref<string | null>(null)
 const reviews = ref<number | null>(null)
 const hasCards = ref<boolean>(false)
 const hasAchievements = ref<boolean>(false)
+const { showDeleteModal, hasKeys, openDelete, confirmDelete, onModalUpdate } = useDeleteGame()
+const toast = useToast()
 
 const steamStoreUrl = computed(() => 
   props.steamAppId ? `https://store.steampowered.com/app/${props.steamAppId}` : null
@@ -156,6 +168,7 @@ async function loadApp(appid: number) {
     // Check for trading cards and achievements
     hasCards.value = data?.categories?.some((cat: any) => cat.id === 29) ?? false
     hasAchievements.value = data?.categories?.some((cat: any) => cat.id === 22) ?? false
+    // try to resolve userGameId from a list in parent is easier, but we can leave null
   } catch (err: unknown) {
     error.value = err instanceof Error ? err.message : String(err)
   } finally {
@@ -177,6 +190,16 @@ watch(() => props.steamAppId, (id) => {
     hasAchievements.value = false
   }
 }, { immediate: true })
+
+// wire composable actions to emit when deletion succeeded
+async function handleConfirmDelete() {
+  const success = await confirmDelete(props.userGameId ?? null)
+  if (success) emit('deleted')
+}
+
+function handleOpenDelete() {
+  void openDelete(props.userGameId ?? null)
+}
 </script>
 
 <style scoped>

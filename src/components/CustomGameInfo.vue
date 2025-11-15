@@ -4,6 +4,8 @@
       <h2 class="title">{{ gameName }}</h2>
       <div style="display:flex;gap:0.5rem;justify-content:flex-end">
         <Button label="Convert to Steam" icon="pi pi-external-link" class="p-button-sm" @click="openConvert" />
+        <Button class="p-button-sm p-button-danger" @click="openDeleteHandler"><i
+        class="pi pi-trash"></i></Button>
       </div>
     </div>
   </div>
@@ -27,6 +29,7 @@
       </div>
     </div>
   </Dialog>
+  <DeleteGameModal :modelValue="showDeleteModal" :hasKeys="hasKeys" @update:modelValue="localOnModalUpdate" @confirmed="confirmDeleteHandler" />
 </template>
 
 <script setup lang="ts">
@@ -34,11 +37,14 @@ import { ref } from 'vue'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import AutoComplete from 'primevue/autocomplete'
+import DeleteGameModal from './DeleteGameModal.vue'
 import { searchSteamGames, updateUserGame } from '@/api/games'
+import { useDeleteGame } from '@/composables/useDeleteGame'
 
 const props = defineProps<{ gameName: string; userGameId: number }>()
 const emit = defineEmits<{
   (e: 'converted'): void
+  (e: 'deleted'): void
 }>()
 
 const convertVisible = ref(false)
@@ -46,12 +52,26 @@ const searchQuery = ref('')
 const results = ref<any[]>([])
 const loading = ref(false)
 const selected = ref<any | null>(null)
+const { showDeleteModal, hasKeys, openDelete, confirmDelete, onModalUpdate } = useDeleteGame()
 
 function openConvert() {
   convertVisible.value = true
   searchQuery.value = ''
   results.value = []
   selected.value = null
+}
+
+function openDeleteHandler() {
+  void openDelete(props.userGameId ?? null)
+}
+
+async function confirmDeleteHandler() {
+  const success = await confirmDelete(props.userGameId ?? null)
+  if (success) emit('deleted')
+}
+
+function localOnModalUpdate(v: boolean) {
+  showDeleteModal.value = v
 }
 
 function closeConvert() {
@@ -91,17 +111,15 @@ async function applySelection() {
 .custom-game-info {
   display: flex;
   align-items: center;
-  justify-content: center;
   min-height: 120px;
   padding: 1.5rem;
   background: #1b2838;
   color: white;
   border-radius: 8px;
-  margin-bottom: 1em;
+  margin-bottom: 2em;
 }
 .custom-game-info .title {
   margin: 0;
   font-size: 1.8rem;
 }
-.search-bar { width: 100%; margin-bottom: 1rem }
 </style>
