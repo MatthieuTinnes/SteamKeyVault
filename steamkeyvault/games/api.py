@@ -5,6 +5,10 @@ from ninja import Schema
 from typing import Optional
 from django.shortcuts import get_object_or_404
 from ninja.security import django_auth
+from django.http import HttpResponse
+import csv
+import re
+from django.utils import timezone
 
 router = Router()
 
@@ -52,3 +56,32 @@ def remove_game(request, user_game_id: int):
         return 404, {"error": "Game not found for this user."}
     user_game_qs.delete()
     return 204, None
+
+
+@router.get('/export_csv', auth=django_auth)
+def export_games_csv(request):
+    # Build an in-memory CSV of the user's games and keys in format: gameName;key1;key2
+    user_games = UserGame.objects.filter(user=request.user).select_related('game').prefetch_related('keys')
+    # Create HttpResponse with CSV mimetype
+    # Build a safe filename using user's email if available and append timestamp
+    user_email = getattr(request.user, 'email', None) or 'user'
+    # sanitize: keep letters, numbers, @, dot, dash and replace others with underscore
+    safe_email = re.sub(r'[^\w@.\-]', '_', user_email)
+    ts = timezone.localtime(timezone.now()).strftime('%Y-%m-%d_%H-%M-%S')
+    filename = f"{safe_email}_games_{ts}.csv"
+
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    # Provide a simple header for JS to read the filename directly
+    response['X-Filename'] = filename
+    # Allow browser JS to read the custom header
+    response['Access-Control-Expose-Headers'] = 'X-Filename'
+
+    writer = csv.writer(response, delimiter=';')
+    for ug in user_games:
+        keys_qs = ug.keys.all()
+        row = [ug.game.name]
+        for k in keys_qs:
+            row.append(k.key)
+        writer.writerow(row)
+
+    return response
