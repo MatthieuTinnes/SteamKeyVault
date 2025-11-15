@@ -14,7 +14,7 @@
                     <GameInfo :steamAppId="selectedSteamAppId" />
                   </template>
                   <template v-else>
-                    <CustomGameInfo v-if="selectedGameName" :gameName="selectedGameName" />
+                    <CustomGameInfo v-if="selectedGameName" :gameName="selectedGameName" :userGameId="selectedGameId" @converted="reloadGamesAndRefreshSelection" />
                   </template>
                   <KeysTable :keys="keys" :gameId="selectedGameId" @refresh="refreshKeys" />
                 </div>
@@ -74,6 +74,23 @@ async function reloadGames() {
   const apiGames = await getUserGames()
   games.value = apiGames;
   showAddGameModal.value = false;
+}
+
+// After conversion we want to refresh the game list and update the
+// currently selected game's Steam ID/name so GameInfo reloads.
+async function reloadGamesAndRefreshSelection() {
+  const apiGames = await getUserGames()
+  games.value = apiGames;
+  showAddGameModal.value = false;
+  // if a game is selected, find updated version and update selected refs
+  if (selectedGameId.value) {
+    const found = (games.value as any[]).find((g: any) => g.user_game_id === selectedGameId.value)
+    if (found) {
+      selectedSteamAppId.value = (found as any).steamapp_id
+      selectedGameName.value = (found as any).name ?? null
+    }
+    await refreshKeys()
+  }
 }
 </script>
 
