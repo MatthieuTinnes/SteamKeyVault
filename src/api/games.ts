@@ -36,3 +36,9 @@ export async function exportUserGamesCsv() {
   const res = await axios.get(url, { ...getAxiosConfig(headers), responseType: 'blob' })
   return res
 }
+
+export async function updateUserGame(user_game_id: number, payload: { name?: string; steamapp_id?: number | null }) {
+  const headers = await getCSRFHeaders()
+  const url = `${API_BASE_URL}/games/${user_game_id}/update`
+  return axios.patch(url, payload, getAxiosConfig(headers))
+}
