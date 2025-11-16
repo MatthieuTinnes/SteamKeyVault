@@ -35,6 +35,16 @@ def login_view(request, payload: schemas.SignInSchema):
     if user is not None:
         login(request, user)
         logger.info(f"Login successful for email={payload.email} user_id={user.id}")
+        Mailer.send_template_email(
+                subject='Welcome to SteamKeyVault',
+                template_name='emails/welcome.html',
+                context={
+                    'username': user.username,
+                    'site_url': getattr(settings, 'FRONTEND_URL', 'http://localhost:5173'),
+                },
+                to_emails=[user.email]
+            )
+        logger.info(f"Triggered welcome email send to user_id={user.id} email={user.email}")
         return {"success": True}
     logger.warning(f"Failed login for email={payload.email} from {addr}")
     raise HttpError(403, "Invalid credentials")
@@ -78,8 +88,7 @@ def register(request, payload: schemas.SignUpSchema):
                     'username': user.username,
                     'site_url': getattr(settings, 'FRONTEND_URL', 'http://localhost:5173'),
                 },
-                to_emails=[user.email],
-                fail_silently=True,
+                to_emails=[user.email]
             )
         logger.info(f"Triggered welcome email send to user_id={user.id} email={user.email}")
         return Response({"success": True}, status=201)

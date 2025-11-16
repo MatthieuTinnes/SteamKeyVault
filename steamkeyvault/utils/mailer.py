@@ -22,7 +22,7 @@ class Mailer:
     """
 
     @classmethod
-    def send_template_email(cls, subject: str, template_name: str, context: dict, to_emails: Iterable[str], from_email: str | None = None, fail_silently: bool = True) -> bool:
+    def send_template_email(cls, subject: str, template_name: str, context: dict, to_emails: Iterable[str], from_email: str | None = None) -> bool:
         from_email = from_email or getattr(settings, 'DEFAULT_FROM_EMAIL', None)
         try:
             html_content = render_to_string(template_name, context)
@@ -30,7 +30,7 @@ class Mailer:
 
             msg = EmailMultiAlternatives(subject=subject, body=text_content, from_email=from_email, to=list(to_emails))
             msg.attach_alternative(html_content, 'text/html')
-            msg.send(fail_silently=fail_silently)
+            msg.send()
             logger.info('Sent email "%s" to %s', subject, to_emails)
             return True
         except Exception as e:
