@@ -150,25 +150,10 @@ const editUsed = ref(false)
 const rowsPerPage = ref(4)
 const tableContainer = ref<HTMLElement | null>(null)
 
-function estimateRowsFromHeight(availableHeight: number) {
-  // estimate a single row height (including gap/padding) and toolbar/pagination heights
-  const toolbarHeight = 60 // ~ toolbar
-  const paginationHeight = 64 // paginator controls
-  const rowHeight = 70 // approximate row height
-  const availableForRows = Math.max(0, availableHeight - toolbarHeight - paginationHeight)
-  const count = Math.max(1, Math.floor(availableForRows / rowHeight))
-  return count
-}
-
 let ro: ResizeObserver | null = null
 
 function updateRowsFromContainer() {
-  if (tableContainer.value) {
-    const rect = tableContainer.value.getBoundingClientRect()
-    rowsPerPage.value = estimateRowsFromHeight(rect.height)
-  } else if (typeof window !== 'undefined') {
-    rowsPerPage.value = computeRowsPerPage(window.innerWidth)
-  }
+  rowsPerPage.value = computeRowsPerPage(window.innerHeight)
 }
 
 const showAddKeyDialog = ref(false)
@@ -177,25 +162,20 @@ const showDeleteKeyDialog = ref(false)
 const keyToDelete = ref<Key | null>(null)
 const keyToEdit = ref<Key | null>(null)
 
-function computeRowsPerPage(width: number) {
-  if (width < 480) return 3
-  if (width < 768) return 4
-  if (width < 1024) return 6
-  return 8
+function computeRowsPerPage(height: number) {
+  console.log('computeRowsPerPage called with height:', height)
+  console.log(rowsPerPage.value)
+  return Math.max(1,Math.floor((height - 550) / 80))
 }
-
+  
 const handleResize = () => {
-  if (typeof window === 'undefined') {
-    return
-  }
-  rowsPerPage.value = computeRowsPerPage(window.innerWidth)
+  updateRowsFromContainer()
 }
 
 onMounted(() => {
-  handleResize()
   updateRowsFromContainer()
   if (typeof window !== 'undefined') {
-    window.addEventListener('resize', handleResize)
+    window.addEventListener('resize', updateRowsFromContainer)
   }
   if (typeof ResizeObserver !== 'undefined' && tableContainer.value) {
     ro = new ResizeObserver(() => updateRowsFromContainer())
