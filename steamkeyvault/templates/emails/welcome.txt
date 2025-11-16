@@ -1,0 +1,9 @@
+Welcome to SteamKeyVault, {{ username }}!
+
+Thanks for creating an account on SteamKeyVault. You can now securely store and manage your Steam keys.
+
+Open your vault: {{ site_url }}
+
+If you didn't create this account, please ignore this message.
+
+— SteamKeyVault Team

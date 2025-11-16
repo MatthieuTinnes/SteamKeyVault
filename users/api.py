@@ -4,6 +4,7 @@ from ninja.security import django_auth
 from django.contrib.auth import authenticate, login, logout
 from django.middleware.csrf import get_token
 import logging
+from django.conf import settings
 
 from users import schemas
 from users.models import User
@@ -11,6 +12,7 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from ninja.responses import Response
 from django.http import JsonResponse
+from steamkeyvault.utils.mailer import Mailer
 from steamkeyvault.games.models import UserGame
 from steamkeyvault.keys.models import Key
 
@@ -69,6 +71,17 @@ def register(request, payload: schemas.SignUpSchema):
     try:
         user = User.objects.create_user(username=payload.username, email=payload.email, password=payload.password)
         logger.info(f"User registered username={payload.username} email={payload.email} user_id={user.id}")
+        Mailer.send_template_email(
+                subject='Welcome to SteamKeyVault',
+                template_name='emails/welcome.html',
+                context={
+                    'username': user.username,
+                    'site_url': getattr(settings, 'FRONTEND_URL', 'http://localhost:5173'),
+                },
+                to_emails=[user.email],
+                fail_silently=True,
+            )
+        logger.info(f"Triggered welcome email send to user_id={user.id} email={user.email}")
         return Response({"success": True}, status=201)
     except Exception as e:
         logger.exception(f"Error registering user username={payload.username} email={payload.email}: {e}")

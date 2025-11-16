@@ -66,7 +66,7 @@ ROOT_URLCONF = 'steamkeyvault.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'steamkeyvault' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -169,3 +169,14 @@ LOGGING = {
         },
     },
 }
+
+# Email settings - development defaults (console backend). In production, override with env vars.
+DEFAULT_FROM_EMAIL = 'noreply@steamkeyvault.local'
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    # Production SMTP defaults (should be overridden via environment)
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'localhost'
+    EMAIL_PORT = 25
+    EMAIL_USE_TLS = False
