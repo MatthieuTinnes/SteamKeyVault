@@ -66,7 +66,8 @@ def user(request):
     return {
         "username": user_obj.username,
         "email": user_obj.email,
-        "email_verified": user_obj.email_verified
+        "email_verified": user_obj.email_verified,
+        "is_admin": user_obj.is_admin
     }
 
 @users_router.post("/register")
