@@ -108,13 +108,14 @@ onMounted(async () => {
 }
 
 .stat-card {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 0.5rem;
   padding: 1.5rem;
-  box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   display: flex;
   align-items: center;
   gap: 1rem;
+  transition: background-color 0.3s ease;
 }
 
 .stat-icon {
@@ -136,14 +137,14 @@ onMounted(async () => {
 
 .stat-label {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin-bottom: 0.25rem;
 }
 
 .stat-value {
   font-size: 1.875rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .admin-sections {
@@ -153,18 +154,18 @@ onMounted(async () => {
 }
 
 .section-card {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 0.5rem;
   padding: 2rem;
-  box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s ease;
   text-align: center;
 }
 
 .section-card:hover {
   transform: translateY(-0.25rem);
-  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
 }
 
 .section-card i {
@@ -176,12 +177,12 @@ onMounted(async () => {
 .section-card h3 {
   margin: 0 0 0.5rem 0;
   font-size: 1.25rem;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .section-card p {
   margin: 0;
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 

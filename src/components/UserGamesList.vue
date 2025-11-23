@@ -59,7 +59,7 @@ watch(selectedGame, (game) => {
 .pi-search {
   position: absolute;
   left: 0.75rem;
-  color: #888;
+  color: var(--text-tertiary);
 }
 .filter-clear {
   position: absolute;

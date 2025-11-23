@@ -114,13 +114,15 @@ async function onGameDeleted() {
   flex: 0 0 clamp(14rem, 20vw, 20rem);
   max-width: clamp(14rem, 20vw, 20rem);
   border-radius: 1rem;
-  box-shadow: 0 0.125rem 0.5rem rgba(41, 106, 162, 0.04);
+  box-shadow: var(--shadow-md);
   padding: 2rem 1rem 1rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   height: fit-content;
   margin-left: 1rem;
+  background: var(--bg-primary);
+  transition: background-color 0.3s ease;
 }
 .my-keys-main {
   flex: 1 1 0;
@@ -144,8 +146,9 @@ async function onGameDeleted() {
 .no-selection {
   padding: 2rem;
   text-align: center;
-  color: #666;
-  background: #fff;
+  color: var(--text-secondary);
+  background: var(--bg-primary);
   border-radius: 0.5rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 </style>

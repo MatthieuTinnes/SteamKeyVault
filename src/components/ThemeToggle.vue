@@ -4,9 +4,9 @@
       <i :class="themeIcon"></i>
       <span>{{ themeLabel }}</span>
       <InputSwitch 
-        v-model="isDarkMode" 
-        @change="handleToggle"
+        v-model="isDarkMode"
         class="theme-switch"
+        @click.stop
       />
     </div>
   </div>
@@ -42,45 +42,41 @@ const handleToggle = () => {
 <style scoped>
 .theme-toggle-wrapper {
   width: 100%;
+  padding: 0;
 }
 
 .theme-toggle-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: 0.875rem;
+  padding: 0.875rem 1.25rem;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  border-radius: 6px;
+  transition: all 0.2s ease;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.9375rem;
 }
 
 .theme-toggle-item:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-.my-app-dark .theme-toggle-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background: var(--bg-tertiary);
+  padding-left: 1.5rem;
 }
 
 .theme-toggle-item i {
   font-size: 1.125rem;
-  color: var(--text-color);
   width: 1.25rem;
+  text-align: center;
+  color: var(--text-secondary);
   flex-shrink: 0;
 }
 
 .theme-toggle-item span {
   flex: 1;
-  color: var(--text-color);
-  font-size: 0.9375rem;
+  color: var(--text-secondary);
 }
 
 .theme-switch {
   flex-shrink: 0;
-}
-
-/* Empêche la propagation du clic sur le switch */
-.theme-switch :deep(.p-inputswitch) {
   pointer-events: none;
 }
 </style>

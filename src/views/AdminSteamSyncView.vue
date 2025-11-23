@@ -131,11 +131,12 @@ function closeRefreshDialog() {
 }
 
 .stats-section {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 0.5rem;
   padding: 1.5rem;
-  box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   margin-bottom: 2rem;
+  transition: background-color 0.3s ease;
 }
 
 .stats-section h3 {
@@ -149,29 +150,31 @@ function closeRefreshDialog() {
 }
 
 .stat-card {
-  background: #f9fafb;
+  background: var(--bg-secondary);
   border-radius: 0.375rem;
   padding: 1rem;
   text-align: center;
+  transition: background-color 0.3s ease;
 }
 
 .stat-label {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin-bottom: 0.5rem;
 }
 
 .stat-value {
   font-size: 2rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .actions-section {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 0.5rem;
   padding: 1.5rem;
-  box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
+  transition: background-color 0.3s ease;
 }
 
 .actions-section h3 {
@@ -184,9 +187,10 @@ function closeRefreshDialog() {
   align-items: center;
   gap: 2rem;
   padding: 1.5rem;
-  background: #f9fafb;
+  background: var(--bg-secondary);
   border-radius: 0.375rem;
-  border: 0.0625rem solid #e5e7eb;
+  border: 0.0625rem solid var(--border-color);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .action-info {
@@ -198,12 +202,12 @@ function closeRefreshDialog() {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .action-info p {
   margin: 0;
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 0.9rem;
   line-height: 1.5;
 }

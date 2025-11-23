@@ -122,8 +122,9 @@ async function handleLogout() {
   max-width: 100%;
   margin: 0;
   padding: 0;
-  background: #f8fafc;
-  color: #222;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 .windmill-hero {
   width: 100%;
@@ -150,7 +151,7 @@ async function handleLogout() {
 .hero-subtitle {
   font-size: 1.2rem;
   margin-bottom: 1.5rem;
-  color: #555;
+  color: var(--text-secondary);
   max-width: min(32rem, 90vw);
 }
 .hero-actions {
@@ -166,7 +167,7 @@ async function handleLogout() {
 .trusted-by {
   text-align: center;
   margin: 2rem 0 2rem 0;
-  color: #888;
+  color: var(--text-tertiary);
   font-size: 1rem;
 }
 .brand-logos {
@@ -190,7 +191,7 @@ async function handleLogout() {
   margin-bottom: 0.5rem;
 }
 .features-desc {
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 2rem;
 }
 .features-grid {
@@ -200,10 +201,11 @@ async function handleLogout() {
   margin-top: 2rem;
 }
 .feature-card {
-  background: #fff;
+  background: var(--bg-primary);
   border-radius: 1rem;
   padding: 2rem 1.5rem;
-  box-shadow: 0 0.0625rem 0.25rem rgba(0,0,0,0.03);
+  box-shadow: var(--shadow-sm);
+  transition: background-color 0.3s ease;
 }
 .feature-title {
   font-size: 1.2rem;
@@ -211,7 +213,7 @@ async function handleLogout() {
   margin-bottom: 0.5rem;
 }
 .feature-desc {
-  color: #555;
+  color: var(--text-secondary);
 }
 .discover-section {
   margin-top: 4rem;
@@ -223,7 +225,7 @@ async function handleLogout() {
   margin-bottom: 0.5rem;
 }
 .discover-desc {
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 2rem;
 }
 .discover-features-grid {
@@ -233,10 +235,11 @@ async function handleLogout() {
   margin-top: 2rem;
 }
 .discover-feature-card {
-  background: #fff;
+  background: var(--bg-primary);
   border-radius: 1rem;
   padding: 2rem 1.5rem;
-  box-shadow: 0 0.0625rem 0.25rem rgba(0,0,0,0.03);
+  box-shadow: var(--shadow-sm);
+  transition: background-color 0.3s ease;
 }
 .discover-feature-title {
   font-size: 1.2rem;
@@ -244,7 +247,7 @@ async function handleLogout() {
   margin-bottom: 0.5rem;
 }
 .discover-feature-desc {
-  color: #555;
+  color: var(--text-secondary);
 }
 .discover-image {
   margin: 3rem auto 0 auto;
@@ -269,11 +272,12 @@ async function handleLogout() {
   margin-top: 2rem;
 }
 .faq-item {
-  background: #fff;
+  background: var(--bg-primary);
   border-radius: 1rem;
   padding: 2rem 1.5rem;
-  box-shadow: 0 0.0625rem 0.25rem rgba(0,0,0,0.03);
+  box-shadow: var(--shadow-sm);
   text-align: left;
+  transition: background-color 0.3s ease;
 }
 .faq-question {
   font-size: 1.1rem;
@@ -281,6 +285,6 @@ async function handleLogout() {
   margin-bottom: 0.5rem;
 }
 .faq-answer {
-  color: #555;
+  color: var(--text-secondary);
 }
 </style>

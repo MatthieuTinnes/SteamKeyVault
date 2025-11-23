@@ -214,6 +214,35 @@ body {
   color: #ffffff;
 }
 
+/* Listbox */
+.my-app-dark .p-listbox {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.my-app-dark .p-listbox .p-listbox-list {
+  background-color: var(--bg-secondary);
+}
+
+.my-app-dark .p-listbox .p-listbox-item {
+  color: var(--text-secondary);
+}
+
+.my-app-dark .p-listbox .p-listbox-item:not(.p-highlight):not(.p-disabled):hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.my-app-dark .p-listbox .p-listbox-item.p-highlight {
+  background-color: var(--primary-color);
+  color: #ffffff;
+}
+
+.my-app-dark .p-listbox .p-listbox-empty-message {
+  color: var(--text-tertiary);
+}
+
 /* Dialogues et modales */
 .my-app-dark .p-dialog {
   background-color: var(--bg-secondary);

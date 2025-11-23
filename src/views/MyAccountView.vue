@@ -194,6 +194,9 @@ async function exportCsv() {
   border-radius: 0.5rem;
   padding: 1rem;
   box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.2);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .my-account {
@@ -211,6 +214,7 @@ async function exportCsv() {
 
 .form-row label {
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .actions {
@@ -277,15 +281,11 @@ async function exportCsv() {
   align-items: start;
 }
 
-.stats-card {
-  background: #fff;
-}
-
 .stat-row {
   display: flex;
   justify-content: space-between;
   padding: 0.5rem 0;
-  border-bottom: 0.0625rem solid rgba(0, 0, 0, 0.04);
+  border-bottom: 0.0625rem solid var(--border-color);
 }
 
 .stat-row:last-child {
@@ -293,13 +293,14 @@ async function exportCsv() {
 }
 
 .stat-label {
-  color: #555;
+  color: var(--text-secondary);
   font-weight: 600
 }
 
 .stat-value {
   font-weight: 700;
-  font-size: 1.1rem
+  font-size: 1.1rem;
+  color: var(--text-primary);
 }
 
 @media (max-width: 56.25rem) {
