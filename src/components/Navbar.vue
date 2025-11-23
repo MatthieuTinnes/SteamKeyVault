@@ -30,7 +30,7 @@
             <i class="pi pi-user"></i>
             <span>My Account</span>
           </div>
-          <div v-if="isAdmin" class="user-menu-item admin-item" @click="goTo('/admin')">
+          <div v-if="isAdmin" class="user-menu-item" @click="goTo('/admin')">
             <i class="pi pi-shield"></i>
             <span>Admin</span>
           </div>

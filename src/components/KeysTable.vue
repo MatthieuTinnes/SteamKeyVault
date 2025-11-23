@@ -69,17 +69,17 @@
     </div>
 
     <!-- Add Key Dialog -->
-        <Dialog v-model:visible="showAddKeyDialog" :style="{ width: 'min(26rem, 90vw)' }" header="Add Key" :modal="true">
-      <div class="form-column float-label">
-        <FloatLabel variant="on" >
-          <InputText id="add_key" v-model="newKey" class="add-key-input" />
+    <Dialog v-model:visible="showAddKeyDialog" :style="{ width: 'min(26rem, 90vw)' }" header="Add Key" :modal="true">
+      <div class="form-column">
+        <div class="form-row">
           <label for="add_key">Key</label>
-        </FloatLabel>
-        <FloatLabel variant="on">
+          <InputText id="add_key" v-model="newKey" class="add-key-input" />
+        </div>
+        <div class="form-row">
+          <label for="add_current_use">Current use</label>
           <Dropdown id="add_current_use" v-model="newCurrentUse" :options="CURRENT_USE_OPTIONS" optionLabel="label"
             optionValue="value" class="add-key-input" />
-          <label for="add_current_use">Current use</label>
-        </FloatLabel>
+        </div>
       </div>
       <template #footer>
         <Button label="Cancel" icon="pi pi-times" text @click="showAddKeyDialog = false" />
@@ -89,16 +89,16 @@
 
     <!-- Edit Key Dialog -->
     <Dialog v-model:visible="showEditKeyDialog" :style="{ width: 'min(26rem, 90vw)' }" header="Edit Key" :modal="true">
-      <div class="form-column float-label">
-        <FloatLabel variant="on">
-          <InputText id="edit_key" v-model="editKeyValue" class="edit-key-input" />
+      <div class="form-column">
+        <div class="form-row">
           <label for="edit_key">Key</label>
-        </FloatLabel>
-        <FloatLabel variant="on">
+          <InputText id="edit_key" v-model="editKeyValue" class="edit-key-input" />
+        </div>
+        <div class="form-row">
+          <label for="edit_current_use">Current use</label>
           <Dropdown id="edit_current_use" v-model="editCurrentUse" :options="CURRENT_USE_OPTIONS" optionLabel="label"
             optionValue="value" class="edit-key-input" />
-          <label for="edit_current_use">Current use</label>
-        </FloatLabel>
+        </div>
         <div class="checkbox-row">
           <Checkbox v-model="editUsed" :binary="true" id="edit_used" />
           <label for="edit_used">Used</label>
@@ -132,7 +132,6 @@ import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
 import Dialog from 'primevue/dialog';
-import FloatLabel from 'primevue/floatlabel';
 import Dropdown from 'primevue/dropdown';
 import type { Key } from '@/models/Key';
 import { CURRENT_USE_OPTIONS } from '@/models/Key';
@@ -212,10 +211,6 @@ function getCurrentUseLabel(value: string | undefined) {
 </script>
 
 <style scoped>
-.float-label {
-  margin-top: 0.3rem;
-}
-
 .add-key-input,
 .edit-key-input,
 .p-float-label .p-inputtext {
@@ -233,8 +228,19 @@ function getCurrentUseLabel(value: string | undefined) {
 .form-column {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  padding-top: 1em;
+  gap: 1.5rem;
+  padding-top: 0.5rem;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-row label {
+  font-weight: 600;
+  color: #374151;
 }
 
 .checkbox-row {
