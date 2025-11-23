@@ -36,6 +36,8 @@
               <span>Admin</span>
             </div>
             <div class="user-menu-divider"></div>
+            <ThemeToggle />
+            <div class="user-menu-divider"></div>
             <div class="user-menu-item logout-item" @click="handleLogout">
               <i class="pi pi-sign-out"></i>
               <span>Logout</span>
@@ -49,6 +51,7 @@
 
 <script setup lang="ts">
 import Button from 'primevue/button';
+import ThemeToggle from './ThemeToggle.vue';
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '../stores/user'
@@ -95,8 +98,14 @@ function toggleUserMenu() {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: #fff;
+  background: var(--bg-primary);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
+
+.my-app-dark .navbar {
+  box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.4);
+}
+
 .navbar-left {
   display: flex;
   align-items: center;
@@ -108,8 +117,9 @@ function toggleUserMenu() {
 .navbar-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary);
   letter-spacing: -0.0625rem;
+  transition: color 0.3s ease;
 }
 .navbar-toggle {
   display: none;
@@ -126,7 +136,7 @@ function toggleUserMenu() {
 .bar {
   width: 2rem;
   height: 0.1875rem;
-  background: #111827;
+  background: var(--text-primary);
   margin: 0.25rem 0;
   border-radius: 0.125rem;
   transition: all 0.3s;
@@ -139,7 +149,7 @@ function toggleUserMenu() {
   transition: all 0.3s;
 }
 .navbar-links a {
-  color: #111827;
+  color: var(--text-primary);
   font-weight: 500;
   text-decoration: none;
   padding: 0.5rem 1rem;
@@ -148,7 +158,7 @@ function toggleUserMenu() {
   cursor: pointer;
 }
 .navbar-links a.active, .navbar-links a:hover {
-  background: #f3f4f6;
+  background: var(--bg-tertiary);
   transform: translateY(-0.125rem);
 }
 
@@ -171,13 +181,14 @@ function toggleUserMenu() {
   position: absolute;
   top: calc(100% + 0.75rem);
   right: 0;
-  background: #fff;
+  background: var(--bg-primary);
   border-radius: 0.75rem;
-  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-lg);
   min-width: 14rem;
   overflow: hidden;
   z-index: 1002;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .user-menu-item {
@@ -187,7 +198,7 @@ function toggleUserMenu() {
   padding: 0.875rem 1.25rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #374151;
+  color: var(--text-secondary);
   font-weight: 500;
   font-size: 0.9375rem;
 }
@@ -199,7 +210,7 @@ function toggleUserMenu() {
 }
 
 .user-menu-item:hover {
-  background: #f9fafb;
+  background: var(--bg-tertiary);
   padding-left: 1.5rem;
 }
 
@@ -223,8 +234,9 @@ function toggleUserMenu() {
 
 .user-menu-divider {
   height: 1px;
-  background: #e5e7eb;
+  background: var(--border-color);
   margin: 0.5rem 0;
+  transition: background-color 0.3s ease;
 }
 
 .dropdown-enter-active,
@@ -256,8 +268,8 @@ function toggleUserMenu() {
     position: absolute;
     top: 100%;
     right: 0;
-    background: #fff;
-    box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.1);
+    background: var(--bg-primary);
+    box-shadow: var(--shadow-md);
     width: min(85vw, 15rem);
     padding: 1.5rem 1rem;
     gap: 0.75rem;
@@ -288,10 +300,10 @@ function toggleUserMenu() {
   
   .user-menu-dropdown {
     position: static;
-    box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-sm);
     margin-top: 0.5rem;
-    border: 1px solid #e5e7eb;
-    background: #f9fafb;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
   }
   
   .user-menu-item:hover {

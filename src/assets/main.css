@@ -1,5 +1,73 @@
 @import 'primeicons/primeicons.css';
 
+/* ========================================
+   Variables CSS pour le thème
+   ======================================== */
+:root {
+  /* Couleurs principales */
+  --primary-color: #3b82f6;
+  --primary-color-dark: #2563eb;
+  
+  /* Arrière-plans */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  
+  /* Texte */
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-tertiary: #6b7280;
+  
+  /* Bordures */
+  --border-color: #e5e7eb;
+  --border-color-hover: #d1d5db;
+  
+  /* Ombres */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Overlay */
+  --overlay-bg: rgba(0, 0, 0, 0.1);
+}
+
+/* ========================================
+   Mode sombre
+   ======================================== */
+.my-app-dark {
+  /* Couleurs principales */
+  --primary-color: #60a5fa;
+  --primary-color-dark: #3b82f6;
+  
+  /* Arrière-plans */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  
+  /* Texte */
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  
+  /* Bordures */
+  --border-color: #334155;
+  --border-color-hover: #475569;
+  
+  /* Ombres */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+  
+  /* Overlay */
+  --overlay-bg: rgba(255, 255, 255, 0.1);
+}
+
+/* Application du thème */
+.my-app-dark {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
 @media (min-width: 64rem) {
   body {
     display: block;
@@ -12,9 +80,11 @@
 }
 body {
   min-height: 100vh;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
   transition:
-    color 0.5s,
-    background-color 0.5s;
+    color 0.3s ease,
+    background-color 0.3s ease;
   line-height: 1.6;
   font-family:
     Inter,
@@ -46,4 +116,203 @@ body {
 .p-button ,
 .p-button .p-button-icon {
   margin-right: 0.5rem;
+}
+
+/* ========================================
+   Personnalisation des composants PrimeVue en mode sombre
+   ======================================== */
+
+/* Cartes et panneaux */
+.my-app-dark .p-card {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.my-app-dark .p-card .p-card-title {
+  color: var(--text-primary);
+}
+
+.my-app-dark .p-card .p-card-subtitle,
+.my-app-dark .p-card .p-card-content {
+  color: var(--text-secondary);
+}
+
+/* Tables */
+.my-app-dark .p-datatable {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.my-app-dark .p-datatable .p-datatable-header {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.my-app-dark .p-datatable .p-datatable-thead > tr > th {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.my-app-dark .p-datatable .p-datatable-tbody > tr {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
+.my-app-dark .p-datatable .p-datatable-tbody > tr:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.my-app-dark .p-datatable .p-datatable-tbody > tr > td {
+  border-color: var(--border-color);
+}
+
+/* Inputs */
+.my-app-dark .p-inputtext,
+.my-app-dark .p-inputtextarea,
+.my-app-dark .p-dropdown {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.my-app-dark .p-inputtext:enabled:hover,
+.my-app-dark .p-dropdown:not(.p-disabled):hover {
+  border-color: var(--border-color-hover);
+}
+
+.my-app-dark .p-inputtext:enabled:focus,
+.my-app-dark .p-dropdown:not(.p-disabled).p-focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(96, 165, 250, 0.2);
+}
+
+.my-app-dark .p-inputtext::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Dropdown */
+.my-app-dark .p-dropdown-panel {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+.my-app-dark .p-dropdown-items .p-dropdown-item {
+  color: var(--text-secondary);
+}
+
+.my-app-dark .p-dropdown-items .p-dropdown-item:not(.p-highlight):not(.p-disabled):hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.my-app-dark .p-dropdown-items .p-dropdown-item.p-highlight {
+  background-color: var(--primary-color);
+  color: #ffffff;
+}
+
+/* Dialogues et modales */
+.my-app-dark .p-dialog {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.my-app-dark .p-dialog .p-dialog-header {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-bottom-color: var(--border-color);
+}
+
+.my-app-dark .p-dialog .p-dialog-content {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.my-app-dark .p-dialog .p-dialog-footer {
+  background-color: var(--bg-secondary);
+  border-top-color: var(--border-color);
+}
+
+/* Overlay panel */
+.my-app-dark .p-overlaypanel {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.my-app-dark .p-overlaypanel .p-overlaypanel-content {
+  background-color: var(--bg-secondary);
+}
+
+/* Messages et toasts */
+.my-app-dark .p-toast .p-toast-message {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.my-app-dark .p-message {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Pagination */
+.my-app-dark .p-paginator {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
+.my-app-dark .p-paginator .p-paginator-pages .p-paginator-page {
+  color: var(--text-secondary);
+}
+
+.my-app-dark .p-paginator .p-paginator-pages .p-paginator-page:not(.p-highlight):hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.my-app-dark .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  background-color: var(--primary-color);
+  color: #ffffff;
+}
+
+/* Menu */
+.my-app-dark .p-menu {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.my-app-dark .p-menu .p-menuitem-link {
+  color: var(--text-secondary);
+}
+
+.my-app-dark .p-menu .p-menuitem-link:not(.p-disabled):hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* Progress bar */
+.my-app-dark .p-progressbar {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+/* Checkbox et Radio */
+.my-app-dark .p-checkbox .p-checkbox-box,
+.my-app-dark .p-radiobutton .p-radiobutton-box {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+.my-app-dark .p-checkbox .p-checkbox-box.p-highlight,
+.my-app-dark .p-radiobutton .p-radiobutton-box.p-highlight {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
 }
