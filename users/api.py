@@ -5,9 +5,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.middleware.csrf import get_token
 import logging
 from django.conf import settings
+from datetime import datetime
 
 from users import schemas
 from users.models import User
+from users.models_verification import EmailVerificationToken
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from ninja.responses import Response
@@ -63,7 +65,8 @@ def user(request):
     logger.debug(f"User info requested for user={getattr(user_obj, 'email', None)}")
     return {
         "username": user_obj.username,
-        "email": user_obj.email
+        "email": user_obj.email,
+        "email_verified": user_obj.email_verified
     }
 
 @users_router.post("/register")
@@ -81,17 +84,27 @@ def register(request, payload: schemas.SignUpSchema):
     try:
         user = User.objects.create_user(username=payload.username, email=payload.email, password=payload.password)
         logger.info(f"User registered username={payload.username} email={payload.email} user_id={user.id}")
+        
+        # Generate verification token
+        token = EmailVerificationToken.generate_token(
+            user=user,
+            token_type=EmailVerificationToken.TOKEN_TYPE_REGISTRATION
+        )
+        frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
+        verification_url = f"{frontend_url}/verify-email?token={token.token}"
+        
+        # Send verification email
         Mailer.send_template_email(
-                subject='Welcome to SteamKeyVault',
-                template_name='emails/welcome.html',
-                context={
-                    'username': user.username,
-                    'site_url': getattr(settings, 'FRONTEND_URL', 'http://localhost:5173'),
-                },
-                to_emails=[user.email]
-            )
-        logger.info(f"Triggered welcome email send to user_id={user.id} email={user.email}")
-        return Response({"success": True}, status=201)
+            subject='Verify Your Email - SteamKeyVault',
+            template_name='emails/verify_email.html',
+            context={
+                'username': user.username,
+                'verification_url': verification_url,
+            },
+            to_emails=[user.email]
+        )
+        logger.info(f"Sent verification email to user_id={user.id} email={user.email}")
+        return Response({"success": True, "message": "Registration successful. Please check your email to verify your account."}, status=201)
     except Exception as e:
         logger.exception(f"Error registering user username={payload.username} email={payload.email}: {e}")
         return JsonResponse({"error": str(e)}, status=400)
@@ -124,12 +137,30 @@ def update_account(request, payload: schemas.UpdateEmailSchema):
         return JsonResponse({"error": "Email already exists"}, status=400)
 
     try:
-        user_obj.email = new_email
-        user_obj.save()
-        logger.info(f"Email updated for user_id={user_obj.pk} new_email={new_email}")
-        return Response({"success": True})
+        # Generate confirmation token for new email
+        token = EmailVerificationToken.generate_token(
+            user=user_obj,
+            token_type=EmailVerificationToken.TOKEN_TYPE_EMAIL_CHANGE,
+            new_email=new_email
+        )
+        frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
+        confirmation_url = f"{frontend_url}/confirm-email-change?token={token.token}"
+        
+        # Send confirmation email to NEW email address
+        Mailer.send_template_email(
+            subject='Confirm Your Email Change - SteamKeyVault',
+            template_name='emails/email_change_confirmation.html',
+            context={
+                'username': user_obj.username,
+                'new_email': new_email,
+                'confirmation_url': confirmation_url,
+            },
+            to_emails=[new_email]
+        )
+        logger.info(f"Sent email change confirmation to new_email={new_email} for user_id={user_obj.pk}")
+        return Response({"success": True, "message": "Please check your new email address to confirm the change."})
     except Exception as e:
-        logger.exception(f"Error updating email for user_id={user_obj.pk}: {e}")
+        logger.exception(f"Error processing email change for user_id={user_obj.pk}: {e}")
         return JsonResponse({"error": str(e)}, status=400)
 
 
@@ -155,6 +186,18 @@ def change_password_view(request, payload: schemas.ChangePasswordSchema):
         user_obj.set_password(payload.new_password)
         user_obj.save()
         logger.info(f"Password changed for user_id={user_obj.pk}")
+        
+        # Send notification email about password change
+        Mailer.send_template_email(
+            subject='Password Changed - SteamKeyVault',
+            template_name='emails/password_changed.html',
+            context={
+                'username': user_obj.username,
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC'),
+            },
+            to_emails=[user_obj.email]
+        )
+        logger.info(f"Sent password change notification to user_id={user_obj.pk}")
         return Response({"success": True})
     except Exception as e:
         logger.exception(f"Error changing password for user_id={user_obj.pk}: {e}")
@@ -176,3 +219,82 @@ def user_stats(request):
     except Exception as e:
         logger.exception(f"Error fetching stats for user_id={getattr(user_obj, 'pk', None)}: {e}")
         return JsonResponse({'error': str(e)}, status=500)
+
+
+@users_router.get('/verify-email')
+def verify_email(request, token: str):
+    """Verify email address using token sent during registration"""
+    try:
+        verification_token = EmailVerificationToken.objects.get(
+            token=token,
+            token_type=EmailVerificationToken.TOKEN_TYPE_REGISTRATION
+        )
+        
+        if not verification_token.is_valid():
+            logger.warning(f"Email verification failed: token expired or used token={token}")
+            return JsonResponse({"error": "This verification link is invalid or has expired."}, status=400)
+        
+        # Mark user as verified and token as used
+        user = verification_token.user
+        user.email_verified = True
+        user.save(update_fields=['email_verified'])
+        verification_token.mark_used()
+        
+        # Send welcome email after successful verification
+        user = verification_token.user
+        frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
+        Mailer.send_template_email(
+            subject='Welcome to SteamKeyVault',
+            template_name='emails/welcome.html',
+            context={
+                'username': user.username,
+                'site_url': frontend_url,
+            },
+            to_emails=[user.email]
+        )
+        
+        logger.info(f"Email verified successfully for user_id={user.id}")
+        return Response({"success": True, "message": "Email verified successfully! You can now log in."})
+        
+    except EmailVerificationToken.DoesNotExist:
+        logger.warning(f"Email verification failed: token not found token={token}")
+        return JsonResponse({"error": "Invalid verification link."}, status=404)
+    except Exception as e:
+        logger.exception(f"Error during email verification: {e}")
+        return JsonResponse({"error": "An error occurred during verification."}, status=500)
+
+
+@users_router.get('/confirm-email-change')
+def confirm_email_change(request, token: str):
+    """Confirm email change using token sent to new email address"""
+    try:
+        verification_token = EmailVerificationToken.objects.get(
+            token=token,
+            token_type=EmailVerificationToken.TOKEN_TYPE_EMAIL_CHANGE
+        )
+        
+        if not verification_token.is_valid():
+            logger.warning(f"Email change confirmation failed: token expired or used token={token}")
+            return JsonResponse({"error": "This confirmation link is invalid or has expired."}, status=400)
+        
+        # Update user email
+        user = verification_token.user
+        new_email = verification_token.new_email
+        old_email = user.email
+        
+        user.email = new_email
+        user.email_verified = True  # Email is verified since they clicked the link
+        user.save(update_fields=['email', 'email_verified'])
+        
+        # Mark token as used
+        verification_token.mark_used()
+        
+        logger.info(f"Email changed successfully for user_id={user.id} from {old_email} to {new_email}")
+        return Response({"success": True, "message": "Email address changed successfully!"})
+        
+    except EmailVerificationToken.DoesNotExist:
+        logger.warning(f"Email change confirmation failed: token not found token={token}")
+        return JsonResponse({"error": "Invalid confirmation link."}, status=404)
+    except Exception as e:
+        logger.exception(f"Error during email change confirmation: {e}")
+        return JsonResponse({"error": "An error occurred during confirmation."}, status=500)

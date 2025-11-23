@@ -1,0 +1,14 @@
+Confirm Email Change
+
+Hello {{ username }},
+
+You requested to change your email address to: {{ new_email }}
+
+Please click this link to confirm this change:
+{{ confirmation_url }}
+
+This link will expire in 24 hours.
+
+If you didn't request this change, please ignore this email and your email address will remain unchanged.
+
+— SteamKeyVault Team
