@@ -9,3 +9,12 @@ export function requireAuth(to: RouteLocationNormalized, from: RouteLocationNorm
     next('/login')
   }
 }
+
+export function requireAdmin(to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) {
+  const userStore = useUserStore()
+  if (userStore.user && userStore.user.is_admin) {
+    next()
+  } else {
+    next('/')
+  }
+}

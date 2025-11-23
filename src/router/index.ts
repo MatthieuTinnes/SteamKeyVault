@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import { requireAuth } from './guards'
+import { requireAuth, requireAdmin } from './guards'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -52,6 +52,24 @@ const router = createRouter({
       path: '/confirm-email-change',
       name: 'confirm-email-change',
       component: () => import('../views/ConfirmEmailChangeView.vue'),
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('../views/AdminDashboardView.vue'),
+      beforeEnter: requireAdmin,
+    },
+    {
+      path: '/admin/users',
+      name: 'admin-users',
+      component: () => import('../views/AdminUsersView.vue'),
+      beforeEnter: requireAdmin,
+    },
+    {
+      path: '/admin/steam',
+      name: 'admin-steam',
+      component: () => import('../views/AdminSteamSyncView.vue'),
+      beforeEnter: requireAdmin,
     },
   ],
 })

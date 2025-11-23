@@ -14,6 +14,7 @@
     <div class="navbar-links" :class="{ open: menuOpen }">
   <Button v-if="isLoggedIn" label="My Keys" class="p-button-lg p-button-outlined" @click="goTo('/my-keys')" />
   <Button v-if="isLoggedIn" label="My Account" class="p-button-lg p-button-outlined" @click="goTo('/my-account')" />
+  <Button v-if="isAdmin" label="Admin" icon="pi pi-shield" class="p-button-lg p-button-outlined p-button-danger" @click="goTo('/admin')" />
       <Button v-if="!isLoggedIn" label="Login" class="p-button-lg p-button-outlined" @click="goTo('/login')" />
       <Button v-if="!isLoggedIn" label="Register" class="p-button-lg p-button-outlined" @click="goTo('/register')" />
       <Button v-if="isLoggedIn" icon="pi pi-sign-out" label="Logout" class="p-button-lg p-button-outlined" @click="handleLogout" />
@@ -32,6 +33,7 @@ const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
 const isLoggedIn = computed(() => !!userStore.user && !!userStore.user.username)
+const isAdmin = computed(() => !!userStore.user && !!userStore.user.is_admin)
 const menuOpen = ref(false)
 
 function goTo(path: string) {

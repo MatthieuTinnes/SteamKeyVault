@@ -8,6 +8,7 @@ export interface UserInfo {
   username: string
   email: string
   email_verified: boolean
+  is_admin: boolean
 }
 
 export async function fetchUser(): Promise<UserInfo | null> {
