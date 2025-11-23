@@ -5,35 +5,37 @@
       <Button label="Back to Dashboard" icon="pi pi-arrow-left" @click="router.push('/admin')" severity="secondary" />
     </div>
 
-    <DataTable :value="users" :loading="loading" stripedRows paginator :rows="10" :rowsPerPageOptions="[10, 25, 50]">
-      <Column field="id" header="ID" sortable style="width: 5rem"></Column>
-      <Column field="username" header="Username" sortable></Column>
-      <Column field="email" header="Email" sortable></Column>
-      <Column field="email_verified" header="Verified" sortable style="width: 7rem">
-        <template #body="{ data }">
-          <i v-if="data.email_verified" class="pi pi-check-circle" style="color: #059669"></i>
-          <i v-else class="pi pi-times-circle" style="color: #dc2626"></i>
-        </template>
-      </Column>
-      <Column field="is_admin" header="Admin" sortable style="width: 6rem">
-        <template #body="{ data }">
-          <i v-if="data.is_admin" class="pi pi-shield" style="color: #dc2626"></i>
-        </template>
-      </Column>
-      <Column field="games_count" header="Games" sortable style="width: 6rem"></Column>
-      <Column field="keys_count" header="Keys" sortable style="width: 6rem"></Column>
-      <Column field="date_joined" header="Joined" sortable style="width: 10rem">
-        <template #body="{ data }">
-          {{ formatDate(data.date_joined) }}
-        </template>
-      </Column>
-      <Column header="Actions" style="width: 10rem">
-        <template #body="{ data }">
-          <Button icon="pi pi-pencil" @click="editUser(data)" severity="info" text rounded />
-          <Button icon="pi pi-trash" @click="confirmDelete(data)" severity="danger" text rounded />
-        </template>
-      </Column>
-    </DataTable>
+    <div ref="tableContainer">
+      <DataTable :value="users" :loading="loading" stripedRows paginator :rows="rowsPerPage">
+        <Column field="id" header="ID" sortable style="width: 5rem"></Column>
+        <Column field="username" header="Username" sortable></Column>
+        <Column field="email" header="Email" sortable></Column>
+        <Column field="email_verified" header="Verified" sortable style="width: 7rem">
+          <template #body="{ data }">
+            <i v-if="data.email_verified" class="pi pi-check-circle" style="color: #059669"></i>
+            <i v-else class="pi pi-times-circle" style="color: #dc2626"></i>
+          </template>
+        </Column>
+        <Column field="is_admin" header="Admin" sortable style="width: 6rem">
+          <template #body="{ data }">
+            <i v-if="data.is_admin" class="pi pi-shield" style="color: #dc2626"></i>
+          </template>
+        </Column>
+        <Column field="games_count" header="Games" sortable style="width: 6rem"></Column>
+        <Column field="keys_count" header="Keys" sortable style="width: 6rem"></Column>
+        <Column field="date_joined" header="Joined" sortable style="width: 10rem">
+          <template #body="{ data }">
+            {{ formatDate(data.date_joined) }}
+          </template>
+        </Column>
+        <Column header="Actions" style="width: 10rem">
+          <template #body="{ data }">
+            <Button icon="pi pi-pencil" @click="editUser(data)" severity="info" text rounded />
+            <Button icon="pi pi-trash" @click="confirmDelete(data)" severity="danger" text rounded />
+          </template>
+        </Column>
+      </DataTable>
+    </div>
 
     <Dialog v-model:visible="showEditDialog" header="Edit User" :modal="true" :style="{ width: '30rem' }">
       <div v-if="editingUser" class="edit-form">
@@ -91,6 +93,7 @@ import Checkbox from 'primevue/checkbox'
 import { getAllUsers, updateUserEmail, updateUserPassword, updateUserAdminStatus, deleteUser } from '@/api/admin'
 import type { AdminUser } from '@/api/admin'
 import { showSuccessToast, showErrorToast } from '@/utils/toast'
+import { useTableRowsPerPage } from '@/composables/useTableRowsPerPage'
 
 const router = useRouter()
 const users = ref<AdminUser[]>([])
@@ -101,6 +104,8 @@ const editingUser = ref<AdminUser | null>(null)
 const deletingUser = ref<AdminUser | null>(null)
 const saving = ref(false)
 const deleting = ref(false)
+
+const { rowsPerPage, containerRef: tableContainer } = useTableRowsPerPage(350)
 
 const editForm = ref({
   email: '',

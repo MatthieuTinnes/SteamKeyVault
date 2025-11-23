@@ -125,7 +125,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref } from 'vue'
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
@@ -137,6 +137,7 @@ import Dropdown from 'primevue/dropdown';
 import type { Key } from '@/models/Key';
 import { CURRENT_USE_OPTIONS } from '@/models/Key';
 import { addKey, updateKey, removeKey } from '../api/keys'
+import { useTableRowsPerPage } from '@/composables/useTableRowsPerPage'
 
 const props = defineProps<{ keys: Key[], gameId: number | null }>()
 const emit = defineEmits(['refresh'])
@@ -147,48 +148,14 @@ const editingKey = ref<string | null>(null)
 const editKeyValue = ref('')
 const editCurrentUse = ref('')
 const editUsed = ref(false)
-const rowsPerPage = ref(4)
-const tableContainer = ref<HTMLElement | null>(null)
 
-let ro: ResizeObserver | null = null
-
-function updateRowsFromContainer() {
-  rowsPerPage.value = computeRowsPerPage(window.innerHeight)
-}
+const { rowsPerPage, containerRef: tableContainer } = useTableRowsPerPage()
 
 const showAddKeyDialog = ref(false)
 const showEditKeyDialog = ref(false)
 const showDeleteKeyDialog = ref(false)
 const keyToDelete = ref<Key | null>(null)
 const keyToEdit = ref<Key | null>(null)
-
-function computeRowsPerPage(height: number) {
-  console.log('computeRowsPerPage called with height:', height)
-  console.log(rowsPerPage.value)
-  return Math.max(1,Math.floor((height - 550) / 80))
-}
-  
-const handleResize = () => {
-  updateRowsFromContainer()
-}
-
-onMounted(() => {
-  updateRowsFromContainer()
-  if (typeof window !== 'undefined') {
-    window.addEventListener('resize', updateRowsFromContainer)
-  }
-  if (typeof ResizeObserver !== 'undefined' && tableContainer.value) {
-    ro = new ResizeObserver(() => updateRowsFromContainer())
-    ro.observe(tableContainer.value)
-  }
-})
-
-onBeforeUnmount(() => {
-  if (typeof window !== 'undefined') {
-    window.removeEventListener('resize', handleResize)
-  }
-  if (ro && tableContainer.value) ro.disconnect()
-})
 
 function openEditDialog(key: Key) {
   keyToEdit.value = key
