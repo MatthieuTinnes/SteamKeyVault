@@ -30,8 +30,12 @@
         </Column>
         <Column header="Actions" style="width: 10rem">
           <template #body="{ data }">
-            <Button icon="pi pi-pencil" @click="editUser(data)" severity="info" text rounded />
-            <Button icon="pi pi-trash" @click="confirmDelete(data)" severity="danger" text rounded />
+            <div class="action-buttons">
+              <Button class="p-button-sm p-button-info" @click="editUser(data)"><i
+              class="pi pi-pencil"></i></Button>
+              <Button class="p-button-sm p-button-danger" @click="confirmDelete(data)"><i
+              class="pi pi-trash"></i></Button>
+            </div>
           </template>
         </Column>
       </DataTable>
@@ -231,5 +235,12 @@ function formatDate(dateString: string) {
 
 .form-group label {
   font-weight: 600;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  justify-content: center;
 }
 </style>

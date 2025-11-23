@@ -12,7 +12,7 @@
       <span :class="{'bar': true, 'open': menuOpen}"></span>
     </button>
     <div class="navbar-links" :class="{ open: menuOpen }">
-      <Button v-if="isLoggedIn" label="My Keys" class="p-button-lg p-button" @click="goTo('/my-keys')" />
+      <Button v-if="isLoggedIn" label="My Keys" icon="pi pi-key" class="p-button-lg p-button" @click="goTo('/my-keys')" />
       <Button v-if="!isLoggedIn" label="Login" class="p-button-lg p-button" @click="goTo('/login')" />
       <Button v-if="!isLoggedIn" label="Register" class="p-button-lg p-button" @click="goTo('/register')" />
       
@@ -20,26 +20,28 @@
         <Button 
           :label="userStore.user?.username" 
           icon="pi pi-user" 
-          class="p-button-lg p-button user-menu-button"
+          class="p-button-lg p-button-outlined user-menu-button"
           @click="toggleUserMenu"
           aria-haspopup="true"
           :aria-expanded="userMenuOpen"
         />
-        <div v-if="userMenuOpen" class="user-menu-dropdown">
-          <div class="user-menu-item" @click="goTo('/my-account')">
-            <i class="pi pi-user"></i>
-            <span>My Account</span>
+        <Transition name="dropdown">
+          <div v-if="userMenuOpen" class="user-menu-dropdown">
+            <div class="user-menu-item" @click="goTo('/my-account')">
+              <i class="pi pi-user"></i>
+              <span>My Account</span>
+            </div>
+            <div v-if="isAdmin" class="user-menu-item admin-item" @click="goTo('/admin')">
+              <i class="pi pi-shield"></i>
+              <span>Admin</span>
+            </div>
+            <div class="user-menu-divider"></div>
+            <div class="user-menu-item logout-item" @click="handleLogout">
+              <i class="pi pi-sign-out"></i>
+              <span>Logout</span>
+            </div>
           </div>
-          <div v-if="isAdmin" class="user-menu-item" @click="goTo('/admin')">
-            <i class="pi pi-shield"></i>
-            <span>Admin</span>
-          </div>
-          <div class="user-menu-divider"></div>
-          <div class="user-menu-item logout-item" @click="handleLogout">
-            <i class="pi pi-sign-out"></i>
-            <span>Logout</span>
-          </div>
-        </div>
+        </Transition>
       </div>
     </div>
   </nav>
@@ -156,47 +158,88 @@ function toggleUserMenu() {
 
 .user-menu-button {
   text-transform: none !important;
+  font-weight: 600 !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.user-menu-button:hover {
+  transform: translateY(-0.125rem);
 }
 
 .user-menu-dropdown {
   position: absolute;
-  top: calc(100% + 0.5rem);
+  top: calc(100% + 0.75rem);
   right: 0;
   background: #fff;
-  border-radius: 0.5rem;
-  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
-  min-width: 12rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  min-width: 14rem;
   overflow: hidden;
   z-index: 1002;
+  border: 1px solid #e5e7eb;
 }
 
 .user-menu-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: 0.875rem;
+  padding: 0.875rem 1.25rem;
   cursor: pointer;
-  transition: background 0.2s;
-  color: #111827;
+  transition: all 0.2s ease;
+  color: #374151;
   font-weight: 500;
+  font-size: 0.9375rem;
+}
+
+.user-menu-item i {
+  font-size: 1.125rem;
+  width: 1.25rem;
+  text-align: center;
 }
 
 .user-menu-item:hover {
-  background: #f3f4f6;
+  background: #f9fafb;
+  padding-left: 1.5rem;
 }
 
 .user-menu-item.admin-item {
-  color: #dc2626;
+  color: #059669;
+}
+
+.user-menu-item.admin-item:hover {
+  background: #f0fdf4;
+  color: #047857;
 }
 
 .user-menu-item.logout-item {
   color: #dc2626;
 }
 
+.user-menu-item.logout-item:hover {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
 .user-menu-divider {
   height: 1px;
   background: #e5e7eb;
-  margin: 0.25rem 0;
+  margin: 0.5rem 0;
+}
+
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: all 0.2s ease;
+}
+
+.dropdown-enter-from {
+  opacity: 0;
+  transform: translateY(-0.5rem);
+}
+
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-0.25rem);
 }
 
 @media (max-width: 56.25rem) {
@@ -240,13 +283,19 @@ function toggleUserMenu() {
   
   .user-menu-button {
     width: 100%;
+    justify-content: flex-start !important;
   }
   
   .user-menu-dropdown {
     position: static;
-    box-shadow: none;
+    box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.08);
     margin-top: 0.5rem;
     border: 1px solid #e5e7eb;
+    background: #f9fafb;
+  }
+  
+  .user-menu-item:hover {
+    padding-left: 1.25rem;
   }
 }
 </style>
