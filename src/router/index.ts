@@ -43,6 +43,16 @@ const router = createRouter({
       component: () => import('../views/ImportView.vue'),
       beforeEnter: requireAuth,
     },
+    {
+      path: '/verify-email',
+      name: 'verify-email',
+      component: () => import('../views/VerifyEmailView.vue'),
+    },
+    {
+      path: '/confirm-email-change',
+      name: 'confirm-email-change',
+      component: () => import('../views/ConfirmEmailChangeView.vue'),
+    },
   ],
 })
 

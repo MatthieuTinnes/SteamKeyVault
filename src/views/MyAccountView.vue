@@ -21,12 +21,29 @@
         <h3>Change email</h3>
         <div class="form-row">
           <label for="email">Email</label>
-          <InputText id="email" v-model="email" type="email" />
+          <div class="email-input-wrapper">
+            <InputText id="email" v-model="email" type="email" :disabled="pendingEmailChange" />
+          </div>
+          <div v-if="!pendingEmailChange">
+          <span v-if="userStore.user?.email_verified" class="verification-badge verified">
+            <i class="pi pi-check-circle"></i> Verified
+          </span>
+          <span v-else class="verification-badge unverified">
+            <i class="pi pi-exclamation-circle"></i> Not verified
+          </span>
+          </div>
           <p v-if="email && !isEmailValid" class="error-text">Please enter a valid email address.</p>
+          <p v-if="pendingEmailChange" class="warning-text">
+            <i class="pi pi-clock"></i> Email change pending. Please check your new email address ({{ pendingNewEmail
+            }}) for a confirmation link.
+          </p>
+          <p v-else-if="!userStore.user?.email_verified" class="info-text">
+            <i class="pi pi-info-circle"></i> Please check your email inbox for a verification link.
+          </p>
         </div>
         <div class="actions">
           <Button label="Save email" icon="pi pi-check" @click="saveEmail"
-            :disabled="!email || !isEmailValid || saving" />
+            :disabled="!email || !isEmailValid || saving || pendingEmailChange" />
         </div>
       </section>
       <section class="card">
@@ -63,6 +80,8 @@ import { showErrorToast, showSuccessToast } from '@/utils/toast'
 
 const userStore = useUserStore()
 const email = ref('')
+const pendingEmailChange = ref(false)
+const pendingNewEmail = ref('')
 const currentPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
@@ -95,11 +114,24 @@ async function saveEmail() {
   if (!email.value) return
   saving.value = true
   try {
-    await updateEmail({ email: email.value })
-    showSuccessToast('Success', 'Email updated')
-    await userStore.fetchUser()
-  } catch (e) {
-    showErrorToast('Failed to update email')
+    const response = await updateEmail({ email: email.value })
+    const message = response.data?.message || 'Email update requested'
+
+    // If the response indicates a confirmation is needed
+    if (message.toLowerCase().includes('check your') || message.toLowerCase().includes('confirm')) {
+      pendingEmailChange.value = true
+      pendingNewEmail.value = email.value
+      showSuccessToast('Confirmation Required', message)
+
+      // Reset email to current one
+      email.value = userStore.user?.email || ''
+    } else {
+      showSuccessToast('Success', message)
+      await userStore.fetchUser()
+    }
+  } catch (e: any) {
+    const errorMsg = e?.response?.data?.error || 'Failed to update email'
+    showErrorToast(errorMsg)
   } finally {
     saving.value = false
   }
@@ -190,6 +222,52 @@ async function exportCsv() {
   color: #dc2626;
   font-size: 0.9rem;
   margin: 0.25rem 0 0 0;
+}
+
+.info-text {
+  color: #2563eb;
+  font-size: 0.9rem;
+  margin: 0.25rem 0 0 0;
+}
+
+.warning-text {
+  color: #d97706;
+  font-size: 0.9rem;
+  margin: 0.25rem 0 0 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.email-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.email-input-wrapper .p-inputtext {
+  flex: 1;
+}
+
+.verification-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.verification-badge.verified {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.verification-badge.unverified {
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 .account-grid {

@@ -7,6 +7,7 @@ import { API_BASE_URL, getAxiosConfig, getCSRFHeaders } from './apiHelper'
 export interface UserInfo {
   username: string
   email: string
+  email_verified: boolean
 }
 
 export async function fetchUser(): Promise<UserInfo | null> {
@@ -47,4 +48,12 @@ export async function changePassword(payload: { current_password: string; new_pa
 export async function fetchUserStats() {
   const headers = await getCSRFHeaders()
   return axios.get(`${API_BASE_URL}/users/stats`, getAxiosConfig(headers))
+}
+
+export async function verifyEmail(token: string) {
+  return axios.get(`${API_BASE_URL}/users/verify-email?token=${token}`)
+}
+
+export async function confirmEmailChange(token: string) {
+  return axios.get(`${API_BASE_URL}/users/confirm-email-change?token=${token}`)
 }
