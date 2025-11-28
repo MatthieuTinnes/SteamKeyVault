@@ -243,6 +243,35 @@ body {
   color: var(--text-tertiary);
 }
 
+/* AutoComplete */
+.my-app-dark .p-autocomplete-panel {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.my-app-dark .p-autocomplete-items {
+  background-color: var(--bg-secondary);
+}
+
+.my-app-dark .p-autocomplete-item {
+  color: var(--text-secondary);
+}
+
+.my-app-dark .p-autocomplete-item:not(.p-highlight):not(.p-disabled):hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.my-app-dark .p-autocomplete-item.p-highlight {
+  background-color: var(--primary-color);
+  color: #ffffff;
+}
+
+.my-app-dark .p-autocomplete-empty-message {
+  color: var(--text-tertiary);
+}
+
 /* Dialogues et modales */
 .my-app-dark .p-dialog {
   background-color: var(--bg-secondary);

@@ -14,11 +14,11 @@
           </div>
           <div class="p-field">
             <label for="password">Password</label>
-            <Password id="password" v-model="password" toggleMask required class="p-inputtext-sm" />
+            <Password id="password" v-model="password" :feedback="false" toggleMask required class="p-inputtext-sm" />
           </div>
           <div class="p-field">
             <label for="confirmPassword">Confirm Password</label>
-            <Password id="confirmPassword" v-model="confirmPassword" toggleMask required class="p-inputtext-sm" />
+            <Password id="confirmPassword" v-model="confirmPassword" :feedback="false" toggleMask required class="p-inputtext-sm" />
           </div>
           <Button type="submit" label="Register" class="p-mt-2 p-button-primary p-button-sm" />
           <Message v-if="error" severity="error" class="p-mt-2">{{ error }}</Message>
@@ -75,8 +75,9 @@ const handleRegister = async () => {
   width: min(90vw, 25rem);
   padding: 2.5rem 2rem 2rem 2rem;
   border-radius: 1.25rem;
-  box-shadow: 0 0.125rem 1rem rgba(41, 106, 162, 0.08);
-  border: 0.0625rem solid #e5e7eb;
+  box-shadow: var(--shadow-lg);
+  border: 0.0625rem solid var(--border-color);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 form {
   display: flex;
@@ -85,7 +86,7 @@ form {
 }
 .p-field label {
   font-weight: 600;
-  color: #15406b;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
   display: block;
 }
@@ -94,17 +95,6 @@ form {
 .p-password {
   width: 100%;
   box-sizing: border-box;
-  border-radius: 0.5rem;
-  border: 0.0625rem solid #bcd6ee;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  background: #f8fafc;
-  color: #222;
-  transition: border 0.2s;
-}
-.p-inputtext-sm:focus, .p-password-input:focus {
-  border-color: #296aa2;
-  outline: none;
 }
 .p-button-primary {
   margin-top: 0.5rem;

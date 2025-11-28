@@ -59,8 +59,9 @@ function goToRegister() {
   width: min(90vw, 25rem);
   padding: 2.5rem 2rem 2rem 2rem;
   border-radius: 1.25rem;
-  box-shadow: 0 0.125rem 1rem rgba(41, 106, 162, 0.08);
-  border: 0.0625rem solid #e5e7eb;
+  box-shadow: var(--shadow-lg);
+  border: 0.0625rem solid var(--border-color);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 form {
   display: flex;
@@ -69,7 +70,7 @@ form {
 }
 .p-field label {
   font-weight: 600;
-  color: #15406b;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
   display: block;
 }
@@ -78,17 +79,6 @@ form {
 .p-password {
   width: 100%;
   box-sizing: border-box;
-  border-radius: 0.5rem;
-  border: 0.0625rem solid #bcd6ee;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  background: #f8fafc;
-  color: #222;
-  transition: border 0.2s;
-}
-.p-inputtext-sm:focus, .p-password-input:focus {
-  border-color: #296aa2;
-  outline: none;
 }
 .p-button-primary {
   margin-top: 0.5rem;
