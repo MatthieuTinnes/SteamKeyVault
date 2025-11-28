@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-x*2709uoqb_@o_r)@h$1vnxe$vld&+76fvs$3ojcykyjl)$(wf'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-x*2709uoqb_@o_r)@h$1vnxe$vld&+76fvs$3ojcykyjl)$(wf')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-LOG_LEVEL = 'DEBUG'
-ALLOWED_HOSTS = []
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'DEBUG')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if os.environ.get('ALLOWED_HOSTS') else []
 
 
 # Application definition
@@ -47,8 +48,8 @@ INSTALLED_APPS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
-CSRF_TRUSTED_ORIGINS = ['http://localhost:5173']
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',')
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:5173').split(',')
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -86,12 +87,12 @@ WSGI_APPLICATION = 'steamkeyvault.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'steamkeyvault_db',  # Change to your DB name
-        'USER': 'steamkeyvault_user',  # Change to your DB user
-        'PASSWORD': 'yourpassword',    # Change to your DB password
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.postgresql_psycopg2'),
+        'NAME': os.environ.get('DB_NAME', 'steamkeyvault_db'),
+        'USER': os.environ.get('DB_USER', 'steamkeyvault_user'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'yourpassword'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
 
@@ -159,7 +160,7 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': 'INFO',
+        'level': os.environ.get('LOG_LEVEL', 'INFO'),
     },
     'loggers': {
         'steamkeyvault.steam': {
@@ -171,12 +172,17 @@ LOGGING = {
 }
 
 # Email settings - development defaults (console backend). In production, override with env vars.
-DEFAULT_FROM_EMAIL = 'noreply@steamkeyvault.local'
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@steamkeyvault.local')
 if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 else:
-    # Production SMTP defaults (should be overridden via environment)
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'localhost'
-    EMAIL_PORT = 25
-    EMAIL_USE_TLS = False
+    # Production SMTP settings from environment
+    EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'localhost')
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '25'))
+    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'False') == 'True'
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+
+# Steam API Key
+STEAM_API_KEY = os.environ.get('STEAM_API_KEY', '')

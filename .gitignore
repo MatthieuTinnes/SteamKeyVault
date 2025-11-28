@@ -23,6 +23,7 @@ __pycache__/
 venv/
 .env
 .env.*
+!.env.local
 
 # OS
 .DS_Store
