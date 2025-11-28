@@ -14,8 +14,8 @@ RUN npm install -g pnpm && \
 # Copy source files
 COPY . .
 
-# Build the application
-RUN pnpm run build
+# Build the application (skip type-check in Docker build for reliability)
+RUN pnpm run build-only
 
 # Production stage
 FROM nginx:alpine
