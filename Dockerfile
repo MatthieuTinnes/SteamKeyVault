@@ -2,6 +2,9 @@
 # Build stage
 FROM node:20-alpine AS builder
 
+# Build arguments for environment variables
+ARG VITE_API_BASE_URL=/api
+
 WORKDIR /app
 
 # Copy package files
@@ -13,6 +16,9 @@ RUN npm install -g pnpm && \
 
 # Copy source files
 COPY . .
+
+# Set environment variable for build
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 
 # Build the application (skip type-check in Docker build for reliability)
 RUN pnpm run build-only
