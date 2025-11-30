@@ -1,7 +1,9 @@
 import axios from 'axios'
 import { showErrorToast } from '../utils/toast'
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
+// In development (pnpm run dev), Vite loads VITE_API_BASE_URL from .env.local
+// In production (Docker), the placeholder is replaced at container startup by env.sh
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '__VITE_API_BASE_URL__'
 
 export function getCookie(name: string): string | null {
   const value = `; ${document.cookie}`

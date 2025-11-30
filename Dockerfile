@@ -2,9 +2,6 @@
 # Build stage
 FROM node:20-alpine AS builder
 
-# Build arguments for environment variables
-ARG VITE_API_BASE_URL=/api
-
 WORKDIR /app
 
 # Copy package files
@@ -16,9 +13,6 @@ RUN npm install -g pnpm && \
 
 # Copy source files
 COPY . .
-
-# Set environment variable for build
-ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 
 # Build the application (skip type-check in Docker build for reliability)
 RUN pnpm run build-only
@@ -32,7 +26,14 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# Copy environment injection script
+COPY env.sh /docker-entrypoint.d/40-env.sh
+RUN chmod +x /docker-entrypoint.d/40-env.sh
+
+# Set default environment variable
+ENV VITE_API_BASE_URL=https://backend.dev.steamkeyvault.matthieu.app/api
+
 # Expose port
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/docker-entrypoint.d/40-env.sh"]
