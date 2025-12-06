@@ -9,7 +9,11 @@ axios.defaults.xsrfHeaderName = 'X-CSRFToken'
 axios.defaults.withCredentials = true
 axios.defaults.withXSRFToken = true
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '__VITE_API_BASE_URL__'
+// Priority:
+// 1. Runtime config (window.config) - injected by env.sh in production or config.js in dev
+// 2. Build-time env var (import.meta.env) - from .env files
+// 3. Fallback default
+export const API_BASE_URL = window.config?.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
 
 export function getCookie(name: string): string | null {
   const value = `; ${document.cookie}`
