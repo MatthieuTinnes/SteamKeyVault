@@ -30,9 +30,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY env.sh /docker-entrypoint.d/40-env.sh
 RUN chmod +x /docker-entrypoint.d/40-env.sh
 
-# Set default environment variable
-ENV VITE_API_BASE_URL=https://backend.dev.steamkeyvault.matthieu.app/api
-
 # Expose port
 EXPOSE 80
 
