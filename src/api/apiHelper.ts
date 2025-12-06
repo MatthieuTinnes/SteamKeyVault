@@ -7,6 +7,7 @@ import { showErrorToast } from '../utils/toast'
 axios.defaults.xsrfCookieName = 'csrftoken'
 axios.defaults.xsrfHeaderName = 'X-CSRFToken'
 axios.defaults.withCredentials = true
+axios.defaults.withXSRFToken = true
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '__VITE_API_BASE_URL__'
 

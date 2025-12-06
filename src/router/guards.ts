@@ -4,7 +4,7 @@ import { getCookie } from '../api/apiHelper'
 
 async function ensureUserLoaded() {
   const userStore = useUserStore()
-  const isLoggedIn = getCookie('is_logged_in') === 'true'
+  const isLoggedIn = getCookie('csrftoken') !== null
 
   if (!userStore.user && isLoggedIn) {
     try {

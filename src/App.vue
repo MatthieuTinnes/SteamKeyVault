@@ -24,7 +24,7 @@ onMounted(async () => {
   if (toastRef.value) setGlobalToast(toastRef.value)
   initTheme()
   
-  const isLoggedIn = getCookie('is_logged_in') === 'true'
+  const isLoggedIn = getCookie('csrftoken') !== null
 
   // Si l'utilisateur n'est pas déjà chargé (par exemple par le router guard), on tente de le récupérer
   if (!userStore.user && isLoggedIn) {
