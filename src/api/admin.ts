@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { API_BASE_URL, getAxiosConfig, getCSRFHeaders } from './apiHelper'
+import { API_BASE_URL, getAxiosConfig } from './apiHelper'
 
 export interface AdminUser {
   id: number
@@ -27,61 +27,52 @@ export interface SteamStats {
 }
 
 export async function getAdminStats() {
-  const headers = await getCSRFHeaders()
-  return axios.get<AdminStats>(`${API_BASE_URL}/admin/stats`, getAxiosConfig(headers))
+  return axios.get<AdminStats>(`${API_BASE_URL}/admin/stats`, getAxiosConfig())
 }
 
 export async function getAllUsers() {
-  const headers = await getCSRFHeaders()
   return axios.get<{ users: AdminUser[]; total: number }>(
     `${API_BASE_URL}/admin/users`,
-    getAxiosConfig(headers)
+    getAxiosConfig()
   )
 }
 
 export async function getUserDetails(userId: number) {
-  const headers = await getCSRFHeaders()
-  return axios.get<AdminUser>(`${API_BASE_URL}/admin/users/${userId}`, getAxiosConfig(headers))
+  return axios.get<AdminUser>(`${API_BASE_URL}/admin/users/${userId}`, getAxiosConfig())
 }
 
 export async function updateUserEmail(userId: number, email: string) {
-  const headers = await getCSRFHeaders()
   return axios.put(
     `${API_BASE_URL}/admin/users/${userId}/email`,
     { email },
-    getAxiosConfig(headers)
+    getAxiosConfig()
   )
 }
 
 export async function updateUserPassword(userId: number, password: string) {
-  const headers = await getCSRFHeaders()
   return axios.put(
     `${API_BASE_URL}/admin/users/${userId}/password`,
     { password },
-    getAxiosConfig(headers)
+    getAxiosConfig()
   )
 }
 
 export async function updateUserAdminStatus(userId: number, isAdmin: boolean) {
-  const headers = await getCSRFHeaders()
   return axios.put(
     `${API_BASE_URL}/admin/users/${userId}/admin`,
     { is_admin: isAdmin },
-    getAxiosConfig(headers)
+    getAxiosConfig()
   )
 }
 
 export async function deleteUser(userId: number) {
-  const headers = await getCSRFHeaders()
-  return axios.delete(`${API_BASE_URL}/admin/users/${userId}`, getAxiosConfig(headers))
+  return axios.delete(`${API_BASE_URL}/admin/users/${userId}`, getAxiosConfig())
 }
 
 export async function refreshSteamApps() {
-  const headers = await getCSRFHeaders()
-  return axios.post(`${API_BASE_URL}/admin/steam/refresh-steam-apps`, {}, getAxiosConfig(headers))
+  return axios.post(`${API_BASE_URL}/admin/steam/refresh-steam-apps`, {}, getAxiosConfig())
 }
 
 export async function getSteamStats() {
-  const headers = await getCSRFHeaders()
-  return axios.get<SteamStats>(`${API_BASE_URL}/admin/steam/steam-stats`, getAxiosConfig(headers))
+  return axios.get<SteamStats>(`${API_BASE_URL}/admin/steam/steam-stats`, getAxiosConfig())
 }

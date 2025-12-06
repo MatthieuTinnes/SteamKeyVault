@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import type { Ref } from 'vue'
 import axios from 'axios'
 import { useUserStore } from '../stores/user'
-import { API_BASE_URL, getAxiosConfig, getCSRFHeaders } from './apiHelper'
+import { API_BASE_URL, getAxiosConfig } from './apiHelper'
 
 export interface UserInfo {
   username: string
@@ -17,38 +17,32 @@ export async function fetchUser(): Promise<UserInfo | null> {
 }
 
 export async function logoutUser(): Promise<void> {
-  const headers = await getCSRFHeaders()
-  await axios.post(`${API_BASE_URL}/users/logout`, {}, getAxiosConfig(headers))
+  await axios.post(`${API_BASE_URL}/users/logout`, {}, getAxiosConfig())
   useUserStore().clearUser()
 }
 
 export async function loginUser(email: string, password: string) {
-  const headers = await getCSRFHeaders()
-  return axios.post(`${API_BASE_URL}/users/login`, { email, password }, getAxiosConfig(headers))
+  return axios.post(`${API_BASE_URL}/users/login`, { email, password }, getAxiosConfig())
 }
 
 export async function registerUser(email: string, username: string, password: string) {
-  const headers = await getCSRFHeaders()
   return axios.post(
     `${API_BASE_URL}/users/register`,
     { email, username, password },
-    getAxiosConfig(headers)
+    getAxiosConfig()
   )
 }
 
 export async function updateEmail(payload: { email: string }) {
-  const headers = await getCSRFHeaders()
-  return axios.put(`${API_BASE_URL}/users/account`, payload, getAxiosConfig(headers))
+  return axios.put(`${API_BASE_URL}/users/account`, payload, getAxiosConfig())
 }
 
 export async function changePassword(payload: { current_password: string; new_password: string }) {
-  const headers = await getCSRFHeaders()
-  return axios.post(`${API_BASE_URL}/users/change-password`, payload, getAxiosConfig(headers))
+  return axios.post(`${API_BASE_URL}/users/change-password`, payload, getAxiosConfig())
 }
 
 export async function fetchUserStats() {
-  const headers = await getCSRFHeaders()
-  return axios.get(`${API_BASE_URL}/users/stats`, getAxiosConfig(headers))
+  return axios.get(`${API_BASE_URL}/users/stats`, getAxiosConfig())
 }
 
 export async function verifyEmail(token: string) {

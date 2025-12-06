@@ -3,6 +3,11 @@ import { showErrorToast } from '../utils/toast'
 
 // In development (pnpm run dev), Vite loads VITE_API_BASE_URL from .env.local
 // In production (Docker), the placeholder is replaced at container startup by env.sh
+// Configure Axios to handle CSRF tokens automatically
+axios.defaults.xsrfCookieName = 'csrftoken'
+axios.defaults.xsrfHeaderName = 'X-CSRFToken'
+axios.defaults.withCredentials = true
+
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '__VITE_API_BASE_URL__'
 
 export function getCookie(name: string): string | null {
@@ -12,16 +17,23 @@ export function getCookie(name: string): string | null {
   return null
 }
 
-export async function getCSRFHeaders(): Promise<{ [key: string]: string }> {
-  await axios.get(`${API_BASE_URL}/users/set-csrf-token`, { withCredentials: true })
-  const csrftoken = getCookie('csrftoken')
-  return { 'X-CSRFToken': csrftoken || '' }
+/**
+ * Ensures that the CSRF cookie is present.
+ * If not, it fetches it from the backend.
+ * Axios will automatically pick up the cookie and set the X-CSRFToken header.
+ */
+export async function ensureCSRFToken(): Promise<void> {
+  let csrftoken = getCookie('csrftoken')
+  
+  if (!csrftoken) {
+    await axios.get(`${API_BASE_URL}/users/set-csrf-token`)
+  }
 }
 
-export function getAxiosConfig(headers: Record<string, string> = {}) {
+export function getAxiosConfig() {
+  ensureCSRFToken()
   return {
-    withCredentials: true,
-    headers,
+    withCredentials: true
   }
 }
 
