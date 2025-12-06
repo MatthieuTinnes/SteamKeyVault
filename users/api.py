@@ -37,7 +37,6 @@ def login_view(request, payload: schemas.SignInSchema):
     if user is not None:
         login(request, user)
         response = JsonResponse({"success": True})
-        response.set_cookie("is_logged_in", "true", samesite="Lax", httponly=False)
         return response
     logger.warning(f"Failed login for email={payload.email} from {addr}")
     raise HttpError(403, "Invalid credentials")
@@ -49,7 +48,6 @@ def logout_view(request):
     logout(request)
     logger.info(f"User logged out user={user_email}")
     response = JsonResponse({"message": "Logged out"})
-    response.delete_cookie("is_logged_in")
     return response
 
 @users_router.get("/user", auth=django_auth)
