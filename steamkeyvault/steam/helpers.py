@@ -8,45 +8,87 @@ logger = logging.getLogger(__name__)
 
 
 def fetch_and_store_steam_apps():
+    from django.conf import settings
     """Fetch Steam apps from Steam API and store/update them in the database.
     
     Returns:
         dict: Dictionary with 'stored' count on success
         JsonResponse: Error response on failure
     """
-    url = "https://api.steampowered.com/ISteamApps/GetAppList/v2/"
+    api_key = getattr(settings, "STEAM_API_KEY", None)
+    if not api_key:
+        logger.error("STEAM_API_KEY not set in Django settings")
+        return JsonResponse({"error": "Server configuration error: STEAM_API_KEY not set"}, status=500)
+
+    url = "https://api.steampowered.com/IStoreService/GetAppList/v1/"
     logger.info("Fetching Steam apps from %s", url)
-    resp = requests.get(url)
-    if resp.status_code != 200:
-        logger.error("Failed to fetch from Steam API, status code: %d", resp.status_code)
-        return JsonResponse({"error": "Failed to fetch from Steam API"}, status=500)
-    data = resp.json()
-    apps = data.get("applist", {}).get("apps", [])
-    logger.info("Fetched %d apps from Steam API", len(apps))
 
-    chunk_size = 10000
     total_stored = 0
+    last_appid = 0
+    max_results = 25000
+    more_results = True
 
-    for i in range(0, len(apps), chunk_size):
-        chunk = apps[i:i+chunk_size]
-        app_dict = {app["appid"]: app["name"] for app in chunk if app.get("appid") and app.get("name")}
+    while more_results:
+        request_params = {
+            "include_games": True,
+            "include_dlc": False,
+            "include_software": False,
+            "include_videos": False,
+            "include_hardware": False,
+            "last_appid": last_appid,
+            "max_results": max_results
+        }
+        headers = {
+            "x-webapi-key": api_key
+        }
+
+        try:
+            resp = requests.get(url, params=request_params, headers=headers, timeout=30)
+        except requests.RequestException as e:
+            logger.error("Request failed: %s", e)
+            return JsonResponse({"error": "Failed to connect to Steam API"}, status=502)
+
+        if resp.status_code != 200:
+            logger.error("Failed to fetch from Steam API, status code: %d, response: %s", resp.status_code, resp.text)
+            return JsonResponse({"error": f"Failed to fetch from Steam API: {resp.status_code}"}, status=502)
+
+        try:
+            data = resp.json()
+        except ValueError:
+            logger.error("Invalid JSON response from Steam API")
+            return JsonResponse({"error": "Invalid JSON response from Steam API"}, status=502)
+
+        response_data = data.get("response", {})
+        apps = response_data.get("apps", [])
+        
+        if not apps:
+            logger.info("No more apps returned from Steam API")
+            break
+
+        # Process apps
+        app_dict = {app["appid"]: app["name"] for app in apps if app.get("appid") and app.get("name")}
         app_ids = list(app_dict.keys())
 
         existing_ids = set(SteamApp.objects.filter(id__in=app_ids).values_list("id", flat=True))
-        logger.info("Chunk %d-%d: Found %d existing apps in database", i, i+len(chunk)-1, len(existing_ids))
-
+        
         new_apps = [SteamApp(id=appid, name=name) for appid, name in app_dict.items() if appid not in existing_ids]
         update_apps = [SteamApp(id=appid, name=name) for appid, name in app_dict.items() if appid in existing_ids]
 
         if new_apps:
-            SteamApp.objects.bulk_create(new_apps, ignore_conflicts=True)
-            logger.info("Chunk %d-%d: Created %d new SteamApp entries", i, i+len(chunk)-1, len(new_apps))
+            SteamApp.objects.bulk_create(new_apps, batch_size=1000, ignore_conflicts=True)
+            logger.info("Created %d new SteamApp entries", len(new_apps))
 
         if update_apps:
-            SteamApp.objects.bulk_update(update_apps, ["name"])
-            logger.info("Chunk %d-%d: Updated %d existing SteamApp entries", i, i+len(chunk)-1, len(update_apps))
+            SteamApp.objects.bulk_update(update_apps, ["name"], batch_size=1000)
+            logger.info("Updated %d existing SteamApp entries", len(update_apps))
 
         total_stored += len(app_dict)
+        
+        last_appid = response_data.get("last_appid", 0)
+        
+        more_results = response_data.get("have_more_results", False)
+        
+        logger.info("Fetched %d apps from Steam API (last_appid=%d)", len(apps), last_appid)
 
     logger.info("Steam app import completed. Total stored: %d", total_stored)
     return {"stored": total_stored}

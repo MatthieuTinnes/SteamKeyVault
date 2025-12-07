@@ -190,4 +190,4 @@ else:
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 
 # Steam API Key
-STEAM_API_KEY = os.environ.get('STEAM_API_KEY', '')
+STEAM_API_KEY = os.environ.get('STEAM_API_KEY', '16F7AC948566CC7166FE7D258E2B3C5B')
