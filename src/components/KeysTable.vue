@@ -46,9 +46,10 @@
           </span>
         </template>
       </Column>
-      <Column header="Actions" style="width: 8rem; text-align: right">
+      <Column header="Actions" style="width: 10rem; text-align: right">
         <template #body="{ data }">
           <div class="action-buttons">
+            <Button icon="pi pi-copy" class="p-button-text p-button p-button-secondary" @click="copyKey(data.key)" v-tooltip.top="'Copy Key'" />
             <Button icon="pi pi-pencil" class="p-button-text p-button p-button-info" @click="openEditDialog(data)" v-tooltip.top="'Edit'" />
             <Button icon="pi pi-trash" class="p-button-text p-button p-button-danger" @click="openDeleteDialog(data)" v-tooltip.top="'Delete'" />
           </div>
@@ -120,10 +121,12 @@ import type { Key } from '@/models/Key';
 import { CURRENT_USE_OPTIONS } from '@/models/Key';
 import { addKey, updateKey, removeKey } from '../api/keys'
 import { useTableRowsPerPage } from '@/composables/useTableRowsPerPage'
+import { useToast } from 'primevue/usetoast'
 
 const props = defineProps<{ keys: Key[], gameId: number | null }>()
 const emit = defineEmits(['refresh'])
 
+const toast = useToast()
 const newKey = ref('')
 const newCurrentUse = ref('')
 const editingKey = ref<string | null>(null)
@@ -164,6 +167,16 @@ async function confirmDeleteKey() {
   await removeKey(props.gameId, keyToDelete.value.id)
   showDeleteKeyDialog.value = false
   emit('refresh')
+}
+
+async function copyKey(key: string) {
+  try {
+    await navigator.clipboard.writeText(key)
+    toast.add({ severity: 'success', summary: 'Copied', detail: 'Key copied to clipboard', life: 2000 })
+  } catch (err) {
+    console.error('Failed to copy key:', err)
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to copy key', life: 2000 })
+  }
 }
 
 async function handleAddKey() {
