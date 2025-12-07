@@ -121,7 +121,7 @@ async function onGameDeleted() {
   grid-template-columns: 20rem 1fr;
   gap: 1.5rem;
   align-items: start;
-  min-height: calc(100vh - 6rem);
+  min-height: calc(100vh - 10rem);
 }
 
 /* Sidebar */
@@ -133,16 +133,14 @@ async function onGameDeleted() {
   border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 9rem);
+  height: calc(100vh - 10rem);
   position: sticky;
-  top: 2rem;
+  top: 6rem;
   overflow: hidden;
 }
 
 .sidebar-header {
   margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
 }
 
 .sidebar-header h3 {

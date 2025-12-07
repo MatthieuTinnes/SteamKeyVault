@@ -1,5 +1,10 @@
 @import 'primeicons/primeicons.css';
 
+/* Reset & Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 /* ========================================
    Variables CSS pour le thème
    ======================================== */
@@ -79,6 +84,7 @@
   }
 }
 body {
+  margin: 0;
   min-height: 100vh;
   background-color: var(--bg-secondary);
   color: var(--text-primary);

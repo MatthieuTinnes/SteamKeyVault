@@ -73,7 +73,7 @@
       </section>
 
       <!-- Security Settings -->
-      <section class="settings-card full-width">
+      <section class="settings-card">
         <div class="card-header">
           <h3><i class="pi pi-lock"></i> Security</h3>
           <p class="section-desc">Update your password to keep your account secure.</p>
