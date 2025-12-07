@@ -91,6 +91,7 @@ function isActive(path: string) {
 }
 async function handleLogout() {
   await logoutUser()
+  cookieStore.delete('csrftoken')
   router.push('/login')
   menuOpen.value = false
   userMenuOpen.value = false
