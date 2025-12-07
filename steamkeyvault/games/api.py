@@ -25,7 +25,10 @@ class GameOut(Schema):
     name: str
     steamapp_id: Optional[int] = None
 
-@router.post('/add', response={201: None, 400: dict}, auth=django_auth)
+class GameIdOut(Schema):
+    id: int
+
+@router.post('/add', response={201: GameIdOut, 400: dict}, auth=django_auth)
 def add_game(request, data: GameIn):
     name = data.name.strip()
     if not name:
@@ -33,12 +36,12 @@ def add_game(request, data: GameIn):
     if data.steamapp_id and UserGame.objects.filter(user=request.user, steamapp_id=data.steamapp_id).exists():
         return 400, {"error": "User already has this game."}
 
-    UserGame.objects.create(
+    game = UserGame.objects.create(
         user=request.user,
         name=name,
         steamapp_id=data.steamapp_id,
     )
-    return 201, None
+    return 201, {"id": game.id}
 
 @router.get('/list', response=list[GameOut],auth=django_auth)
 def list_games(request):
