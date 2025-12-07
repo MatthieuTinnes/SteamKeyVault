@@ -1,26 +1,14 @@
 <template>
-  <div class="windmill-landing">
-    <div class="windmill-hero">
+  <div class="home-view">
+    <div class="hero-section">
       <div class="hero-content">
         <h1 class="hero-title">Your Steam Keys, Simplified</h1>
         <p class="hero-subtitle">
           SteamKeyVault is the easiest way to securely store, organize, and trade your Steam keys.
         </p>
         <div class="hero-actions">
-          <Button label="Get started" class="p-button-lg p-button-primary" @click="goToMyKeys" />
-          <Button label="Learn More" class="p-button-lg p-button-outlined" style="margin-left:1rem;" @click="goToLearnMore" />
-        </div>
-        <img src="https://windmill.bansal.io/tablet-mockup.png" alt="Product Screenshot on Tablet" class="hero-image" />
-      </div>
-      <div class="trusted-by">
-        <span>Trusted by gamers and traders worldwide</span>
-        <div class="brand-logos">
-          <img src="https://windmill.bansal.io/logoipsum-288.svg" alt="Brand 1" />
-          <img src="https://windmill.bansal.io/logoipsum-317.svg" alt="Brand 2" />
-          <img src="https://windmill.bansal.io/logoipsum-321.svg" alt="Brand 3" />
-          <img src="https://windmill.bansal.io/logoipsum-323.svg" alt="Brand 4" />
-          <img src="https://windmill.bansal.io/logoipsum-330.svg" alt="Brand 5" />
-          <img src="https://windmill.bansal.io/logoipsum-331.svg" alt="Brand 6" />
+          <Button label="Get started" class="p-button-lg" @click="goToMyKeys" />
+          <Button label="Learn More" class="p-button-lg" severity="secondary" outlined style="margin-left: 1rem;" @click="goToLearnMore" />
         </div>
       </div>
       <div class="features-section">
@@ -46,7 +34,6 @@
             <p class="discover-feature-desc">{{ feature.desc }}</p>
           </div>
         </div>
-        <img src="https://windmill.bansal.io/phone-mockup.png" alt="Phone Mockup" class="discover-image" />
       </div>
       <div class="faq-section">
         <h2 class="faq-title">Frequently Asked Questions</h2>
@@ -114,177 +101,180 @@ async function handleLogout() {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-
-.windmill-landing {
-  font-family: 'Inter', Arial, sans-serif;
+.home-view {
   width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
+  min-height: calc(100vh - 5rem);
   background: var(--bg-secondary);
   color: var(--text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  padding: 2rem;
 }
-.windmill-hero {
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: 0 0 2rem 0;
-  background: none;
-  border-radius: 0;
-  box-shadow: none;
+
+.hero-section {
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+
 .hero-content {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 4rem;
+  padding-top: 2rem;
 }
+
 .hero-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  letter-spacing: -0.0625rem;
-}
-.hero-subtitle {
-  font-size: 1.2rem;
+  font-size: 3rem;
+  font-weight: 800;
   margin-bottom: 1.5rem;
-  color: var(--text-secondary);
-  max-width: min(32rem, 90vw);
+  letter-spacing: -0.05em;
+  color: var(--text-primary);
+  line-height: 1.2;
 }
-.hero-actions {
+
+.hero-subtitle {
+  font-size: 1.25rem;
   margin-bottom: 2rem;
+  color: var(--text-secondary);
+  max-width: 40rem;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
 }
+
 .hero-image {
-  margin: 2rem auto 0 auto;
-  max-width: min(31.25rem, 90vw);
-  width: 100%;
+  max-width: 100%;
   border-radius: 1rem;
-  box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.08);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
 }
+
 .trusted-by {
   text-align: center;
-  margin: 2rem 0 2rem 0;
+  margin: 4rem 0;
   color: var(--text-tertiary);
-  font-size: 1rem;
 }
+
 .brand-logos {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1.5rem;
-  margin-top: 1rem;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  opacity: 0.7;
 }
+
 .brand-logos img {
   height: 2rem;
-  opacity: 0.8;
+  filter: grayscale(100%);
+  transition: filter 0.3s;
 }
-.features-section {
-  margin-top: 3rem;
+
+.brand-logos img:hover {
+  filter: grayscale(0%);
+}
+
+.features-section, .discover-section, .faq-section {
+  margin-top: 6rem;
   text-align: center;
-}
-.features-title {
-  font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-.features-desc {
-  color: var(--text-secondary);
-  margin-bottom: 2rem;
-}
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(13.75rem, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
-}
-.feature-card {
-  background: var(--bg-primary);
-  border-radius: 1rem;
-  padding: 2rem 1.5rem;
-  box-shadow: var(--shadow-sm);
-  transition: background-color 0.3s ease;
-}
-.feature-title {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-.feature-desc {
-  color: var(--text-secondary);
-}
-.discover-section {
-  margin-top: 4rem;
-  text-align: center;
-}
-.discover-title {
-  font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-.discover-desc {
-  color: var(--text-secondary);
-  margin-bottom: 2rem;
-}
-.discover-features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(13.75rem, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
-}
-.discover-feature-card {
-  background: var(--bg-primary);
-  border-radius: 1rem;
-  padding: 2rem 1.5rem;
-  box-shadow: var(--shadow-sm);
-  transition: background-color 0.3s ease;
-}
-.discover-feature-title {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-.discover-feature-desc {
-  color: var(--text-secondary);
-}
-.discover-image {
-  margin: 3rem auto 0 auto;
-  max-width: min(21.875rem, 90vw);
   width: 100%;
+}
+
+.features-title, .discover-title, .faq-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.features-desc, .discover-desc {
+  color: var(--text-secondary);
+  margin-bottom: 3rem;
+  font-size: 1.125rem;
+  max-width: 40rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.features-grid, .discover-features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  text-align: left;
+}
+
+.feature-card, .discover-feature-card {
+  background: var(--bg-primary);
   border-radius: 1rem;
-  box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.08);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
-.faq-section {
-  margin-top: 4rem;
-  text-align: center;
+
+.feature-card:hover, .discover-feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
 }
-.faq-title {
-  font-size: 2rem;
+
+.feature-title, .discover-feature-title {
+  font-size: 1.25rem;
   font-weight: 600;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
 }
+
+.feature-desc, .discover-feature-desc {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.discover-image {
+  margin-top: 4rem;
+  max-width: 100%;
+  border-radius: 1rem;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+}
+
 .faq-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 2rem;
-  margin-top: 2rem;
+  text-align: left;
 }
+
 .faq-item {
   background: var(--bg-primary);
   border-radius: 1rem;
-  padding: 2rem 1.5rem;
+  padding: 2rem;
   box-shadow: var(--shadow-sm);
-  text-align: left;
-  transition: background-color 0.3s ease;
+  border: 1px solid var(--border-color);
 }
+
 .faq-question {
-  font-size: 1.1rem;
+  font-size: 1.125rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
 }
+
 .faq-answer {
   color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.25rem;
+  }
+  
+  .features-grid, .discover-features-grid, .faq-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .home-view {
+    padding: 1rem;
+  }
 }
 </style>

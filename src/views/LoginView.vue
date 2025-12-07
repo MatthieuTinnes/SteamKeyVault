@@ -1,33 +1,33 @@
 <template>
   <div class="login-container">
     <Card class="login-card">
-      <template #title><h2>Login</h2></template>
+      <template #title><h2 class="login-title">Login</h2></template>
       <template #content>
-        <form @submit.prevent="handleLogin">
-          <div class="p-field">
+        <form @submit.prevent="handleLogin" class="login-form">
+          <div class="form-group">
             <label for="email">Email</label>
-            <InputText id="email" v-model="email" type="text" required class="p-inputtext-sm" />
+            <InputText id="email" v-model="email" type="text" required class="w-full" />
           </div>
-          <div class="p-field">
+          <div class="form-group">
             <label for="password">Password</label>
-            <Password :feedback="false" id="password" v-model="password" toggleMask required class="p-inputtext-sm" />
+            <Password :feedback="false" id="password" v-model="password" toggleMask required class="w-full" inputClass="w-full" />
           </div>
-          <Button type="submit" label="Login" class="p-mt-2 p-button-primary p-button-sm" />
+          <Button type="submit" label="Login" class="w-full mt-4" />
         </form>
-        <div class="register-link p-mt-3">
+        <div class="register-link mt-4">
           <span>Don't have an account?</span>
-          <Button label="Register" class="p-button-link p-button-sm" @click="goToRegister" />
+          <Button label="Register" link size="small" @click="goToRegister" />
         </div>
       </template>
     </Card>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { loginUser } from '../api/auth'
-import { useUserStore } from '@/stores/user'
+import { useUserStore } from '../stores/user'
 import Card from 'primevue/card';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
@@ -53,49 +53,76 @@ function goToRegister() {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 60vh;
+  min-height: calc(100vh - 5rem);
+  background: var(--bg-secondary);
+  padding: 1rem;
 }
+
 .login-card {
-  width: min(90vw, 25rem);
-  padding: 2.5rem 2rem 2rem 2rem;
-  border-radius: 1.25rem;
+  width: 100%;
+  max-width: 25rem;
+  border-radius: 1rem;
   box-shadow: var(--shadow-lg);
-  border: 0.0625rem solid var(--border-color);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
 }
-form {
+
+.login-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.login-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
-.p-field label {
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 0.5rem;
-  display: block;
+  font-size: 0.875rem;
 }
-.p-inputtext-sm,
-.p-password-input,
-.p-password {
+
+.w-full {
   width: 100%;
-  box-sizing: border-box;
 }
-.p-button-primary {
-  margin-top: 0.5rem;
-  font-size: 1.1rem;
-  border-radius: 0.5rem;
-  padding: 0.75rem 0;
+
+.mt-4 {
+  margin-top: 1rem;
 }
+
 .register-link {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  justify-content: flex-end;
-  margin-top: 1.5rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
 }
-.p-message {
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  margin-top: 0.5rem;
+
+/* Override PrimeVue styles if needed */
+:deep(.p-card-body) {
+  padding: 2rem;
+}
+
+:deep(.p-card-content) {
+  padding: 0;
+}
+
+:deep(.p-password) {
+  width: 100%;
+}
+
+:deep(.p-password-input) {
+  width: 100%;
 }
 </style>

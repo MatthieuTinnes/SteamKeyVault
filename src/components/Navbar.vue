@@ -3,24 +3,40 @@
     <div class="navbar-left">
       <RouterLink to="/" class="navbar-logo-link">
         <img src="../assets/logo.png" alt="Logo" class="navbar-logo" />
+        <span class="navbar-title">SteamKeyVault</span>
       </RouterLink>
-      <span class="navbar-title">SteamKeyVault</span>
     </div>
-    <button class="navbar-toggle" @click="toggleMenu" aria-label="Toggle navigation">
-      <span :class="{'bar': true, 'open': menuOpen}"></span>
-      <span :class="{'bar': true, 'open': menuOpen}"></span>
-      <span :class="{'bar': true, 'open': menuOpen}"></span>
-    </button>
+
+    <Button 
+      :icon="menuOpen ? 'pi pi-times' : 'pi pi-bars'" 
+      text 
+      rounded 
+      aria-label="Toggle navigation"
+      class="navbar-toggle-btn"
+      @click="toggleMenu"
+    />
+
     <div class="navbar-links" :class="{ open: menuOpen }">
-      <Button v-if="isLoggedIn" label="My Keys" icon="pi pi-key" class="p-button-lg p-button" @click="goTo('/my-keys')" />
-      <Button v-if="!isLoggedIn" label="Login" class="p-button-lg p-button" @click="goTo('/login')" />
-      <Button v-if="!isLoggedIn" label="Register" class="p-button-lg p-button" @click="goTo('/register')" />
+      <Button 
+        v-if="isLoggedIn" 
+        label="My Keys" 
+        icon="pi pi-key" 
+        text
+        class="nav-item"
+        @click="goTo('/my-keys')" 
+      />
+      
+      <template v-if="!isLoggedIn">
+        <Button label="Login" text class="nav-item" @click="goTo('/login')" />
+        <Button label="Register" class="nav-item" @click="goTo('/register')" />
+      </template>
       
       <div v-if="isLoggedIn" class="user-menu-wrapper">
         <Button 
           :label="userStore.user?.username" 
           icon="pi pi-user" 
-          class="p-button-lg p-button-outlined user-menu-button"
+          outlined
+          class="user-menu-button"
           @click="toggleUserMenu"
           aria-haspopup="true"
           :aria-expanded="userMenuOpen"
@@ -93,17 +109,14 @@ function toggleUserMenu() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem clamp(1rem, 4vw, 2.5rem);
-  box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.1);
+  padding: 1rem 2rem;
+  box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
   z-index: 1000;
   background: var(--bg-primary);
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.my-app-dark .navbar {
-  box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.4);
+  height: 5rem;
 }
 
 .navbar-left {
@@ -111,55 +124,34 @@ function toggleUserMenu() {
   align-items: center;
   gap: 1rem;
 }
-.navbar-logo {
-  height: 3rem;
+
+.navbar-logo-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-decoration: none;
 }
+
+.navbar-logo {
+  height: 2.5rem;
+  width: auto;
+}
+
 .navbar-title {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-primary);
-  letter-spacing: -0.0625rem;
-  transition: color 0.3s ease;
+  letter-spacing: -0.025em;
 }
-.navbar-toggle {
+
+.navbar-toggle-btn {
   display: none;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  margin-left: 1rem;
 }
-.bar {
-  width: 2rem;
-  height: 0.1875rem;
-  background: var(--text-primary);
-  margin: 0.25rem 0;
-  border-radius: 0.125rem;
-  transition: all 0.3s;
-  display: block;
-}
+
 .navbar-links {
   display: flex;
   align-items: center;
   gap: 1rem;
-  transition: all 0.3s;
-}
-.navbar-links a {
-  color: var(--text-primary);
-  font-weight: 500;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-.navbar-links a.active, .navbar-links a:hover {
-  background: var(--bg-tertiary);
-  transform: translateY(-0.125rem);
 }
 
 .user-menu-wrapper {
@@ -167,35 +159,28 @@ function toggleUserMenu() {
 }
 
 .user-menu-button {
-  text-transform: none !important;
   font-weight: 600 !important;
-  border-radius: 0.5rem !important;
-  transition: all 0.2s ease !important;
-}
-
-.user-menu-button:hover {
-  transform: translateY(-0.125rem);
 }
 
 .user-menu-dropdown {
   position: absolute;
-  top: calc(100% + 0.75rem);
+  top: calc(100% + 0.5rem);
   right: 0;
   background: var(--bg-primary);
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   box-shadow: var(--shadow-lg);
   min-width: 14rem;
   overflow: hidden;
   z-index: 1002;
   border: 1px solid var(--border-color);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  padding: 0.5rem 0;
 }
 
 .user-menu-item {
   display: flex;
   align-items: center;
-  gap: 0.875rem;
-  padding: 0.875rem 1.25rem;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
   color: var(--text-secondary);
@@ -203,15 +188,9 @@ function toggleUserMenu() {
   font-size: 0.9375rem;
 }
 
-.user-menu-item i {
-  font-size: 1.125rem;
-  width: 1.25rem;
-  text-align: center;
-}
-
 .user-menu-item:hover {
   background: var(--bg-tertiary);
-  padding-left: 1.5rem;
+  color: var(--text-primary);
 }
 
 .user-menu-item.admin-item {
@@ -236,7 +215,6 @@ function toggleUserMenu() {
   height: 1px;
   background: var(--border-color);
   margin: 0.5rem 0;
-  transition: background-color 0.3s ease;
 }
 
 .dropdown-enter-active,
@@ -254,60 +232,60 @@ function toggleUserMenu() {
   transform: translateY(-0.25rem);
 }
 
-@media (max-width: 56.25rem) {
+@media (max-width: 768px) {
   .navbar {
-    flex-wrap: wrap;
     padding: 0.75rem 1rem;
   }
-  .navbar-toggle {
-    display: flex;
+
+  .navbar-toggle-btn {
+    display: inline-flex;
   }
+
   .navbar-links {
-    flex-direction: column;
-    align-items: flex-start;
     position: absolute;
     top: 100%;
+    left: 0;
     right: 0;
+    flex-direction: column;
+    align-items: stretch;
     background: var(--bg-primary);
+    padding: 1rem;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
     box-shadow: var(--shadow-md);
-    width: min(85vw, 15rem);
-    padding: 1.5rem 1rem;
-    gap: 0.75rem;
-    border-radius: 0 0 0.5rem 0.5rem;
     opacity: 0;
     pointer-events: none;
-    transform: translateY(-0.625rem);
-    transition: all 0.3s;
-    z-index: 1001;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
   }
+
   .navbar-links.open {
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
   }
-  .navbar-links a {
+
+  .nav-item {
     width: 100%;
+    justify-content: flex-start;
   }
-  
+
   .user-menu-wrapper {
     width: 100%;
   }
-  
+
   .user-menu-button {
     width: 100%;
-    justify-content: flex-start !important;
+    justify-content: flex-start;
   }
-  
+
   .user-menu-dropdown {
     position: static;
-    box-shadow: var(--shadow-sm);
-    margin-top: 0.5rem;
+    width: 100%;
+    box-shadow: none;
     border: 1px solid var(--border-color);
+    margin-top: 0.5rem;
     background: var(--bg-secondary);
-  }
-  
-  .user-menu-item:hover {
-    padding-left: 1.25rem;
   }
 }
 </style>
