@@ -1,16 +1,29 @@
 <template>
   <div class="user-games-list">
-    <h2>Your Games</h2>
-
-    <div class="filter-row">
-      <span class="p-input-icon-left">
-        <i class="pi pi-search"></i>
-        <InputText v-model="filter" type="text" class="p-inputtext-sm filter-input" placeholder="Filter games..." />
-      </span>
+    <div class="filter-container">
+      <IconField>
+          <InputIcon class="pi pi-search" />
+          <InputText v-model="filter" placeholder="Filter games..."  />
+      </IconField>
     </div>
 
-    <div class="listbox-wrapper">
-      <Listbox v-model="selectedGame" :options="filteredGames" emptyMessage="No games found" optionLabel="name" class="user-listbox" />
+    <div class="list-container">
+      <Listbox 
+        v-model="selectedGame" 
+        :options="filteredGames" 
+        optionLabel="name" 
+        class="w-full game-listbox"
+        listStyle="max-height: 100%"
+      >
+        <template #option="slotProps">
+          <div class="game-item">
+            <span class="game-name">{{ slotProps.option.name }}</span>
+          </div>
+        </template>
+        <template #empty>
+          <div class="empty-message">No games found.</div>
+        </template>
+      </Listbox>
     </div>
   </div>
 </template>
@@ -20,6 +33,8 @@ import { defineProps, ref, watch, defineEmits, computed } from 'vue'
 import Listbox from 'primevue/listbox';
 import InputText from 'primevue/inputtext';
 import type { Game } from '../models/Game';
+import IconField from 'primevue/iconfield';
+import InputIcon from 'primevue/inputicon';
 
 const props = defineProps<{ games: Game[] }>()
 const emit = defineEmits(['gameSelected'])
@@ -42,40 +57,78 @@ watch(selectedGame, (game) => {
 </script>
 
 <style scoped>
-.filter-row {
-  margin-bottom: 1rem;
-  position: relative;
+.user-games-list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
-.p-input-icon-left {
+
+.filter-container {
+  margin-bottom: 1rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.list-container {
+  flex: 1;
+  overflow-y: auto;
+  /* Ensure it takes available space but scrolls */
+  min-height: 0; 
+}
+
+/* Customizing Listbox to match design system */
+:deep(.p-listbox) {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+:deep(.p-listbox-list) {
+  padding: 0;
+}
+
+:deep(.p-listbox-item) {
+  margin-bottom: 0.25rem;
+  border-radius: 0.375rem;
+  padding: 0.75rem 1rem;
+  transition: background-color 0.2s, color 0.2s;
+  color: var(--text-secondary);
+}
+
+:deep(.p-listbox-item:not(.p-highlight):not(.p-disabled):hover) {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+:deep(.p-listbox-item.p-highlight) {
+  background: var(--primary-color);
+  color: #ffffff;
+}
+
+.game-item {
   display: flex;
   align-items: center;
-  position: relative;
-}
-.filter-input {
-  width: 100%;
-  padding-left: 2rem;
-  padding-right: 2rem;
-}
-.pi-search {
-  position: absolute;
-  left: 0.75rem;
-  color: var(--text-tertiary);
-}
-.filter-clear {
-  position: absolute;
-  right: 0.75rem;
-  color: #888;
-  cursor: pointer;
+  gap: 0.75rem;
 }
 
-.listbox-wrapper {
-  /* make the left column scroll internally when content overflows */
-  max-height: calc(100vh - 20rem);
-  overflow: auto;
+.game-icon {
+  font-size: 1rem;
+  opacity: 0.7;
 }
 
-.user-listbox {
-  width: 100%;
-  box-sizing: border-box;
+.game-name {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.empty-message {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
 }
 </style>

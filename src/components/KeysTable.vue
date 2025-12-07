@@ -2,123 +2,106 @@
   <div class="keys-table">
     <!-- Toolbar for Add Key -->
     <div class="toolbar">
-      <Button label="Add Key" icon="pi pi-plus" class="p-button-sm p-button-success" @click="showAddKeyDialog = true" :disabled="!gameId" :tooltip="!gameId ? 'Please select a game first' : undefined" />
+      <Button label="Add Key" icon="pi pi-plus" @click="showAddKeyDialog = true" :disabled="!gameId" :tooltip="!gameId ? 'Please select a game first' : undefined" />
     </div>
     <div ref="tableContainer" class="datatable-wrapper">
       <DataTable
         :value="keys"
-        :tableStyle="{ minWidth: 'min(100%, 30rem)' }"
         paginator
         :rows="rowsPerPage"
         striped-rows
-        responsiveLayout="stack"
+        responsiveLayout="scroll"
+        class="p-datatable-sm"
       >
       <template #empty>
-            <p>Add a key to start</p>
+        <div class="empty-state">
+          <i class="pi pi-key empty-icon"></i>
+          <p>No keys found. Add a key to start.</p>
+        </div>
       </template>
       <Column field="key" header="Key">
         <template #body="{ data }">
-          <template v-if="editingKey === data.key">
-            <InputText v-model="editKeyValue" class="edit-key-input" />
-          </template>
-          <template v-else>
-            {{ data.key }}
-          </template>
+          <span class="key-text">{{ data.key }}</span>
         </template>
       </Column>
-      <Column sortable field="date_added" header="Date added">
+      <Column sortable field="date_added" header="Date Added">
         <template #body="{ data }">
           {{ formatDate(data.date_added) }}
         </template>
       </Column>
-      <Column sortable field="current_use" header="Current use">
+      <Column sortable field="current_use" header="Usage">
         <template #body="{ data }">
-          <template v-if="editingKey === data.key">
-            <Dropdown v-model="editCurrentUse" :options="CURRENT_USE_OPTIONS" optionLabel="label" optionValue="value"
-              placeholder="Select usage" class="edit-key-input" />
-          </template>
-          <template v-else>
+          <span class="usage-badge" :class="getUsageClass(data.current_use)">
             {{ getCurrentUseLabel(data.current_use) }}
-          </template>
+          </span>
         </template>
       </Column>
-      <Column sortable field="used" header="Used">
+      <Column sortable field="used" header="Status" style="width: 8rem; text-align: center">
         <template #body="{ data }">
-          <template v-if="editingKey === data.key">
-            <Checkbox v-model="editUsed" :binary="true" />
-          </template>
-          <template v-else>
-            <span v-if="data.used">
-              <i class="pi pi-check used-icon" aria-label="Used"></i>
-            </span>
-            <span v-else>
-              <i class="pi pi-times unused-icon" aria-label="Not used"></i>
-            </span>
-          </template>
+          <span v-if="data.used" class="status-badge used">
+            <i class="pi pi-check-circle"></i> Used
+          </span>
+          <span v-else class="status-badge available">
+            <i class="pi pi-circle"></i> Available
+          </span>
         </template>
       </Column>
-      <Column header="Actions">
+      <Column header="Actions" style="width: 8rem; text-align: right">
         <template #body="{ data }">
-            <Button class="p-button-sm p-button-info" @click="openEditDialog(data)"><i
-              class="pi pi-pencil"></i></Button>
-            <Button class="p-button-sm p-button-danger" @click="openDeleteDialog(data)"><i
-              class="pi pi-trash"></i></Button>
+          <div class="action-buttons">
+            <Button icon="pi pi-pencil" class="p-button-text p-button p-button-info" @click="openEditDialog(data)" v-tooltip.top="'Edit'" />
+            <Button icon="pi pi-trash" class="p-button-text p-button p-button-danger" @click="openDeleteDialog(data)" v-tooltip.top="'Delete'" />
+          </div>
         </template>
       </Column>
       </DataTable>
     </div>
 
     <!-- Add Key Dialog -->
-    <Dialog v-model:visible="showAddKeyDialog" :style="{ width: 'min(26rem, 90vw)' }" header="Add Key" :modal="true">
-      <div class="form-column">
-        <div class="form-row">
-          <label for="add_key">Key</label>
-          <InputText id="add_key" v-model="newKey" class="add-key-input" />
-        </div>
-        <div class="form-row">
-          <label for="add_current_use">Current use</label>
-          <Dropdown id="add_current_use" v-model="newCurrentUse" :options="CURRENT_USE_OPTIONS" optionLabel="label"
-            optionValue="value" class="add-key-input" />
-        </div>
+    <Dialog v-model:visible="showAddKeyDialog" header="Add Key" :modal="true" :style="{ width: 'min(30rem, 90vw)' }" class="p-fluid">
+      <div class="field">
+        <label for="add_key">Key</label>
+        <InputText id="add_key" v-model="newKey" placeholder="XXXXX-XXXXX-XXXXX" />
+      </div>
+      <div class="field">
+        <label for="add_current_use">Usage (Optional)</label>
+        <Dropdown id="add_current_use" v-model="newCurrentUse" :options="CURRENT_USE_OPTIONS" optionLabel="label" optionValue="value" placeholder="Select usage" />
       </div>
       <template #footer>
         <Button label="Cancel" icon="pi pi-times" text @click="showAddKeyDialog = false" />
-        <Button label="Add" icon="pi pi-check" :disabled="!newKey || !gameId" @click="handleAddKey" />
+        <Button label="Add Key" icon="pi pi-check" :disabled="!newKey || !gameId" @click="handleAddKey" />
       </template>
     </Dialog>
 
     <!-- Edit Key Dialog -->
-    <Dialog v-model:visible="showEditKeyDialog" :style="{ width: 'min(26rem, 90vw)' }" header="Edit Key" :modal="true">
-      <div class="form-column">
-        <div class="form-row">
-          <label for="edit_key">Key</label>
-          <InputText id="edit_key" v-model="editKeyValue" class="edit-key-input" />
-        </div>
-        <div class="form-row">
-          <label for="edit_current_use">Current use</label>
-          <Dropdown id="edit_current_use" v-model="editCurrentUse" :options="CURRENT_USE_OPTIONS" optionLabel="label"
-            optionValue="value" class="edit-key-input" />
-        </div>
-        <div class="checkbox-row">
-          <Checkbox v-model="editUsed" :binary="true" id="edit_used" />
-          <label for="edit_used">Used</label>
-        </div>
+    <Dialog v-model:visible="showEditKeyDialog" header="Edit Key" :modal="true" :style="{ width: 'min(30rem, 90vw)' }" class="p-fluid">
+      <div class="field">
+        <label for="edit_key">Key</label>
+        <InputText id="edit_key" v-model="editKeyValue" />
+      </div>
+      <div class="field">
+        <label for="edit_current_use">Usage</label>
+        <Dropdown id="edit_current_use" v-model="editCurrentUse" :options="CURRENT_USE_OPTIONS" optionLabel="label" optionValue="value" placeholder="Select usage" />
+      </div>
+      <div class="field-checkbox">
+        <Checkbox v-model="editUsed" :binary="true" inputId="edit_used" />
+        <label for="edit_used">Mark as Used</label>
       </div>
       <template #footer>
         <Button label="Cancel" icon="pi pi-times" text @click="showEditKeyDialog = false" />
-        <Button label="Save" icon="pi pi-check" @click="saveEditKey" />
+        <Button label="Save Changes" icon="pi pi-check" @click="saveEditKey" />
       </template>
     </Dialog>
 
     <!-- Delete Key Dialog -->
-    <Dialog v-model:visible="showDeleteKeyDialog" :style="{ width: 'min(22rem, 85vw)' }" header="Confirm Delete" :modal="true">
-      <div class="confirm-row">
-        <i class="pi pi-exclamation-triangle confirm-icon" />
-        <span>Are you sure you want to delete this key?</span>
+    <Dialog v-model:visible="showDeleteKeyDialog" header="Confirm Delete" :modal="true" :style="{ width: 'min(25rem, 90vw)' }">
+      <div class="confirmation-content">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem; color: #ef4444" />
+        <span>Are you sure you want to delete this key? This action cannot be undone.</span>
       </div>
       <template #footer>
-        <Button label="No" icon="pi pi-times" text @click="showDeleteKeyDialog = false" />
-        <Button label="Yes" icon="pi pi-check" severity="danger" @click="confirmDeleteKey" />
+        <Button label="Cancel" icon="pi pi-times" text @click="showDeleteKeyDialog = false" />
+        <Button label="Delete" icon="pi pi-trash" severity="danger" @click="confirmDeleteKey" />
       </template>
     </Dialog>
   </div>
@@ -195,12 +178,10 @@ async function handleAddKey() {
 function formatDate(dateStr: string) {
   if (!dateStr) return ''
   const date = new Date(dateStr)
-  return date.toLocaleString(undefined, {
+  return date.toLocaleDateString(undefined, {
     year: 'numeric',
     month: 'short',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
+    day: 'numeric'
   })
 }
 
@@ -208,75 +189,107 @@ function getCurrentUseLabel(value: string | undefined) {
   const found = CURRENT_USE_OPTIONS.find(opt => opt.value === value)
   return found ? found.label : ''
 }
+
+function getUsageClass(value: string | undefined) {
+  if (!value) return 'none'
+  return value.toLowerCase().replace(/\s+/g, '-')
+}
 </script>
 
 <style scoped>
-.add-key-input,
-.edit-key-input,
-.p-float-label .p-inputtext {
-  width: 100%;
-  box-sizing: border-box;
-}
-
 .toolbar {
+  margin-bottom: 1rem;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.form-column {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  padding-top: 0.5rem;
-}
-
-.form-row {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.form-row label {
-  font-weight: 600;
-  color: #374151;
-}
-
-.checkbox-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.confirm-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.confirm-icon {
-  font-size: 1.5rem;
-  color: #f59e0b; /* amber-ish like warning */
-}
-
-.used-icon {
-  color: #16a34a; /* green */
-}
-
-.unused-icon {
-  color: #dc2626; /* red */
+  justify-content: flex-end;
 }
 
 .datatable-wrapper {
-  /* allow a max height and internal scrolling while keeping layout stable */
-  max-height: calc(100vh - 30rem);
-  overflow: auto;
-  padding-right: 0.25rem; /* avoid overlay with scrollbar */
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
 }
 
-.keys-table .p-datatable {
-  /* make sure the primevue table fills the wrapper */
-  height: auto;
+.key-text {
+  font-family: monospace;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.usage-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.85rem;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.status-badge.used {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-badge.available {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.25rem;
+}
+
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.empty-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.5;
+}
+
+.confirmation-content {
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+/* Form Styles */
+.field {
+  margin-bottom: 1.5rem;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.field-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.field-checkbox label {
+  margin-bottom: 0;
+  cursor: pointer;
 }
 </style>

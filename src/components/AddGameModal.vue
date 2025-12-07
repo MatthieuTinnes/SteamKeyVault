@@ -1,47 +1,46 @@
 <template>
   <div>
-  <Button label="Add Game" icon="pi pi-plus" class="p-button-sm w-full" @click="openModal" />
-    <Dialog v-model:visible="visible" header="Add a Game" :style="{ width: 'min(26rem, 90vw)' }" :closable="true">
-      <div class="p-fluid">
-        <div class="option-row">
+    <Button label="Add Game" icon="pi pi-plus" class="w-full" @click="openModal" />
+
+    <Dialog v-model:visible="visible" header="Add a Game" :style="{ width: 'min(30rem, 90vw)' }" :modal="true"
+      class="p-fluid">
+      <div class="dialog-content">
+        <div class="field-checkbox mb-4">
           <Checkbox inputId="nonsteam" v-model="isCustom" :binary="true" @update:modelValue="onToggleNonSteam" />
-          <label class="option-label" :for="'nonsteam'">Add non-Steam / custom game</label>
+          <label for="nonsteam">Add non-Steam / custom game</label>
         </div>
-        <template v-if="!isCustom">
-          <AutoComplete
-            v-model="searchQuery"
-            :suggestions="results"
-            @complete="onComplete"
-            optionLabel="name"
-            type="text"
-            placeholder="Search for a Steam game..."
-            class="search-bar"
-            :loading="loading"
-            @item-select="selectGame"
-          />
-        </template>
-        <template v-else>
-          <InputText v-model="manualName" placeholder="Enter game name" class="search-bar" />
-        </template>
-        <div class="image-wrapper">
-          <img
-            v-if="selectedGame && !isCustom"
-            :src="getGameImage(selectedGame.appid)"
-            :alt="selectedGame.name"
-            class="result-image"
-          />
-          <img
-            v-else
-            :src="isCustom ? placeholderCustom : placeholderDefault"
-            :alt="isCustom ? 'custom game placeholder' : 'placeholder'"
-            class="result-image placeholder"
-          />
+
+        <div class="field mb-4">
+          <template v-if="!isCustom">
+            <span class="p-input-icon-left w-full">
+              <IconField>
+                <InputIcon class="pi pi-search" />
+                <AutoComplete v-model="searchQuery" :suggestions="results" @complete="onComplete" optionLabel="name"
+                  placeholder="Search for a Steam game..." class="w-full" :loading="loading"
+                  @item-select="selectGame" />
+              </IconField>
+
+            </span>
+          </template>
+          <template v-else>
+            <InputText v-model="manualName" placeholder="Enter game name" class="w-full" />
+          </template>
         </div>
-        <div class="modal-footer">
-          <Button label="Add" class="p-button-primary" :disabled="!canAdd" @click="handleAddGame" />
-          <Button label="Close" class="p-button-text" @click="closeModal" />
+
+        <div class="image-preview-container">
+          <div class="image-wrapper">
+            <img v-if="selectedGame && !isCustom" :src="getGameImage(selectedGame.appid)" :alt="selectedGame.name"
+              class="game-image" />
+            <img v-else :src="isCustom ? placeholderCustom : placeholderDefault" alt="Game placeholder"
+              class="game-image placeholder" />
+          </div>
         </div>
       </div>
+
+      <template #footer>
+        <Button label="Cancel" icon="pi pi-times" text @click="closeModal" />
+        <Button label="Add Game" icon="pi pi-check" :disabled="!canAdd" @click="handleAddGame" />
+      </template>
     </Dialog>
   </div>
 </template>
@@ -54,6 +53,8 @@ import Dialog from 'primevue/dialog';
 import AutoComplete from 'primevue/autocomplete';
 import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
+import IconField from 'primevue/iconfield';
+import InputIcon from 'primevue/inputicon';
 import placeholderDefault from '../assets/placeholder-460x215.svg'
 import placeholderCustom from '../assets/placeholder_custom-game.svg'
 
@@ -62,11 +63,13 @@ const results = ref<any[]>([])
 const loading = ref(false)
 const debounceTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 const selectedGame = ref<any | null>(null)
-  const isCustom = ref(false)
+const isCustom = ref(false)
 const manualName = ref('')
+
 const canAdd = computed(() => {
   return isCustom.value ? manualName.value.trim().length > 0 : !!selectedGame.value
 })
+
 const emit = defineEmits<{
   (e: 'gameSelected', game: any): void
   (e: 'added'): void
@@ -82,6 +85,7 @@ function openModal() {
   searchQuery.value = ''
   results.value = []
 }
+
 function closeModal() {
   selectedGame.value = null
   isCustom.value = false
@@ -115,9 +119,7 @@ function selectGame(event: { value: any }) {
 }
 
 function onToggleNonSteam(val: boolean) {
-  // val is the new boolean state
   isCustom.value = !!val
-  // clear selection/search when switching modes
   if (isCustom.value) {
     selectedGame.value = null
     searchQuery.value = ''
@@ -152,41 +154,58 @@ function getGameImage(appid: number) {
 </script>
 
 <style scoped>
-.search-bar {
-  width: 100%;
-  margin-bottom: 1rem;
+.dialog-content {
+  padding-top: 0.5rem;
 }
-.image-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 1rem 0;
-}
-.result-image {
-  width: min(100%, 28.75rem);
-  aspect-ratio: 460 / 215;
-  object-fit: cover;
-  border-radius: 0.25rem;
-  background: #f3f4f6;
-}
-.result-image.placeholder {
-  display: block;
-  object-fit: cover;
-  opacity: 1;
-}
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 1rem;
-}
-.option-row {
+
+.field-checkbox {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0.75rem;
 }
-.option-label {
-  font-weight: 600;
+
+.field-checkbox label {
+  margin-bottom: 0;
+  cursor: pointer;
+  color: var(--text-primary);
 }
-.search-bar { width: 100%; margin-bottom: 1rem }
+
+.image-preview-container {
+  background: var(--bg-tertiary);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 12rem;
+}
+
+.image-wrapper {
+  width: 100%;
+  max-width: 20rem;
+  aspect-ratio: 460 / 215;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  background: var(--bg-secondary);
+}
+
+.game-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.game-image.placeholder {
+  opacity: 0.8;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem;
+}
+
+.w-full {
+  width: 100%;
+}
 </style>

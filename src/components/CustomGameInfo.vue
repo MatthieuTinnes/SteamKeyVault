@@ -1,35 +1,73 @@
 <template>
   <div class="custom-game-info">
-    <div style="display:flex;flex-direction:column;gap:0.75rem;width:100%">
-      <h2 class="title">{{ gameName }}</h2>
-      <div style="display:flex;gap:0.5rem;justify-content:flex-end">
-        <Button label="Convert to Steam" icon="pi pi-external-link" class="p-button-sm" @click="openConvert" />
-        <Button class="p-button-sm p-button-danger" @click="openDeleteHandler"><i
-        class="pi pi-trash"></i></Button>
+    <div class="content">
+      <div class="header-section">
+        <div class="image-container">
+          <img :src="placeholderCustom" alt="Custom Game" class="header-image" />
+        </div>
+        
+        <div class="info-container">
+          <div class="title-row">
+            <h2 class="title">{{ gameName }}</h2>
+            <div class="actions">
+              <Button 
+                label="Convert to Steam" 
+                icon="pi pi-sync" 
+                class="p-button-sm p-button-outlined" 
+                @click="openConvert" 
+              />
+              <Button 
+                icon="pi pi-trash" 
+                severity="danger" 
+                text 
+                rounded 
+                aria-label="Delete game" 
+                @click="openDeleteHandler"
+                v-tooltip.bottom="'Delete game from library'"
+              />
+            </div>
+          </div>
+          <div class="publisher">Custom Game</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <Dialog v-model:visible="convertVisible" header="Convert to Steam game" :style="{ width: 'min(32rem, 95vw)' }">
-    <div class="p-fluid">
-      <AutoComplete
-        v-model="searchQuery"
-        :suggestions="results"
-        @complete="onComplete"
-        optionLabel="name"
-        type="text"
-        placeholder="Search for a Steam game..."
-        class="search-bar"
-        :loading="loading"
-        @item-select="(e) => selected = e.value"
-      />
-      <div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1rem">
-        <Button label="Apply" class="p-button-primary" :disabled="!selected" @click="applySelection" />
-        <Button label="Cancel" class="p-button-text" @click="closeConvert" />
+  <Dialog 
+    v-model:visible="convertVisible" 
+    header="Convert to Steam game" 
+    :style="{ width: 'min(32rem, 95vw)' }"
+    :modal="true"
+    class="p-fluid"
+  >
+    <div class="dialog-content">
+      <span class="p-input-icon-left w-full mb-4">
+        <i class="pi pi-search" />
+        <AutoComplete
+          v-model="searchQuery"
+          :suggestions="results"
+          @complete="onComplete"
+          optionLabel="name"
+          placeholder="Search for a Steam game..."
+          class="w-full"
+          :loading="loading"
+          @item-select="(e) => selected = e.value"
+        />
+      </span>
+      
+      <div class="dialog-footer">
+        <Button label="Cancel" icon="pi pi-times" text @click="closeConvert" />
+        <Button label="Apply" icon="pi pi-check" :disabled="!selected" @click="applySelection" />
       </div>
     </div>
   </Dialog>
-  <DeleteGameModal :modelValue="showDeleteModal" :hasKeys="hasKeys" @update:modelValue="localOnModalUpdate" @confirmed="confirmDeleteHandler" />
+
+  <DeleteGameModal 
+    :modelValue="showDeleteModal" 
+    :hasKeys="hasKeys" 
+    @update:modelValue="localOnModalUpdate" 
+    @confirmed="confirmDeleteHandler" 
+  />
 </template>
 
 <script setup lang="ts">
@@ -40,6 +78,7 @@ import AutoComplete from 'primevue/autocomplete'
 import DeleteGameModal from './DeleteGameModal.vue'
 import { searchSteamGames, updateUserGame } from '@/api/games'
 import { useDeleteGame } from '@/composables/useDeleteGame'
+import placeholderCustom from '@/assets/placeholder_custom-game.svg'
 
 const props = defineProps<{ gameName: string; userGameId: number }>()
 const emit = defineEmits<{
@@ -109,17 +148,114 @@ async function applySelection() {
 
 <style scoped>
 .custom-game-info {
+  position: relative;
+  background-color: var(--bg-secondary);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  min-height: 14rem;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.content {
+  padding: 1.5rem;
+}
+
+.header-section {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.image-container {
+  flex-shrink: 0;
+  width: 292px;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  background: var(--bg-tertiary);
   display: flex;
   align-items: center;
-  min-height: 7.5rem;
-  padding: 1.5rem;
-  background: #1b2838;
-  color: white;
-  border-radius: 0.5rem;
-  margin-bottom: 2em;
+  justify-content: center;
 }
-.custom-game-info .title {
+
+.header-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  opacity: 0.8;
+}
+
+.info-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.title {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.publisher {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.dialog-content {
+  padding-top: 0.5rem;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .header-section {
+    flex-direction: column;
+  }
+  
+  .image-container {
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  .title-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .actions {
+    width: 100%;
+    justify-content: space-between;
+  }
 }
 </style>

@@ -31,9 +31,9 @@
         <Column header="Actions" style="width: 10rem">
           <template #body="{ data }">
             <div class="action-buttons">
-              <Button class="p-button-sm p-button-info" @click="editUser(data)"><i
+              <Button class="p-button-text p-button p-button-info" @click="editUser(data)"><i
               class="pi pi-pencil"></i></Button>
-              <Button class="p-button-sm p-button-danger" @click="confirmDelete(data)"><i
+              <Button class="p-button-text p-button p-button-danger" @click="confirmDelete(data)"><i
               class="pi pi-trash"></i></Button>
             </div>
           </template>
