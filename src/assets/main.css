@@ -104,19 +104,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  font-weight: normal;
-}
-
-/* Add spacing between icon and label for any PrimeVue button with an icon */
-.p-button ,
-.p-button .p-button-icon {
-  margin-right: 0.5rem;
-}
 
 /* ========================================
    Personnalisation des composants PrimeVue en mode sombre

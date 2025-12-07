@@ -1,67 +1,99 @@
 <template>
-  <div class="my-account">
-    <h2>My account</h2>
-    <div class="account-grid">
-      <div class="card stats-card">
-        <h3>Account stats</h3>
-        <div class="stat-row">
-          <div class="stat-label">Total games</div>
+  <div class="my-account-view">
+    <div class="header">
+      <h2><i class="pi pi-user"></i> My Account</h2>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <i class="pi pi-box stat-icon"></i>
+        <div class="stat-content">
+          <div class="stat-label">Total Games</div>
           <div class="stat-value">{{ stats.games_count ?? '-' }}</div>
         </div>
-        <div class="stat-row">
-          <div class="stat-label">Total keys</div>
+      </div>
+
+      <div class="stat-card">
+        <i class="pi pi-key stat-icon"></i>
+        <div class="stat-content">
+          <div class="stat-label">Total Keys</div>
           <div class="stat-value">{{ stats.keys_count ?? '-' }}</div>
         </div>
-        <div style="margin-top:0.75rem; display:flex; gap:0.5rem; justify-content:center;">
-          <Button label="Import games" icon="pi pi-upload" @click="router.push('/import')" />
-          <Button label="Export games" icon="pi pi-download" class="p-button-secondary" @click="exportCsv" />
+      </div>
+
+      <div class="stat-card">
+        <i :class="['pi', userStore.user?.email_verified ? 'pi-check-circle' : 'pi-exclamation-circle', 'stat-icon', userStore.user?.email_verified ? 'verified' : 'warning']"></i>
+        <div class="stat-content">
+          <div class="stat-label">Account Status</div>
+          <div class="stat-value status-text">
+            {{ userStore.user?.email_verified ? 'Verified' : 'Unverified' }}
+          </div>
         </div>
       </div>
-      <section class="card main-card">
-        <h3>Change email</h3>
-        <div class="form-row">
-          <label for="email">Email</label>
-          <div class="email-input-wrapper">
-            <InputText id="email" v-model="email" type="email" :disabled="pendingEmailChange" />
-          </div>
-          <div v-if="!pendingEmailChange">
-          <span v-if="userStore.user?.email_verified" class="verification-badge verified">
-            <i class="pi pi-check-circle"></i> Verified
-          </span>
-          <span v-else class="verification-badge unverified">
-            <i class="pi pi-exclamation-circle"></i> Not verified
-          </span>
-          </div>
-          <p v-if="email && !isEmailValid" class="error-text">Please enter a valid email address.</p>
-          <p v-if="pendingEmailChange" class="warning-text">
-            <i class="pi pi-clock"></i> Email change pending. Please check your new email address ({{ pendingNewEmail
-            }}) for a confirmation link.
-          </p>
-          <p v-else-if="!userStore.user?.email_verified" class="info-text">
-            <i class="pi pi-info-circle"></i> Please check your email inbox for a verification link.
-          </p>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+      
+      <!-- Data Management -->
+      <section class="settings-card">
+        <div class="card-header">
+          <h3><i class="pi pi-database"></i> Data Management</h3>
+          <p class="section-desc">Import or export your game library data.</p>
         </div>
-        <div class="actions">
-          <Button label="Save email" icon="pi pi-check" @click="saveEmail"
-            :disabled="!email || !isEmailValid || saving || pendingEmailChange" />
+        <div class="actions-column">
+          <Button label="Import Games" icon="pi pi-upload" @click="router.push('/import')" outlined class="w-full" />
+          <Button label="Export CSV" icon="pi pi-download" @click="exportCsv" outlined class="w-full" />
         </div>
       </section>
-      <section class="card">
-        <h3>Change password</h3>
-        <div class="form-row">
-          <label for="current">Current password</label>
-          <InputText id="current" v-model="currentPassword" type="password" />
+
+      <!-- Email Settings -->
+      <section class="settings-card">
+        <div class="card-header">
+          <h3><i class="pi pi-envelope"></i> Email Settings</h3>
+          <p class="section-desc">Manage your email address and verification.</p>
         </div>
-        <div class="form-row">
-          <label for="new">New password</label>
-          <InputText id="new" v-model="newPassword" type="password" />
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <div class="p-inputgroup">
+            <InputText id="email" v-model="email" type="email" :disabled="pendingEmailChange" placeholder="your@email.com" />
+            <Button icon="pi pi-check" @click="saveEmail" :disabled="!email || !isEmailValid || saving || pendingEmailChange" />
+          </div>
+          
+          <small v-if="email && !isEmailValid" class="p-error">Please enter a valid email address.</small>
+          
+          <div v-if="pendingEmailChange">
+            <Message severity="warn" icon="pi pi-clock" :closable="false">Change pending. Check {{ pendingNewEmail }} for confirmation.</Message>
+          </div>
+          <div v-else-if="!userStore.user?.email_verified">
+             <Message severity="warn" icon="pi pi-clock" :closable="false">Please check your inbox to verify your email.</Message>
+          </div>
         </div>
-        <div class="form-row">
-          <label for="confirm">Confirm new password</label>
-          <InputText id="confirm" v-model="confirmPassword" type="password" />
+      </section>
+
+      <!-- Security Settings -->
+      <section class="settings-card full-width">
+        <div class="card-header">
+          <h3><i class="pi pi-lock"></i> Security</h3>
+          <p class="section-desc">Update your password to keep your account secure.</p>
         </div>
-        <div class="actions">
-          <Button label="Change password" icon="pi pi-key" @click="changePwd" :disabled="!canChange || saving" />
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="current">Current Password</label>
+            <Password id="current" v-model="currentPassword" :feedback="false" toggleMask inputClass="w-full" />
+          </div>
+          <div class="form-group">
+            <label for="new">New Password</label>
+            <Password id="new" v-model="newPassword" :feedback="true" toggleMask inputClass="w-full" />
+          </div>
+          <div class="form-group">
+            <label for="confirm">Confirm Password</label>
+            <Password id="confirm" v-model="confirmPassword" :feedback="false" toggleMask inputClass="w-full" :class="{'p-invalid': confirmPassword && newPassword !== confirmPassword}" />
+          </div>
+        </div>
+        <div class="actions-footer">
+          <Button label="Update Password" icon="pi pi-save" @click="changePwd" :disabled="!canChange || saving" :loading="saving" />
         </div>
       </section>
     </div>
@@ -72,11 +104,13 @@
 import { ref, computed, onMounted } from 'vue'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
+import Password from 'primevue/password'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { updateEmail, changePassword, fetchUserStats } from '@/api/auth'
 import { exportUserGamesCsv } from '@/api/games'
 import { showErrorToast, showSuccessToast } from '@/utils/toast'
+import Message from 'primevue/message';
 
 const userStore = useUserStore()
 const email = ref('')
@@ -190,121 +224,210 @@ async function exportCsv() {
 </script>
 
 <style scoped>
-.card {
-  border-radius: 0.5rem;
-  padding: 1rem;
-  box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.2);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.my-account {
-  max-width: 45rem;
-  margin: 2rem auto;
+.my-account-view {
+  max-width: 75rem;
+  margin: auto;
   padding: 0 1rem;
 }
 
-.form-row {
+.header {
+  margin-bottom: 1rem;
+}
+
+.header h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--bg-primary);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-0.125rem);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-icon {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  background: var(--bg-tertiary);
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon.verified {
+  color: #059669;
+  background: #ecfdf5;
+}
+
+.stat-icon.warning {
+  color: #d97706;
+  background: #fffbeb;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.stat-value.status-text {
+  font-size: 1.25rem;
+}
+
+/* Content Grid */
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.settings-card {
+  background: var(--bg-primary);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
 }
 
-.form-row label {
-  font-weight: 600;
+.settings-card.full-width {
+  grid-column: 1 / -1;
+}
+
+.card-header {
+  margin-bottom: 1.5rem;
+}
+
+.card-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.25rem;
   color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
 }
 
-.actions {
+.section-desc {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  margin: 0;
+}
+
+.actions-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: auto;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1.5rem;
+}
+
+.actions-footer {
+  margin-top: 1.5rem;
   display: flex;
   justify-content: flex-end;
 }
 
-.error-text {
-  color: #dc2626;
-  font-size: 0.9rem;
-  margin: 0.25rem 0 0 0;
-}
-
-.info-text {
-  color: #2563eb;
-  font-size: 0.9rem;
-  margin: 0.25rem 0 0 0;
-}
-
-.warning-text {
-  color: #d97706;
-  font-size: 0.9rem;
-  margin: 0.25rem 0 0 0;
+.p-inputgroup {
   display: flex;
-  align-items: center;
-  gap: 0.35rem;
 }
 
-.email-input-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.email-input-wrapper .p-inputtext {
+.p-inputgroup .p-inputtext {
   flex: 1;
 }
 
-.verification-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  white-space: nowrap;
+.p-error {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
 }
 
-.verification-badge.verified {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.verification-badge.unverified {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.account-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
-  gap: 1rem;
-  align-items: start;
-}
-
-.stat-row {
+.status-message {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
   display: flex;
-  justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 0.0625rem solid var(--border-color);
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.stat-row:last-child {
-  border-bottom: none;
+.status-message.warning {
+  color: #ffffff;
+  background-color: #b45309;
 }
 
-.stat-label {
-  color: var(--text-secondary);
-  font-weight: 600
+.status-message.info {
+  color: #ffffff;
+  background-color: #1d4fd8;
 }
 
-.stat-value {
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: var(--text-primary);
+.w-full {
+  width: 100%;
 }
 
-@media (max-width: 56.25rem) {
-  .account-grid {
+/* Responsive adjustments */
+@media (max-width: 48rem) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .content-grid {
     grid-template-columns: 1fr;
   }
 }
