@@ -17,7 +17,7 @@
     <main class="content-card">
       <div v-if="selectedGameId" class="game-details-container">
         <template v-if="selectedSteamAppId">
-          <GameInfo :steamAppId="selectedSteamAppId" :userGameId="selectedGameId" @deleted="onGameDeleted" />
+          <GameInfo :steamAppId="selectedSteamAppId" :userGameId="selectedGameId" :gameName="selectedGameName" @deleted="onGameDeleted" />
         </template>
         <template v-else>
           <CustomGameInfo v-if="selectedGameName" :gameName="selectedGameName" :userGameId="selectedGameId" @converted="reloadGamesAndRefreshSelection" @deleted="onGameDeleted" />
@@ -80,9 +80,16 @@ async function refreshKeys() {
   keys.value = apiKeys
 }
 
-async function reloadGames() {
+async function reloadGames(newGameData?: { id: number }) {
   const apiGames = await getUserGames()
   games.value = apiGames;
+  
+  if (newGameData && newGameData.id) {
+    const found = (games.value as Game[]).find((g) => g.user_game_id === newGameData.id)
+    if (found) {
+      handleGameSelected(found)
+    }
+  }
 }
 
 // After conversion we want to refresh the game list and update the

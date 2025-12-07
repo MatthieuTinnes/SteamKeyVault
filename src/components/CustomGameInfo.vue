@@ -5,99 +5,70 @@
         <div class="image-container">
           <img :src="placeholderCustom" alt="Custom Game" class="header-image" />
         </div>
-        
+
         <div class="info-container">
           <div class="title-row">
             <h2 class="title">{{ gameName }}</h2>
             <div class="actions">
               <Button 
-                label="Convert to Steam" 
-                icon="pi pi-sync" 
-                class="p-button-sm p-button-outlined" 
+                :label="steamRemoved ? 'Removed from Steam' : 'Match with a Steam game'" 
+                :icon="steamRemoved ? 'pi pi-exclamation-triangle' : 'pi pi-sync'" 
+                class="p-button-sm p-button-outlined"
+                :class="{ 'p-disabled': steamRemoved }"
+                :disabled="steamRemoved"
                 @click="openConvert" 
               />
-              <Button 
-                icon="pi pi-trash" 
-                severity="danger" 
-                text 
-                rounded 
-                aria-label="Delete game" 
-                @click="openDeleteHandler"
-                v-tooltip.bottom="'Delete game from library'"
-              />
+              <Button icon="pi pi-trash" severity="danger" text rounded aria-label="Delete game"
+                @click="openDeleteHandler" v-tooltip.bottom="'Delete game from library'" />
             </div>
           </div>
           <div class="publisher">Custom Game</div>
+          <div v-if="steamRemoved" class="steam-removed-message">
+            <i class="pi pi-info-circle"></i>
+            <span>This game has been removed from the Steam store or the App ID is invalid.</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <Dialog 
-    v-model:visible="convertVisible" 
-    header="Convert to Steam game" 
-    :style="{ width: 'min(32rem, 95vw)' }"
-    :modal="true"
-    class="p-fluid"
-  >
-    <div class="dialog-content">
-      <span class="p-input-icon-left w-full mb-4">
-        <i class="pi pi-search" />
-        <AutoComplete
-          v-model="searchQuery"
-          :suggestions="results"
-          @complete="onComplete"
-          optionLabel="name"
-          placeholder="Search for a Steam game..."
-          class="w-full"
-          :loading="loading"
-          @item-select="(e) => selected = e.value"
-        />
-      </span>
-      
-      <div class="dialog-footer">
-        <Button label="Cancel" icon="pi pi-times" text @click="closeConvert" />
-        <Button label="Apply" icon="pi pi-check" :disabled="!selected" @click="applySelection" />
-      </div>
-    </div>
-  </Dialog>
-
-  <DeleteGameModal 
-    :modelValue="showDeleteModal" 
-    :hasKeys="hasKeys" 
-    @update:modelValue="localOnModalUpdate" 
-    @confirmed="confirmDeleteHandler" 
+  <ConvertGameModal 
+    v-model="convertVisible" 
+    :userGameId="userGameId" 
+    @converted="onConverted" 
   />
+
+  <DeleteGameModal :modelValue="showDeleteModal" :hasKeys="hasKeys" @update:modelValue="localOnModalUpdate"
+    @confirmed="confirmDeleteHandler" />
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
-import AutoComplete from 'primevue/autocomplete'
 import DeleteGameModal from './DeleteGameModal.vue'
-import { searchSteamGames, updateUserGame } from '@/api/games'
+import ConvertGameModal from './ConvertGameModal.vue'
 import { useDeleteGame } from '@/composables/useDeleteGame'
 import placeholderCustom from '@/assets/placeholder_custom-game.svg'
 
-const props = defineProps<{ gameName: string; userGameId: number }>()
+const props = defineProps<{ 
+  gameName: string; 
+  userGameId: number;
+  steamRemoved?: boolean;
+}>()
 const emit = defineEmits<{
   (e: 'converted'): void
   (e: 'deleted'): void
 }>()
 
 const convertVisible = ref(false)
-const searchQuery = ref('')
-const results = ref<any[]>([])
-const loading = ref(false)
-const selected = ref<any | null>(null)
 const { showDeleteModal, hasKeys, openDelete, confirmDelete, onModalUpdate } = useDeleteGame()
 
 function openConvert() {
   convertVisible.value = true
-  searchQuery.value = ''
-  results.value = []
-  selected.value = null
+}
+
+function onConverted() {
+  emit('converted')
 }
 
 function openDeleteHandler() {
@@ -111,38 +82,6 @@ async function confirmDeleteHandler() {
 
 function localOnModalUpdate(v: boolean) {
   showDeleteModal.value = v
-}
-
-function closeConvert() {
-  convertVisible.value = false
-}
-
-async function onComplete(event: { query: string }) {
-  const q = event.query.trim()
-  if (!q) {
-    results.value = []
-    return
-  }
-  loading.value = true
-  try {
-    results.value = await searchSteamGames(q)
-  } catch (e) {
-    results.value = []
-  } finally {
-    loading.value = false
-  }
-}
-
-async function applySelection() {
-  if (!selected.value) return
-  try {
-    const payload = { steamapp_id: selected.value.appid, name: selected.value.name }
-    await updateUserGame(props.userGameId, payload)
-    emit('converted')
-    closeConvert()
-  } catch (e) {
-    console.error('Failed to convert user game', e)
-  }
 }
 </script>
 
@@ -219,6 +158,19 @@ async function applySelection() {
   font-style: italic;
 }
 
+.steam-removed-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 0.5rem;
+  color: #ef4444;
+  font-size: 0.9rem;
+}
+
 .dialog-content {
   padding-top: 0.5rem;
 }
@@ -242,17 +194,17 @@ async function applySelection() {
   .header-section {
     flex-direction: column;
   }
-  
+
   .image-container {
     width: 100%;
     max-width: 400px;
   }
-  
+
   .title-row {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .actions {
     width: 100%;
     justify-content: space-between;

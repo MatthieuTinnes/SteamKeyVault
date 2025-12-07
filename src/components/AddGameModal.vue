@@ -2,9 +2,10 @@
   <div>
     <Button label="Add Game" icon="pi pi-plus" class="w-full" @click="openModal" />
 
-    <Dialog v-model:visible="visible" header="Add a Game" :style="{ width: 'min(30rem, 90vw)' }" :modal="true"
-      class="p-fluid">
+    <Dialog v-model:visible="visible" header="Add a Game" :style="{ width: 'min(32rem, 95vw)' }" :modal="true"
+      class="add-game-modal">
       <div class="dialog-content">
+        
         <div class="field-checkbox mb-4">
           <Checkbox inputId="nonsteam" v-model="isCustom" :binary="true" @update:modelValue="onToggleNonSteam" />
           <label for="nonsteam">Add non-Steam / custom game</label>
@@ -12,14 +13,25 @@
 
         <div class="field mb-4">
           <template v-if="!isCustom">
-            <span class="p-input-icon-left w-full">
-              <IconField>
-                <InputIcon class="pi pi-search" />
-                <AutoComplete v-model="searchQuery" :suggestions="results" @complete="onComplete" optionLabel="name"
-                  placeholder="Search for a Steam game..." class="w-full" :loading="loading"
-                  @item-select="selectGame" />
-              </IconField>
-
+            <span class="w-full">
+              <AutoComplete 
+                v-model="searchQuery" 
+                :suggestions="results" 
+                @complete="onComplete" 
+                optionLabel="name"
+                placeholder="Search for a Steam game..." 
+                class="w-full" 
+                :loading="loading"
+                @item-select="selectGame"
+                inputClass="w-full"
+              >
+                <template #option="slotProps">
+                  <div class="game-option">
+                    <img :src="`https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${slotProps.option.appid}/header.jpg`" :alt="slotProps.option.name" class="option-image" />
+                    <span>{{ slotProps.option.name }}</span>
+                  </div>
+                </template>
+              </AutoComplete>
             </span>
           </template>
           <template v-else>
@@ -27,14 +39,20 @@
           </template>
         </div>
 
-        <div class="image-preview-container">
-          <div class="image-wrapper">
-            <img v-if="selectedGame && !isCustom" :src="getGameImage(selectedGame.appid)" :alt="selectedGame.name"
-              class="game-image" />
-            <img v-else :src="isCustom ? placeholderCustom : placeholderDefault" alt="Game placeholder"
-              class="game-image placeholder" />
+        <div v-if="selectedGame || isCustom" class="selected-preview">
+          <div class="preview-label">Preview:</div>
+          <div class="preview-card">
+            <img v-if="selectedGame && !isCustom" :src="getGameImage(selectedGame.appid)" :alt="selectedGame.name" class="preview-image" />
+            <img v-else :src="isCustom ? placeholderCustom : placeholderDefault" alt="Game placeholder" class="preview-image placeholder" />
+            
+            <div class="preview-details">
+              <div class="preview-name">{{ isCustom ? (manualName || 'New Custom Game') : selectedGame.name }}</div>
+              <div class="preview-id" v-if="!isCustom && selectedGame">App ID: {{ selectedGame.appid }}</div>
+              <div class="preview-id" v-else>Custom Game</div>
+            </div>
           </div>
         </div>
+
       </div>
 
       <template #footer>
@@ -53,8 +71,6 @@ import Dialog from 'primevue/dialog';
 import AutoComplete from 'primevue/autocomplete';
 import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
-import IconField from 'primevue/iconfield';
-import InputIcon from 'primevue/inputicon';
 import placeholderDefault from '../assets/placeholder-460x215.svg'
 import placeholderCustom from '../assets/placeholder_custom-game.svg'
 
@@ -72,7 +88,7 @@ const canAdd = computed(() => {
 
 const emit = defineEmits<{
   (e: 'gameSelected', game: any): void
-  (e: 'added'): void
+  (e: 'added', newGame: any): void
 }>()
 
 const visible = ref(false)
@@ -143,19 +159,22 @@ async function handleAddGame() {
 
   const response = await addUserGame({ name: nameToSend, steamappid: appid })
   if (response && response.status === 201) {
-    emit('added')
+    emit('added', response.data)
   }
   closeModal()
 }
 
 function getGameImage(appid: number) {
-  return `https://cdn.cloudflare.steamstatic.com/steam/apps/${appid}/header.jpg`
+  return `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${appid}/header.jpg`
 }
 </script>
 
 <style scoped>
 .dialog-content {
-  padding-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 0.5rem 0;
 }
 
 .field-checkbox {
@@ -168,44 +187,84 @@ function getGameImage(appid: number) {
   margin-bottom: 0;
   cursor: pointer;
   color: var(--text-primary);
+  font-weight: 500;
 }
 
-.image-preview-container {
-  background: var(--bg-tertiary);
-  border-radius: 0.5rem;
-  padding: 1rem;
+.field {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 12rem;
-}
-
-.image-wrapper {
-  width: 100%;
-  max-width: 20rem;
-  aspect-ratio: 460 / 215;
-  border-radius: 0.375rem;
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  background: var(--bg-secondary);
-}
-
-.game-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.game-image.placeholder {
-  opacity: 0.8;
-}
-
-.mb-4 {
-  margin-bottom: 1.5rem;
+  flex-direction: column;
 }
 
 .w-full {
+  width: 100%;
+}
+
+.game-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.option-image {
+  width: 60px;
+  height: auto;
+  border-radius: 0.25rem;
+}
+
+.selected-preview {
+  background: var(--bg-tertiary);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+}
+
+.preview-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.preview-card {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.preview-image {
+  width: 120px;
+  height: auto;
+  border-radius: 0.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.preview-image.placeholder {
+  opacity: 0.8;
+}
+
+.preview-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.preview-name {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+}
+
+.preview-id {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-family: monospace;
+}
+
+/* PrimeVue overrides */
+:deep(.p-autocomplete) {
+  width: 100%;
+}
+:deep(.p-autocomplete-input) {
   width: 100%;
 }
 </style>

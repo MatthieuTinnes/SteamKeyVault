@@ -232,6 +232,7 @@ async function exportCsv() {
 
 .header {
   margin-bottom: 1rem;
+  margin-top: 1rem;
 }
 
 .header h2 {

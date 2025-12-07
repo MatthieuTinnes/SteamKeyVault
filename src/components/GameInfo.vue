@@ -1,5 +1,13 @@
 <template>
-    <div class="game-info" :class="{ 'has-background': !!backgroundImage }" :style="backgroundStyle">
+    <div v-if="isSteamRemoved && gameName && userGameId" class="steam-removed-fallback">
+      <CustomGameInfo 
+        :gameName="gameName" 
+        :userGameId="userGameId" 
+        :steamRemoved="true"
+        @deleted="handleConfirmDelete" 
+      />
+    </div>
+    <div v-else class="game-info" :class="{ 'has-background': !!backgroundImage }" :style="backgroundStyle">
         <div v-if="loading" class="loading">Loading...</div>
         <div v-else-if="error" class="error">{{ error }}</div>
         <div v-else-if="appName" class="content">
@@ -62,11 +70,12 @@
 import { ref, watch, computed } from 'vue'
 import { getSteamAppDetails } from '@/api/games'
 import DeleteGameModal from './DeleteGameModal.vue'
+import CustomGameInfo from './CustomGameInfo.vue'
 import Button from 'primevue/button'
 import { useDeleteGame } from '@/composables/useDeleteGame'
 import { useToast } from 'primevue/usetoast'
 
-const props = defineProps<{ steamAppId: number | null; userGameId?: number | null }>()
+const props = defineProps<{ steamAppId: number | null; userGameId?: number | null; gameName?: string | null }>()
 const emit = defineEmits<{
   (e: 'deleted'): void
 }>()
@@ -75,6 +84,7 @@ const appName = ref<string | null>(null)
 const price = ref<string | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
+const isSteamRemoved = ref(false)
 const publisher = ref<string | null>(null)
 const headerImage = ref<string | null>(null)
 const backgroundImage = ref<string | null>(null)
@@ -137,18 +147,26 @@ function getReviewClass(score: number): string {
   return 'negative'
 }
 
-async function loadApp(appid: number) {
+const loadApp = async () => {
+  if (!props.steamAppId) return
+
   loading.value = true
   error.value = null
+  isSteamRemoved.value = false
+  
+  // Reset fields
   appName.value = null
   price.value = null
   publisher.value = null
   headerImage.value = null
   backgroundImage.value = null
   reviews.value = null
+  hasCards.value = false
+  hasAchievements.value = false
+
   try {
     const lang = navigator.language ? navigator.language.split('-')[0] : undefined
-    const data = await getSteamAppDetails(appid, lang)
+    const data = await getSteamAppDetails(props.steamAppId, lang)
     
     appName.value = data?.name ?? null
     publisher.value = data?.publishers?.[0] ?? null
@@ -168,16 +186,20 @@ async function loadApp(appid: number) {
     // Check for trading cards and achievements
     hasCards.value = data?.categories?.some((cat: any) => cat.id === 29) ?? false
     hasAchievements.value = data?.categories?.some((cat: any) => cat.id === 22) ?? false
-    // try to resolve userGameId from a list in parent is easier, but we can leave null
-  } catch (err: unknown) {
-    error.value = err instanceof Error ? err.message : String(err)
+  } catch (err: any) {
+    if (err.response && err.response.status === 404) {
+      isSteamRemoved.value = true
+    } else {
+      error.value = err instanceof Error ? err.message : String(err)
+      console.error(err)
+    }
   } finally {
     loading.value = false
   }
 }
 
 watch(() => props.steamAppId, (id) => {
-  if (id) loadApp(id)
+  if (id) loadApp()
   else {
     appName.value = null
     price.value = null
