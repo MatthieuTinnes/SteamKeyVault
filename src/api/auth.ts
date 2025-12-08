@@ -49,6 +49,10 @@ export async function verifyEmail(token: string) {
   return axios.get(`${API_BASE_URL}/users/verify-email?token=${token}`)
 }
 
+export async function resendVerificationEmail() {
+  return axios.post(`${API_BASE_URL}/users/resend-verification-email`, {}, getAxiosConfig())
+}
+
 export async function confirmEmailChange(token: string) {
   return axios.get(`${API_BASE_URL}/users/confirm-email-change?token=${token}`)
 }

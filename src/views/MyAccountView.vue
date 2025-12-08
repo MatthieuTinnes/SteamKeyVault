@@ -66,8 +66,9 @@
           <div v-if="pendingEmailChange">
             <Message severity="warn" icon="pi pi-clock" :closable="false">Change pending. Check {{ pendingNewEmail }} for confirmation.</Message>
           </div>
-          <div v-else-if="!userStore.user?.email_verified">
+          <div v-else-if="!userStore.user?.email_verified" class="unverified-alert">
              <Message severity="warn" icon="pi pi-clock" :closable="false">Please check your inbox to verify your email.</Message>
+             <Button label="Resend Email" icon="pi pi-send" size="small" text @click="resendVerification" :loading="resending" class="mt-2" />
           </div>
         </div>
       </section>
@@ -107,7 +108,7 @@ import Button from 'primevue/button'
 import Password from 'primevue/password'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { updateEmail, changePassword, fetchUserStats } from '@/api/auth'
+import { updateEmail, changePassword, fetchUserStats, resendVerificationEmail } from '@/api/auth'
 import { exportUserGamesCsv } from '@/api/games'
 import { showErrorToast, showSuccessToast } from '@/utils/toast'
 import Message from 'primevue/message';
@@ -120,6 +121,7 @@ const currentPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
 const saving = ref(false)
+const resending = ref(false)
 const stats = ref<{ games_count?: number; keys_count?: number }>({})
 const statsLoading = ref(false)
 const router = useRouter()
@@ -195,6 +197,19 @@ async function loadStats() {
     showErrorToast('Failed to load account stats')
   } finally {
     statsLoading.value = false
+  }
+}
+
+async function resendVerification() {
+  resending.value = true
+  try {
+    await resendVerificationEmail()
+    showSuccessToast('Email Sent', 'Verification email has been resent.')
+  } catch (e: any) {
+    const errorMsg = e?.response?.data?.error || 'Failed to resend email'
+    showErrorToast(errorMsg)
+  } finally {
+    resending.value = false
   }
 }
 
