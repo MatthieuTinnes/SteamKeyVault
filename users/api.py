@@ -290,3 +290,35 @@ def confirm_email_change(request, token: str):
     except Exception as e:
         logger.exception(f"Error during email change confirmation: {e}")
         return JsonResponse({"error": "An error occurred during confirmation."}, status=500)
+
+
+@users_router.post("/resend-verification-email", auth=django_auth)
+def resend_verification_email(request):
+    user = request.user
+    if user.email_verified:
+        return JsonResponse({"error": "Email is already verified."}, status=400)
+    
+    try:
+        # Generate verification token
+        token = EmailVerificationToken.generate_token(
+            user=user,
+            token_type=EmailVerificationToken.TOKEN_TYPE_REGISTRATION
+        )
+        frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
+        verification_url = f"{frontend_url}/verify-email?token={token.token}"
+        
+        # Send verification email
+        Mailer.send_template_email(
+            subject='Verify Your Email - SteamKeyVault',
+            template_name='emails/verify_email.html',
+            context={
+                'username': user.username,
+                'verification_url': verification_url,
+            },
+            to_emails=[user.email]
+        )
+        logger.info(f"Resent verification email to user_id={user.id} email={user.email}")
+        return Response({"success": True, "message": "Verification email sent."})
+    except Exception as e:
+        logger.exception(f"Error resending verification email for user_id={user.id}: {e}")
+        return JsonResponse({"error": str(e)}, status=500)
