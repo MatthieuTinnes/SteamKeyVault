@@ -86,6 +86,7 @@ const total = ref<number>(0)
 const error = ref<string | null>(null)
 const result = ref<any[] | null>(null)
 const isDragOver = ref(false)
+const MAX_IMPORT_BYTES = 10 * 1024 * 1024
 
 const toast = { success: (s: any) => showSuccessToast(s.summary || 'Info', s.detail), error: (s: any) => showErrorToast(s.summary || 'Error', s.detail) }
 let pollTimer: number | null = null
@@ -108,6 +109,10 @@ function onDrop(e: DragEvent) {
 }
 
 async function uploadFile(file: File) {
+  if (file.size > MAX_IMPORT_BYTES) {
+    toast.error({ summary: 'File too large', detail: 'Maximum file size is 10 MB.' })
+    return
+  }
   try {
     const res = await createImport(file)
     jobId.value = res.job_id

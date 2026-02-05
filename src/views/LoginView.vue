@@ -14,6 +14,9 @@
           </div>
           <Button type="submit" label="Login" class="w-full mt-4" />
         </form>
+        <div class="forgot-link mt-3">
+          <Button label="Forgot password?" link size="small" @click="goToForgot" />
+        </div>
         <div class="register-link mt-4">
           <span>Don't have an account?</span>
           <Button label="Register" link size="small" @click="goToRegister" />
@@ -28,6 +31,8 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { loginUser } from '../api/auth'
 import { useUserStore } from '../stores/user'
+import { useCryptoStore } from '@/stores/crypto'
+import { deriveKeyFromPassword, unwrapMasterKey } from '@/utils/crypto'
 import Card from 'primevue/card';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
@@ -38,13 +43,28 @@ const password = ref('')
 const router = useRouter()
 
 const handleLogin = async () => {
-    await loginUser(email.value, password.value)
-    await useUserStore().fetchUser()
-    router.push('/my-keys')
+  const loginData = await loginUser(email.value, password.value)
+  const userKey = await deriveKeyFromPassword(password.value, loginData.mk_salt, {
+    iterations: loginData.kdf_iterations,
+    hash: loginData.kdf_hash
+  })
+  const masterKeyBytes = await unwrapMasterKey(loginData.wrapped_mk_password, userKey)
+  const cryptoStore = useCryptoStore()
+  cryptoStore.setMasterKeyBytes(masterKeyBytes)
+  cryptoStore.setKdfContext(loginData.mk_salt, {
+    iterations: loginData.kdf_iterations,
+    hash: loginData.kdf_hash
+  })
+  await useUserStore().fetchUser()
+  router.push('/my-keys')
 }
 
 function goToRegister() {
   router.push('/register')
+}
+
+function goToForgot() {
+  router.push('/forgot-password')
 }
 </script>
 
@@ -107,6 +127,11 @@ function goToRegister() {
   gap: 0.5rem;
   color: var(--text-secondary);
   font-size: 0.875rem;
+}
+
+.forgot-link {
+  display: flex;
+  justify-content: center;
 }
 
 /* Override PrimeVue styles if needed */
