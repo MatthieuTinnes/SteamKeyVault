@@ -22,6 +22,16 @@ class RecoveryInfoSchema(BaseModel):
     email: str
 
 
+class ForgotPasswordSchema(BaseModel):
+    email: str
+
+
+class ResetPasswordSchema(BaseModel):
+    token: str
+    new_password: str
+    wrapped_mk_password: str
+
+
 class ChangePasswordSchema(BaseModel):
     current_password: str
     new_password: str

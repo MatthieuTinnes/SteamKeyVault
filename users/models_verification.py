@@ -52,3 +52,35 @@ class EmailVerificationToken(models.Model):
         """Mark token as used"""
         self.used = True
         self.save(update_fields=['used'])
+
+
+class PasswordResetToken(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='password_reset_tokens')
+    token = models.CharField(max_length=64, unique=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    used = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'password_reset_tokens'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"password reset token for {self.user.email}"
+
+    @classmethod
+    def generate_token(cls, user, expiry_hours=1):
+        token = secrets.token_urlsafe(32)
+        expires_at = timezone.now() + timedelta(hours=expiry_hours)
+        return cls.objects.create(
+            user=user,
+            token=token,
+            expires_at=expires_at
+        )
+
+    def is_valid(self):
+        return not self.used and timezone.now() < self.expires_at
+
+    def mark_used(self):
+        self.used = True
+        self.save(update_fields=['used'])

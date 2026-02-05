@@ -9,7 +9,7 @@ from datetime import datetime
 
 from users import schemas
 from users.models import User
-from users.models_verification import EmailVerificationToken
+from users.models_verification import EmailVerificationToken, PasswordResetToken
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from ninja.responses import Response
@@ -361,3 +361,76 @@ def resend_verification_email(request):
     except Exception as e:
         logger.exception(f"Error resending verification email for user_id={user.id}: {e}")
         return JsonResponse({"error": str(e)}, status=500)
+
+
+@users_router.post('/forgot-password')
+def forgot_password(request, payload: schemas.ForgotPasswordSchema):
+    addr = request.META.get("REMOTE_ADDR")
+    logger.info(f"Forgot password requested email={payload.email} from {addr}")
+    user = User.objects.filter(email=payload.email).first()
+    if not user:
+        return Response({"success": True})
+
+    token = PasswordResetToken.generate_token(user=user, expiry_hours=1)
+    frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
+    reset_url = f"{frontend_url}/reset-password?token={token.token}"
+
+    Mailer.send_template_email(
+        subject='Reset Your Password - SteamKeyVault',
+        template_name='emails/password_reset_request.html',
+        context={
+            'username': user.username,
+            'reset_url': reset_url,
+        },
+        to_emails=[user.email]
+    )
+    logger.info(f"Password reset email sent user_id={user.id}")
+    return Response({"success": True})
+
+
+@users_router.get('/reset-password-info')
+def reset_password_info(request, token: str):
+    reset_token = PasswordResetToken.objects.filter(token=token).first()
+    if not reset_token or not reset_token.is_valid():
+        return JsonResponse({"error": "Invalid or expired reset token"}, status=400)
+    user = reset_token.user
+    if not user.wrapped_mk_recovery or not user.rk_salt or not user.mk_salt:
+        return JsonResponse({"error": "Recovery data not available"}, status=400)
+    return Response({
+        "wrapped_mk_recovery": user.wrapped_mk_recovery,
+        "rk_salt": user.rk_salt,
+        "mk_salt": user.mk_salt,
+        "kdf_iterations": user.kdf_iterations,
+        "kdf_hash": user.kdf_hash,
+    })
+
+
+@users_router.post('/reset-password')
+def reset_password(request, payload: schemas.ResetPasswordSchema):
+    reset_token = PasswordResetToken.objects.filter(token=payload.token).first()
+    if not reset_token or not reset_token.is_valid():
+        return JsonResponse({"error": "Invalid or expired reset token"}, status=400)
+
+    if not payload.new_password or len(payload.new_password) < 6:
+        return JsonResponse({"error": "New password must be at least 6 characters"}, status=400)
+
+    user = reset_token.user
+    try:
+        user.set_password(payload.new_password)
+        user.wrapped_mk_password = payload.wrapped_mk_password
+        user.save(update_fields=["password", "wrapped_mk_password"])
+        reset_token.mark_used()
+        Mailer.send_template_email(
+            subject='Password Reset - SteamKeyVault',
+            template_name='emails/password_reset_success.html',
+            context={
+                'username': user.username,
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC'),
+            },
+            to_emails=[user.email]
+        )
+        logger.info(f"Password reset completed for user_id={user.id}")
+        return Response({"success": True})
+    except Exception as e:
+        logger.exception(f"Error resetting password for user_id={user.id}: {e}")
+        return JsonResponse({"error": str(e)}, status=400)
