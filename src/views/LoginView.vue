@@ -14,6 +14,9 @@
           </div>
           <Button type="submit" label="Login" class="w-full mt-4" />
         </form>
+        <div class="forgot-link mt-3">
+          <Button label="Forgot password?" link size="small" @click="goToForgot" />
+        </div>
         <div class="register-link mt-4">
           <span>Don't have an account?</span>
           <Button label="Register" link size="small" @click="goToRegister" />
@@ -58,6 +61,10 @@ const handleLogin = async () => {
 
 function goToRegister() {
   router.push('/register')
+}
+
+function goToForgot() {
+  router.push('/forgot-password')
 }
 </script>
 
@@ -120,6 +127,11 @@ function goToRegister() {
   gap: 0.5rem;
   color: var(--text-secondary);
   font-size: 0.875rem;
+}
+
+.forgot-link {
+  display: flex;
+  justify-content: center;
 }
 
 /* Override PrimeVue styles if needed */

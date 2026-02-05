@@ -17,6 +17,14 @@ export interface LoginResponse {
   kdf_hash: string
 }
 
+export interface ResetPasswordInfoResponse {
+  wrapped_mk_recovery: string
+  rk_salt: string
+  mk_salt: string
+  kdf_iterations: number
+  kdf_hash: string
+}
+
 export async function fetchUser(): Promise<UserInfo | null> {
   const response = await axios.get<UserInfo>(`${API_BASE_URL}/users/user`, { withCredentials: true })
   return response.data
@@ -69,4 +77,17 @@ export async function resendVerificationEmail() {
 
 export async function confirmEmailChange(token: string) {
   return axios.get(`${API_BASE_URL}/users/confirm-email-change?token=${token}`)
+}
+
+export async function forgotPassword(email: string) {
+  return axios.post(`${API_BASE_URL}/users/forgot-password`, { email }, getAxiosConfig())
+}
+
+export async function fetchResetPasswordInfo(token: string): Promise<ResetPasswordInfoResponse> {
+  const res = await axios.get<ResetPasswordInfoResponse>(`${API_BASE_URL}/users/reset-password-info?token=${token}`)
+  return res.data
+}
+
+export async function resetPassword(payload: { token: string; new_password: string; wrapped_mk_password: string }) {
+  return axios.post(`${API_BASE_URL}/users/reset-password`, payload, getAxiosConfig())
 }
