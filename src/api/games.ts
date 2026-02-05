@@ -1,5 +1,6 @@
 import axios from 'axios'
-import { API_BASE_URL, getCookie, getAxiosConfig } from './apiHelper'
+import { API_BASE_URL, getAxiosConfig } from './apiHelper'
+import { getKeysForGame } from './keys'
 
 export async function searchSteamGames(query: string) {
   if (!query.trim()) return []
@@ -26,10 +27,27 @@ export async function getSteamAppDetails(appid: number, lang?: string) {
 }
 
 export async function exportUserGamesCsv() {
-  const url = `${API_BASE_URL}/games/export_csv`
-  // Request as blob so we can trigger download
-  const res = await axios.get(url, { ...getAxiosConfig(), responseType: 'blob' })
-  return res
+  const games = await getUserGames()
+  const rows = await Promise.all(
+    (games || []).map(async (game: any) => {
+      const keys = await getKeysForGame(game.user_game_id)
+      const keyValues = (keys || []).map((k: any) => k.key)
+      return [game.name, ...keyValues]
+    })
+  )
+
+  const csvLines = rows.map((row) => row.map(escapeCsvCell).join(';')).join('\n') + '\n'
+  const blob = new Blob([csvLines], { type: 'text/csv;charset=utf-8' })
+  const filename = `user_games_${new Date().toISOString().slice(0, 10)}.csv`
+  return { blob, filename }
+}
+
+function escapeCsvCell(value: string) {
+  const str = String(value ?? '')
+  if (/[";\n\r]/.test(str)) {
+    return `"${str.replace(/"/g, '""')}"`
+  }
+  return str
 }
 
 export async function updateUserGame(user_game_id: number, payload: { name?: string; steamapp_id?: number | null }) {

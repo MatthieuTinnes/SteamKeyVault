@@ -228,14 +228,7 @@ async function resendVerification() {
 
 async function exportCsv() {
   try {
-    const res = await exportUserGamesCsv()
-    const blob = res.data
-    // Use server-provided 'x-filename' header only
-    let filename = 'user_games.csv'
-    const headers = res.headers || {}
-    if (headers['X-Filename']) {
-      filename = headers['X-Filename']
-    }
+    const { blob, filename } = await exportUserGamesCsv()
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
