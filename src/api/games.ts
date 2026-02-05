@@ -1,6 +1,8 @@
 import axios from 'axios'
 import { API_BASE_URL, getAxiosConfig } from './apiHelper'
 import { getKeysForGame } from './keys'
+import { useCryptoStore } from '@/stores/crypto'
+import { encryptValue } from '@/utils/crypto'
 
 export async function searchSteamGames(query: string) {
   if (!query.trim()) return []
@@ -57,9 +59,52 @@ export async function exportUserGamesJson() {
 }
 
 export async function importUserGamesJson(file: File) {
+  const store = useCryptoStore()
+  if (!store.masterKeyBytes) {
+    throw new Error('Missing master key. Please log in again.')
+  }
+
+  const rawText = await file.text()
+  let payload: any
+  try {
+    payload = JSON.parse(rawText)
+  } catch (e) {
+    throw new Error('Invalid JSON file')
+  }
+
+  const games = Array.isArray(payload?.games) ? payload.games : []
+  const encryptedGames = await Promise.all(
+    games.map(async (game: any) => {
+      const keys = Array.isArray(game?.keys) ? game.keys : []
+      const encryptedKeys = await Promise.all(
+        keys.map(async (keyEntry: any) => {
+          const keyValue = String(keyEntry?.key ?? '')
+          if (!keyValue.trim()) return keyEntry
+          return {
+            ...keyEntry,
+            key: await encryptValue(keyValue, store.masterKeyBytes as Uint8Array)
+          }
+        })
+      )
+      return {
+        ...game,
+        keys: encryptedKeys
+      }
+    })
+  )
+
+  const encryptedPayload = {
+    ...payload,
+    games: encryptedGames
+  }
+
+  const encryptedFile = new File([
+    JSON.stringify(encryptedPayload)
+  ], file.name, { type: file.type || 'application/json' })
+
   const url = `${API_BASE_URL}/games/import_json`
   const formData = new FormData()
-  formData.append('file', file)
+  formData.append('file', encryptedFile)
   return axios.post(url, formData, {
     ...getAxiosConfig(),
     headers: { 'Content-Type': 'multipart/form-data' }
