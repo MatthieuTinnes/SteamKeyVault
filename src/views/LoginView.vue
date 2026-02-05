@@ -28,6 +28,8 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { loginUser } from '../api/auth'
 import { useUserStore } from '../stores/user'
+import { useCryptoStore } from '@/stores/crypto'
+import { deriveKeyFromPassword, unwrapMasterKey } from '@/utils/crypto'
 import Card from 'primevue/card';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
@@ -38,9 +40,20 @@ const password = ref('')
 const router = useRouter()
 
 const handleLogin = async () => {
-    await loginUser(email.value, password.value)
-    await useUserStore().fetchUser()
-    router.push('/my-keys')
+  const loginData = await loginUser(email.value, password.value)
+  const userKey = await deriveKeyFromPassword(password.value, loginData.mk_salt, {
+    iterations: loginData.kdf_iterations,
+    hash: loginData.kdf_hash
+  })
+  const masterKeyBytes = await unwrapMasterKey(loginData.wrapped_mk_password, userKey)
+  const cryptoStore = useCryptoStore()
+  cryptoStore.setMasterKeyBytes(masterKeyBytes)
+  cryptoStore.setKdfContext(loginData.mk_salt, {
+    iterations: loginData.kdf_iterations,
+    hash: loginData.kdf_hash
+  })
+  await useUserStore().fetchUser()
+  router.push('/my-keys')
 }
 
 function goToRegister() {

@@ -31,6 +31,19 @@
         </form>
       </template>
     </Card>
+
+    <Dialog v-model:visible="showRecoveryDialog" header="Recovery Key" :modal="true" :style="{ width: 'min(36rem, 92vw)' }">
+      <div class="recovery-content">
+        <p class="recovery-warning">
+          Save this recovery phrase now. It is the only way to recover your data if you forget your password.
+        </p>
+        <div class="recovery-phrase">{{ recoveryPhrase }}</div>
+        <div class="recovery-actions">
+          <Button label="Copy" icon="pi pi-copy" @click="copyRecoveryPhrase" />
+          <Button label="I saved it" icon="pi pi-check" severity="success" @click="confirmRecoverySaved" />
+        </div>
+      </div>
+    </Dialog>
   </div>
 </template>
 
@@ -38,6 +51,9 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { registerUser } from '../api/auth'
+import { useToast } from 'primevue/usetoast'
+import Dialog from 'primevue/dialog'
+import { deriveKeyFromPassword, generateMasterKeyBytes, generateRecoveryPhrase, generateSalt, getDefaultKdfParams, wrapMasterKey } from '@/utils/crypto'
 import Card from 'primevue/card';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
@@ -51,6 +67,9 @@ const confirmPassword = ref('')
 const error = ref('')
 const success = ref('')
 const router = useRouter()
+const toast = useToast()
+const recoveryPhrase = ref('')
+const showRecoveryDialog = ref(false)
 
 const handleRegister = async () => {
   error.value = ''
@@ -60,9 +79,32 @@ const handleRegister = async () => {
     return
   }
   try {
-    await registerUser(email.value, username.value, password.value)
-    success.value = 'Registration successful! You can now log in.'
-    setTimeout(() => router.push('/login'), 1500)
+    const kdfParams = getDefaultKdfParams()
+    const mkSalt = generateSalt()
+    const rkSalt = generateSalt()
+    const masterKeyBytes = generateMasterKeyBytes()
+    const recovery = generateRecoveryPhrase(12)
+
+    const userKey = await deriveKeyFromPassword(password.value, mkSalt, kdfParams)
+    const recoveryKey = await deriveKeyFromPassword(recovery, rkSalt, kdfParams)
+    const wrappedMkPassword = await wrapMasterKey(masterKeyBytes, userKey)
+    const wrappedMkRecovery = await wrapMasterKey(masterKeyBytes, recoveryKey)
+
+    await registerUser({
+      email: email.value,
+      username: username.value,
+      password: password.value,
+      wrapped_mk_password: wrappedMkPassword,
+      wrapped_mk_recovery: wrappedMkRecovery,
+      mk_salt: mkSalt,
+      rk_salt: rkSalt,
+      kdf_iterations: kdfParams.iterations,
+      kdf_hash: kdfParams.hash
+    })
+
+    recoveryPhrase.value = recovery
+    showRecoveryDialog.value = true
+    success.value = 'Registration successful! Please save your recovery phrase.'
   } catch (err: any) {
     error.value = err?.response?.data?.error || 'Registration failed.'
   }
@@ -70,6 +112,20 @@ const handleRegister = async () => {
 
 function goToLogin() {
   router.push('/login')
+}
+
+async function copyRecoveryPhrase() {
+  try {
+    await navigator.clipboard.writeText(recoveryPhrase.value)
+    toast.add({ severity: 'success', summary: 'Copied', detail: 'Recovery phrase copied', life: 2000 })
+  } catch (err) {
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to copy recovery phrase', life: 2000 })
+  }
+}
+
+function confirmRecoverySaved() {
+  showRecoveryDialog.value = false
+  setTimeout(() => router.push('/login'), 500)
 }
 </script>
 
@@ -132,6 +188,36 @@ function goToLogin() {
   gap: 0.5rem;
   color: var(--text-secondary);
   font-size: 0.875rem;
+}
+
+.recovery-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.recovery-warning {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.recovery-phrase {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px dashed var(--border-color);
+  background: var(--bg-secondary);
+  font-family: monospace;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  word-spacing: 0.3rem;
+}
+
+.recovery-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 /* Override PrimeVue styles if needed */

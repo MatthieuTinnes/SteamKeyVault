@@ -1,19 +1,44 @@
 import axios from 'axios'
 import { API_BASE_URL, getAxiosConfig } from './apiHelper'
+import { useCryptoStore } from '@/stores/crypto'
+import { decryptValue, encryptValue } from '@/utils/crypto'
 
 
 export async function getKeysForGame(userGameId: number | string) {
   const res = await axios.get(`${API_BASE_URL}/keys/list/${userGameId}`, getAxiosConfig())
-  return res.data
+  const store = useCryptoStore()
+  if (!store.masterKeyBytes) {
+    throw new Error('Missing master key. Please log in again.')
+  }
+  const decrypted = await Promise.all(
+    res.data.map(async (item: any) => ({
+      ...item,
+      key: await decryptValue(item.key, store.masterKeyBytes)
+    }))
+  )
+  return decrypted
 }
 
 export async function addKey({ key, user_game_id, current_use }: { key: string, user_game_id: number, current_use?: string }) {
-  const res = await axios.post(`${API_BASE_URL}/keys/add`, { key, user_game_id, current_use }, getAxiosConfig())
+  const store = useCryptoStore()
+  if (!store.masterKeyBytes) {
+    throw new Error('Missing master key. Please log in again.')
+  }
+  const encrypted = await encryptValue(key, store.masterKeyBytes)
+  const res = await axios.post(`${API_BASE_URL}/keys/add`, { key: encrypted, user_game_id, current_use }, getAxiosConfig())
   return res.data
 }
 
 export async function updateKey(userGameId: number, keyId: number | string, data: { key?: string, used?: boolean, current_use?: string }) {
-  const res = await axios.patch(`${API_BASE_URL}/keys/${userGameId}/update/${keyId}`, data, getAxiosConfig())
+  const store = useCryptoStore()
+  if (!store.masterKeyBytes) {
+    throw new Error('Missing master key. Please log in again.')
+  }
+  const payload = { ...data }
+  if (payload.key) {
+    payload.key = await encryptValue(payload.key, store.masterKeyBytes)
+  }
+  const res = await axios.patch(`${API_BASE_URL}/keys/${userGameId}/update/${keyId}`, payload, getAxiosConfig())
   return res.data
 }
 

@@ -108,12 +108,15 @@ import Button from 'primevue/button'
 import Password from 'primevue/password'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { useCryptoStore } from '@/stores/crypto'
 import { updateEmail, changePassword, fetchUserStats, resendVerificationEmail } from '@/api/auth'
 import { exportUserGamesCsv } from '@/api/games'
 import { showErrorToast, showSuccessToast } from '@/utils/toast'
 import Message from 'primevue/message';
+import { deriveKeyFromPassword, wrapMasterKey } from '@/utils/crypto'
 
 const userStore = useUserStore()
+const cryptoStore = useCryptoStore()
 const email = ref('')
 const pendingEmailChange = ref(false)
 const pendingNewEmail = ref('')
@@ -177,12 +180,22 @@ async function changePwd() {
   if (!canChange.value) return showErrorToast('Invalid data', 'Please check the password fields')
   saving.value = true
   try {
-    await changePassword({ current_password: currentPassword.value, new_password: newPassword.value })
+    if (!cryptoStore.masterKeyBytes || !cryptoStore.mkSalt || !cryptoStore.kdfParams) {
+      throw new Error('Missing encryption context. Please log in again.')
+    }
+    const newUserKey = await deriveKeyFromPassword(newPassword.value, cryptoStore.mkSalt, cryptoStore.kdfParams)
+    const wrappedMkPassword = await wrapMasterKey(cryptoStore.masterKeyBytes, newUserKey)
+    await changePassword({
+      current_password: currentPassword.value,
+      new_password: newPassword.value,
+      wrapped_mk_password: wrappedMkPassword
+    })
     showSuccessToast('Success', 'Password changed')
     currentPassword.value = ''
     newPassword.value = ''
     confirmPassword.value = ''
   } catch (e) {
+    showErrorToast('Password update failed', e instanceof Error ? e.message : 'Unknown error')
   } finally {
     saving.value = false
   }
