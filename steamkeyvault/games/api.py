@@ -7,6 +7,8 @@ from django.http import HttpResponse
 import csv
 import re
 from django.utils import timezone
+import json
+from steamkeyvault.keys.models import Key
 
 router = Router()
 
@@ -27,6 +29,24 @@ class GameOut(Schema):
 
 class GameIdOut(Schema):
     id: int
+
+
+class SteamKeyVaultKeyIn(Schema):
+    key: str
+    used: Optional[bool] = False
+    current_use: Optional[str] = None
+
+
+class SteamKeyVaultGameIn(Schema):
+    name: str
+    steamapp_id: Optional[int] = None
+    keys: Optional[list[SteamKeyVaultKeyIn]] = None
+
+
+class SteamKeyVaultImportIn(Schema):
+    format: str
+    version: int
+    games: list[SteamKeyVaultGameIn]
 
 @router.post('/add', response={201: GameIdOut, 400: dict}, auth=django_auth)
 def add_game(request, data: GameIn):
@@ -115,3 +135,127 @@ def export_games_csv(request):
         writer.writerow(row)
 
     return response
+
+
+@router.get('/export_json', auth=django_auth)
+def export_games_json(request):
+    user_games = UserGame.objects.filter(user=request.user).prefetch_related('keys')
+    payload = {
+        "format": "SteamKeyVault",
+        "version": 1,
+        "games": [],
+    }
+
+    for ug in user_games:
+        keys_payload = []
+        for k in ug.keys.all():
+            keys_payload.append({
+                "key": k.key,
+                "used": k.used,
+                "current_use": k.current_use,
+            })
+        payload["games"].append({
+            "name": ug.name,
+            "steamapp_id": ug.steamapp_id,
+            "keys": keys_payload,
+        })
+
+    user_email = getattr(request.user, 'email', None) or 'user'
+    safe_email = re.sub(r'[^\w@.\-]', '_', user_email)
+    ts = timezone.localtime(timezone.now()).strftime('%Y-%m-%d_%H-%M-%S')
+    filename = f"{safe_email}_steamkeyvault_{ts}.json"
+
+    response = HttpResponse(
+        json.dumps(payload),
+        content_type='application/json; charset=utf-8'
+    )
+    response['X-Filename'] = filename
+    response['Access-Control-Expose-Headers'] = 'X-Filename'
+    return response
+
+
+@router.post('/import_json', response={200: dict, 400: dict}, auth=django_auth)
+def import_games_json(request):
+    payload = None
+    file_bytes = None
+
+    uploaded = getattr(request, 'FILES', None)
+    if uploaded:
+        f = uploaded.get('file')
+        if f:
+            try:
+                file_bytes = f.read()
+            except Exception:
+                file_bytes = None
+
+    if file_bytes is None:
+        try:
+            file_bytes = request.body
+        except Exception:
+            file_bytes = None
+
+    if not file_bytes:
+        return 400, {"error": "No JSON payload provided"}
+
+    try:
+        raw = json.loads(file_bytes.decode('utf-8'))
+        payload = SteamKeyVaultImportIn(**raw)
+    except Exception:
+        return 400, {"error": "Invalid JSON payload"}
+
+    if payload.format != "SteamKeyVault" or payload.version != 1:
+        return 400, {"error": "Invalid SteamKeyVault format or version"}
+
+    summary = {
+        "games_created": 0,
+        "games_existing": 0,
+        "keys_created": 0,
+        "keys_skipped": 0,
+        "errors": [],
+    }
+
+    for game in payload.games:
+        name = (game.name or '').strip()
+        if not name:
+            summary["errors"].append({"game": game.name, "error": "Name is required"})
+            continue
+
+        if game.steamapp_id is not None:
+            user_game, created = UserGame.objects.get_or_create(
+                user=request.user,
+                steamapp_id=game.steamapp_id,
+                defaults={"name": name},
+            )
+            if not created and user_game.name != name:
+                user_game.name = name
+                user_game.save(update_fields=["name"])
+        else:
+            user_game, created = UserGame.objects.get_or_create(
+                user=request.user,
+                name=name,
+                steamapp_id=None,
+            )
+
+        if created:
+            summary["games_created"] += 1
+        else:
+            summary["games_existing"] += 1
+
+        keys_payload = game.keys or []
+        for k in keys_payload:
+            key_value = (k.key or '').strip()
+            if not key_value:
+                summary["keys_skipped"] += 1
+                continue
+            if Key.objects.filter(userGame=user_game, key=key_value).exists():
+                summary["keys_skipped"] += 1
+                continue
+            Key.objects.create(
+                key=key_value,
+                userGame=user_game,
+                used=bool(k.used) if k.used is not None else False,
+                current_use=k.current_use,
+            )
+            summary["keys_created"] += 1
+
+    return 200, summary
