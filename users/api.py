@@ -36,7 +36,16 @@ def login_view(request, payload: schemas.SignInSchema):
     user = authenticate(request, username=payload.email, password=payload.password)
     if user is not None:
         login(request, user)
-        response = JsonResponse({"success": True})
+        if not user.wrapped_mk_password or not user.mk_salt:
+            logger.warning(f"Login failed: encryption not initialized user={user.email}")
+            raise HttpError(400, "Encryption not initialized for this account")
+        response = JsonResponse({
+            "success": True,
+            "wrapped_mk_password": user.wrapped_mk_password,
+            "mk_salt": user.mk_salt,
+            "kdf_iterations": user.kdf_iterations,
+            "kdf_hash": user.kdf_hash,
+        })
         return response
     logger.warning(f"Failed login for email={payload.email} from {addr}")
     raise HttpError(403, "Invalid credentials")
@@ -75,6 +84,20 @@ def register(request, payload: schemas.SignUpSchema):
         return JsonResponse({"error": "Username already exists"}, status=400)
     try:
         user = User.objects.create_user(username=payload.username, email=payload.email, password=payload.password)
+        user.wrapped_mk_password = payload.wrapped_mk_password
+        user.wrapped_mk_recovery = payload.wrapped_mk_recovery
+        user.mk_salt = payload.mk_salt
+        user.rk_salt = payload.rk_salt
+        user.kdf_iterations = payload.kdf_iterations
+        user.kdf_hash = payload.kdf_hash
+        user.save(update_fields=[
+            "wrapped_mk_password",
+            "wrapped_mk_recovery",
+            "mk_salt",
+            "rk_salt",
+            "kdf_iterations",
+            "kdf_hash",
+        ])
         logger.info(f"User registered username={payload.username} email={payload.email} user_id={user.id}")
         
         # Generate verification token
@@ -176,6 +199,7 @@ def change_password_view(request, payload: schemas.ChangePasswordSchema):
 
     try:
         user_obj.set_password(payload.new_password)
+        user_obj.wrapped_mk_password = payload.wrapped_mk_password
         user_obj.save()
         logger.info(f"Password changed for user_id={user_obj.pk}")
         
@@ -194,6 +218,21 @@ def change_password_view(request, payload: schemas.ChangePasswordSchema):
     except Exception as e:
         logger.exception(f"Error changing password for user_id={user_obj.pk}: {e}")
         return JsonResponse({"error": str(e)}, status=400)
+
+
+@users_router.post('/recovery-info')
+def recovery_info(request, payload: schemas.RecoveryInfoSchema):
+    user = User.objects.filter(email=payload.email).first()
+    if not user:
+        return JsonResponse({"error": "User not found"}, status=404)
+    if not user.wrapped_mk_recovery or not user.rk_salt:
+        return JsonResponse({"error": "Recovery data not available"}, status=400)
+    return Response({
+        "wrapped_mk_recovery": user.wrapped_mk_recovery,
+        "rk_salt": user.rk_salt,
+        "kdf_iterations": user.kdf_iterations,
+        "kdf_hash": user.kdf_hash,
+    })
 
 
 @users_router.get('/stats', auth=django_auth)
