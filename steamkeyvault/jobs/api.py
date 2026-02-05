@@ -25,6 +25,7 @@ def create_import(request, file: bytes = None):
 
     CSV format: gameName;key1;key2
     """
+    max_size = 10 * 1024 * 1024
     user = request.user
     # Ninja may or may not populate `file` for multipart; fallback to Django FILES
     if not file:
@@ -38,6 +39,8 @@ def create_import(request, file: bytes = None):
                     file = None
     if not file:
         return 400, {"error": "No file provided"}
+    if len(file) > max_size:
+        return 400, {"error": "File too large. Maximum size is 10 MB."}
 
     job = ImportJob.objects.create(user=user, status="pending")
 
