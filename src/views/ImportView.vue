@@ -76,6 +76,7 @@ import { useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import { createImport, getImportStatus } from '@/api/jobs'
 import { showSuccessToast, showErrorToast } from '@/utils/toast'
+import { MAX_IMPORT_BYTES } from '@/utils/importLimits'
 
 const router = useRouter()
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -86,7 +87,6 @@ const total = ref<number>(0)
 const error = ref<string | null>(null)
 const result = ref<any[] | null>(null)
 const isDragOver = ref(false)
-const MAX_IMPORT_BYTES = 10 * 1024 * 1024
 
 const toast = { success: (s: any) => showSuccessToast(s.summary || 'Info', s.detail), error: (s: any) => showErrorToast(s.summary || 'Error', s.detail) }
 let pollTimer: number | null = null

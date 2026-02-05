@@ -125,6 +125,7 @@ import { exportUserGamesCsv, exportUserGamesJson, importUserGamesJson } from '@/
 import { showErrorToast, showSuccessToast } from '@/utils/toast'
 import Message from 'primevue/message';
 import { deriveKeyFromPassword, wrapMasterKey } from '@/utils/crypto'
+import { MAX_IMPORT_BYTES } from '@/utils/importLimits'
 
 const userStore = useUserStore()
 const cryptoStore = useCryptoStore()
@@ -267,6 +268,10 @@ function onJsonFileChange(e: Event) {
 }
 
 async function importJson(file: File) {
+  if (file.size > MAX_IMPORT_BYTES) {
+    showErrorToast('File too large', 'Maximum file size is 10 MB.')
+    return
+  }
   try {
     const res = await importUserGamesJson(file)
     const data = res.data || {}
