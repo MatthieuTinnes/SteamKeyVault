@@ -176,6 +176,7 @@ def export_games_json(request):
 
 @router.post('/import_json', response={200: dict, 400: dict}, auth=django_auth)
 def import_games_json(request):
+    max_size = 10 * 1024 * 1024
     payload = None
     file_bytes = None
 
@@ -196,6 +197,8 @@ def import_games_json(request):
 
     if not file_bytes:
         return 400, {"error": "No JSON payload provided"}
+    if len(file_bytes) > max_size:
+        return 400, {"error": "File too large. Maximum size is 10 MB."}
 
     try:
         raw = json.loads(file_bytes.decode('utf-8'))
