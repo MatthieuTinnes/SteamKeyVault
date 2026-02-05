@@ -32,6 +32,22 @@ export async function exportUserGamesCsv() {
   return res
 }
 
+export async function exportUserGamesJson() {
+  const url = `${API_BASE_URL}/games/export_json`
+  const res = await axios.get(url, { ...getAxiosConfig(), responseType: 'blob' })
+  return res
+}
+
+export async function importUserGamesJson(file: File) {
+  const url = `${API_BASE_URL}/games/import_json`
+  const formData = new FormData()
+  formData.append('file', file)
+  return axios.post(url, formData, {
+    ...getAxiosConfig(),
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+}
+
 export async function updateUserGame(user_game_id: number, payload: { name?: string; steamapp_id?: number | null }) {
   const url = `${API_BASE_URL}/games/${user_game_id}/update`
   return axios.patch(url, payload, getAxiosConfig())

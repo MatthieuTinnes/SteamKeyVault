@@ -40,11 +40,22 @@
       <section class="settings-card">
         <div class="card-header">
           <h3><i class="pi pi-database"></i> Data Management</h3>
-          <p class="section-desc">Import or export your game library data.</p>
+          <p class="section-desc">Import or export your game library data.
+            CSV format contains game names and keys separated by semicolons. 
+            JSON format follows the SteamKeyVault schema.</p>
         </div>
         <div class="actions-column">
-          <Button label="Import Games" icon="pi pi-upload" @click="router.push('/import')" outlined class="w-full" />
+          <Button label="Import CSV" icon="pi pi-upload" @click="router.push('/import')" outlined class="w-full" />
           <Button label="Export CSV" icon="pi pi-download" @click="exportCsv" outlined class="w-full" />
+          <Button label="Import JSON (SteamKeyVault)" icon="pi pi-upload" @click="openJsonPicker" outlined class="w-full" />
+          <Button label="Export JSON (SteamKeyVault)" icon="pi pi-download" @click="exportJson" outlined class="w-full" />
+          <input
+            ref="jsonFileInput"
+            type="file"
+            accept=".json,application/json"
+            @change="onJsonFileChange"
+            style="display:none"
+          />
         </div>
       </section>
 
@@ -109,7 +120,7 @@ import Password from 'primevue/password'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { updateEmail, changePassword, fetchUserStats, resendVerificationEmail } from '@/api/auth'
-import { exportUserGamesCsv } from '@/api/games'
+import { exportUserGamesCsv, exportUserGamesJson, importUserGamesJson } from '@/api/games'
 import { showErrorToast, showSuccessToast } from '@/utils/toast'
 import Message from 'primevue/message';
 
@@ -125,6 +136,7 @@ const resending = ref(false)
 const stats = ref<{ games_count?: number; keys_count?: number }>({})
 const statsLoading = ref(false)
 const router = useRouter()
+const jsonFileInput = ref<HTMLInputElement | null>(null)
 
 onMounted(async () => {
   if (!userStore.user) {
@@ -220,7 +232,9 @@ async function exportCsv() {
     // Use server-provided 'x-filename' header only
     let filename = 'user_games.csv'
     const headers = res.headers || {}
-    if (headers['X-Filename']) {
+    if (headers['x-filename']) {
+      filename = headers['x-filename']
+    } else if (headers['X-Filename']) {
       filename = headers['X-Filename']
     }
     const url = window.URL.createObjectURL(blob)
@@ -232,6 +246,54 @@ async function exportCsv() {
     a.remove()
     window.URL.revokeObjectURL(url)
     showSuccessToast('Export', `CSV downloaded: ${filename}`)
+  } catch (e: any) {
+    showErrorToast(e?.response?.data?.error || e.message || String(e))
+  }
+}
+
+function openJsonPicker() {
+  jsonFileInput.value?.click()
+}
+
+function onJsonFileChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  if (!target.files || target.files.length === 0) return
+  importJson(target.files[0])
+  target.value = ''
+}
+
+async function importJson(file: File) {
+  try {
+    const res = await importUserGamesJson(file)
+    const data = res.data || {}
+    const gamesCreated = data.games_created ?? 0
+    const keysCreated = data.keys_created ?? 0
+    showSuccessToast('Import JSON', `Games created: ${gamesCreated}, Keys created: ${keysCreated}`)
+  } catch (e: any) {
+    showErrorToast(e?.response?.data?.error || 'Failed to import JSON')
+  }
+}
+
+async function exportJson() {
+  try {
+    const res = await exportUserGamesJson()
+    const blob = res.data
+    let filename = 'steamkeyvault_export.json'
+    const headers = res.headers || {}
+    if (headers['x-filename']) {
+      filename = headers['x-filename']
+    } else if (headers['X-Filename']) {
+      filename = headers['X-Filename']
+    }
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    window.URL.revokeObjectURL(url)
+    showSuccessToast('Export', `JSON downloaded: ${filename}`)
   } catch (e: any) {
     showErrorToast(e?.response?.data?.error || e.message || String(e))
   }
