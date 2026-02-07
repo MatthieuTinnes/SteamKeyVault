@@ -67,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import Button from 'primevue/button'
 import Textarea from 'primevue/textarea'
@@ -141,6 +141,7 @@ onMounted(async () => {
   if (cached) revealedKey.value = cached
   try {
     await loadTurnstile()
+    await nextTick()
     renderTurnstile()
   } catch (err) {
     turnstileReady.value = false
@@ -202,7 +203,8 @@ function renderTurnstile() {
     },
     'error-callback': () => {
       turnstileToken.value = ''
-    }
+    },
+    action: 'share_key_page'
   })
 }
 
