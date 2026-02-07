@@ -14,7 +14,7 @@ fi
 if [ -n "$VITE_TURNSTILE_SITE_KEY" ]; then
   turnstile_key="$VITE_TURNSTILE_SITE_KEY"
 else
-  turnstile_key="0x4AAAAAACY8sMSWWgBkcz6m"
+  turnstile_key=""
 fi
 
 echo "  VITE_API_BASE_URL: \"${api_base}\"," >> "$CONFIG_FILE"
