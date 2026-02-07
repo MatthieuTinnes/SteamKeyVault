@@ -110,6 +110,9 @@ const turnstileReady = ref(false)
 const message = ref('')
 const revealing = ref(false)
 const sending = ref(false)
+const maxTurnstileRenderRetries = 8
+const turnstileRenderDelayMs = 120
+let turnstileRenderTimer: number | null = null
 
 const shareToken = computed(() => String(route.params.token || ''))
 const canReveal = computed(() => {
@@ -176,31 +179,13 @@ async function loadTurnstile() {
     turnstileReady.value = true
     return
   }
-
   await new Promise<void>((resolve, reject) => {
-    if (window.turnstile) {
-      resolve()
-      return
-    }
-
-    const existing = document.getElementById('turnstile-script')
+    const existing = document.getElementById('turnstile-script') as HTMLScriptElement | null
     if (existing) {
-      // If script exists, poll for window.turnstile
-      let attempts = 0
-      const interval = setInterval(() => {
-        if (window.turnstile) {
-          clearInterval(interval)
-          resolve()
-        }
-        attempts++
-        if (attempts > 50) { // ~5 seconds
-          clearInterval(interval)
-          reject(new Error('Turnstile load timeout'))
-        }
-      }, 100)
+      existing.addEventListener('load', () => resolve())
+      existing.addEventListener('error', () => reject(new Error('Failed to load Turnstile')))
       return
     }
-
     const script = document.createElement('script')
     script.id = 'turnstile-script'
     script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
@@ -214,10 +199,33 @@ async function loadTurnstile() {
 }
 
 function renderTurnstile() {
-  if (!turnstileReady.value || !TURNSTILE_SITE_KEY || !window.turnstile) return
+  if (!turnstileReady.value || !TURNSTILE_SITE_KEY) return
 
   const revealEl = document.getElementById('turnstile-reveal')
-  if (revealEl && !revealWidgetId.value) {
+  if (!revealEl || revealWidgetId.value) return
+
+  if (!window.turnstile?.render) {
+    if (turnstileRenderTimer === null && maxTurnstileRenderRetries > 0) {
+      let attempts = 0
+      turnstileRenderTimer = window.setInterval(() => {
+        attempts += 1
+        if (window.turnstile?.render) {
+          window.clearInterval(turnstileRenderTimer as number)
+          turnstileRenderTimer = null
+          renderTurnstile()
+          return
+        }
+        if (attempts >= maxTurnstileRenderRetries) {
+          window.clearInterval(turnstileRenderTimer as number)
+          turnstileRenderTimer = null
+          turnstileReady.value = false
+        }
+      }, turnstileRenderDelayMs)
+    }
+    return
+  }
+
+  try {
     revealWidgetId.value = window.turnstile.render(revealEl, {
       sitekey: TURNSTILE_SITE_KEY,
       callback: (token: string) => {
@@ -229,8 +237,12 @@ function renderTurnstile() {
       'error-callback': () => {
         revealToken.value = ''
       },
+      appearance: 'interaction-only',
       action: 'share_key_page'
     })
+  } catch (err) {
+    console.error('Turnstile render error:', err)
+    turnstileReady.value = false
   }
 }
 
@@ -335,21 +347,20 @@ function formatDateTime(dateStr: string) {
 .share-body {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
   gap: 1.5rem;
-  width: 100%;
+  align-items: flex-start;
 }
 
 .game-card {
-  flex: 1 1 20rem; /* Adjusted for better wrap behavior */
-  min-width: 0; /* Prevents overflow in flex items */
+  flex: 1 1 24rem;
+  width: 100%;
   position: sticky;
   top: 6rem;
 }
 
 .share-actions {
   flex: 1 1 20rem;
-  min-width: 0;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -405,7 +416,6 @@ function formatDateTime(dateStr: string) {
 @media (max-width: 64rem) {
   .game-card {
     position: static;
-    flex-basis: 100%; /* Force stacking on small screens */
   }
 }
 </style>
