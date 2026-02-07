@@ -33,6 +33,8 @@
             <div class="action-buttons">
               <Button class="p-button-text p-button p-button-info" @click="editUser(data)"><i
               class="pi pi-pencil"></i></Button>
+              <Button class="p-button-text p-button p-button-warning" @click="confirmClear(data)"><i
+              class="pi pi-times-circle"></i></Button>
               <Button class="p-button-text p-button p-button-danger" @click="confirmDelete(data)"><i
               class="pi pi-trash"></i></Button>
             </div>
@@ -82,6 +84,17 @@
         <Button label="Delete" @click="deleteUserConfirmed" severity="danger" :loading="deleting" />
       </template>
     </Dialog>
+
+    <Dialog v-model:visible="showClearDialog" header="Confirm Clear" :modal="true" :style="{ width: '28rem' }">
+      <p v-if="clearingUser">
+        This will delete all games and keys for <strong>{{ clearingUser.username }}</strong>.
+        The user account will remain active.
+      </p>
+      <template #footer>
+        <Button label="Cancel" @click="showClearDialog = false" severity="secondary" />
+        <Button label="Delete Games & Keys" @click="clearUserGamesAndKeys" severity="warning" :loading="clearing" />
+      </template>
+    </Dialog>
   </div>
 </template>
 
@@ -94,7 +107,14 @@ import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Checkbox from 'primevue/checkbox'
-import { getAllUsers, updateUserEmail, updateUserPassword, updateUserAdminStatus, deleteUser } from '@/api/admin'
+import {
+  getAllUsers,
+  updateUserEmail,
+  updateUserPassword,
+  updateUserAdminStatus,
+  deleteUser,
+  deleteUserGamesAndKeys
+} from '@/api/admin'
 import type { AdminUser } from '@/api/admin'
 import { showSuccessToast, showErrorToast } from '@/utils/toast'
 import { useTableRowsPerPage } from '@/composables/useTableRowsPerPage'
@@ -104,10 +124,13 @@ const users = ref<AdminUser[]>([])
 const loading = ref(false)
 const showEditDialog = ref(false)
 const showDeleteDialog = ref(false)
+const showClearDialog = ref(false)
 const editingUser = ref<AdminUser | null>(null)
 const deletingUser = ref<AdminUser | null>(null)
+const clearingUser = ref<AdminUser | null>(null)
 const saving = ref(false)
 const deleting = ref(false)
+const clearing = ref(false)
 
 const { rowsPerPage, containerRef: tableContainer } = useTableRowsPerPage(350)
 
@@ -179,6 +202,11 @@ function confirmDelete(user: AdminUser) {
   showDeleteDialog.value = true
 }
 
+function confirmClear(user: AdminUser) {
+  clearingUser.value = user
+  showClearDialog.value = true
+}
+
 async function deleteUserConfirmed() {
   if (!deletingUser.value) return
   
@@ -192,6 +220,28 @@ async function deleteUserConfirmed() {
     showErrorToast(error?.response?.data?.error || 'Failed to delete user')
   } finally {
     deleting.value = false
+  }
+}
+
+async function clearUserGamesAndKeys() {
+  if (!clearingUser.value) return
+
+  clearing.value = true
+  try {
+    const response = await deleteUserGamesAndKeys(clearingUser.value.id)
+    const deletedGames = response.data?.deleted_games
+    const deletedKeys = response.data?.deleted_keys
+    const details =
+      typeof deletedGames === 'number' && typeof deletedKeys === 'number'
+        ? `Deleted ${deletedGames} games and ${deletedKeys} keys.`
+        : 'Games and keys deleted.'
+    showSuccessToast(details)
+    showClearDialog.value = false
+    await loadUsers()
+  } catch (error: any) {
+    showErrorToast(error?.response?.data?.error || 'Failed to delete games and keys')
+  } finally {
+    clearing.value = false
   }
 }
 

@@ -69,6 +69,10 @@ export async function deleteUser(userId: number) {
   return axios.delete(`${API_BASE_URL}/admin/users/${userId}`, getAxiosConfig())
 }
 
+export async function deleteUserGamesAndKeys(userId: number) {
+  return axios.delete(`${API_BASE_URL}/admin/users/${userId}/games-keys`, getAxiosConfig())
+}
+
 export async function refreshSteamApps() {
   return axios.post(`${API_BASE_URL}/admin/steam/refresh-steam-apps`, {}, getAxiosConfig())
 }
