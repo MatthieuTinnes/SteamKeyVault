@@ -17,9 +17,10 @@
                     <h2 class="title">{{ appName }}</h2>
                     <div class="publisher" v-if="publisher">by {{ publisher }}</div>
                 </div>
-              <div style="display:flex;align-items:flex-start;gap:0.5rem">
-              <Button class="p-button-sm p-button-danger" @click="handleOpenDelete"><i
-              class="pi pi-trash"></i></Button>
+              <div v-if="showDelete" style="display:flex;align-items:flex-start;gap:0.5rem">
+                <Button class="p-button-sm p-button-danger" @click="handleOpenDelete">
+                  <i class="pi pi-trash"></i>
+                </Button>
               </div>
             </div>
             <div class="details">
@@ -62,20 +63,20 @@
         <div v-else class="no-data">
             <h1>{{ steamAppId }}</h1>
         </div>
-        <DeleteGameModal :modelValue="showDeleteModal" :hasKeys="hasKeys" @update:modelValue="onModalUpdate" @confirmed="handleConfirmDelete" />
+        <DeleteGameModal v-if="showDelete" :modelValue="showDeleteModal" :hasKeys="hasKeys" @update:modelValue="onModalUpdate" @confirmed="handleConfirmDelete" />
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
-import { getSteamAppDetails } from '@/api/games'
+      import { getPublicSteamAppDetails, getSteamAppDetails } from '@/api/games'
 import DeleteGameModal from './DeleteGameModal.vue'
 import CustomGameInfo from './CustomGameInfo.vue'
 import Button from 'primevue/button'
 import { useDeleteGame } from '@/composables/useDeleteGame'
 import { useToast } from 'primevue/usetoast'
 
-const props = defineProps<{ steamAppId: number | null; userGameId?: number | null; gameName?: string | null }>()
+      const props = defineProps<{ steamAppId: number | null; userGameId?: number | null; gameName?: string | null; publicMode?: boolean }>()
 const emit = defineEmits<{
   (e: 'deleted'): void
 }>()
@@ -93,6 +94,8 @@ const hasCards = ref<boolean>(false)
 const hasAchievements = ref<boolean>(false)
 const { showDeleteModal, hasKeys, openDelete, confirmDelete, onModalUpdate } = useDeleteGame()
 const toast = useToast()
+
+const showDelete = computed(() => !props.publicMode && !!props.userGameId)
 
 const steamStoreUrl = computed(() => 
   props.steamAppId ? `https://store.steampowered.com/app/${props.steamAppId}` : null
@@ -166,7 +169,9 @@ const loadApp = async () => {
 
   try {
     const lang = navigator.language ? navigator.language.split('-')[0] : undefined
-    const data = await getSteamAppDetails(props.steamAppId, lang)
+    const data = props.publicMode
+      ? await getPublicSteamAppDetails(props.steamAppId, lang)
+      : await getSteamAppDetails(props.steamAppId, lang)
     
     appName.value = data?.name ?? null
     publisher.value = data?.publishers?.[0] ?? null
@@ -215,11 +220,13 @@ watch(() => props.steamAppId, (id) => {
 
 // wire composable actions to emit when deletion succeeded
 async function handleConfirmDelete() {
+  if (!showDelete.value) return
   const success = await confirmDelete(props.userGameId ?? null)
   if (success) emit('deleted')
 }
 
 function handleOpenDelete() {
+  if (!showDelete.value) return
   void openDelete(props.userGameId ?? null)
 }
 </script>

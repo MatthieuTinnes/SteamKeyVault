@@ -59,6 +59,11 @@ const router = createRouter({
       component: () => import('../views/VerifyEmailView.vue'),
     },
     {
+      path: '/share/:token',
+      name: 'share-key',
+      component: () => import('../views/ShareKeyView.vue'),
+    },
+    {
       path: '/confirm-email-change',
       name: 'confirm-email-change',
       component: () => import('../views/ConfirmEmailChangeView.vue'),

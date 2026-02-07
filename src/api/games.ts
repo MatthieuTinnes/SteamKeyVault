@@ -28,6 +28,12 @@ export async function getSteamAppDetails(appid: number, lang?: string) {
   return axios.get(url, getAxiosConfig()).then(response => response.data)
 }
 
+export async function getPublicSteamAppDetails(appid: number, lang?: string) {
+  const langParam = lang ? `?lang=${encodeURIComponent(lang)}` : ''
+  const url = `${API_BASE_URL}/steam/public/appdetails/${appid}/${langParam}`
+  return axios.get(url).then(response => response.data)
+}
+
 export async function exportUserGamesCsv() {
   const store = useCryptoStore()
   if (!store.masterKeyBytes) {

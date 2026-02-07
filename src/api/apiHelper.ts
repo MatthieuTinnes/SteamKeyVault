@@ -14,6 +14,7 @@ axios.defaults.withXSRFToken = true
 // 2. Build-time env var (import.meta.env) - from .env files
 // 3. Fallback default
 export const API_BASE_URL = window.config?.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
+export const TURNSTILE_SITE_KEY = window.config?.VITE_TURNSTILE_SITE_KEY || import.meta.env.VITE_TURNSTILE_SITE_KEY || ''
 
 export function getCookie(name: string): string | null {
   const value = `; ${document.cookie}`

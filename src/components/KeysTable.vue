@@ -50,6 +50,13 @@
         <template #body="{ data }">
           <div class="action-buttons">
             <Button icon="pi pi-copy" class="p-button-text p-button p-button-secondary" @click="copyKey(data.key)" v-tooltip.top="'Copy Key'" />
+            <Button
+              icon="pi pi-share-alt"
+              class="p-button-text p-button p-button-help"
+              :disabled="data.used"
+              @click="openShareDialog(data)"
+              v-tooltip.top="data.used ? 'Key already used' : 'Share'"
+            />
             <Button icon="pi pi-pencil" class="p-button-text p-button p-button-info" @click="openEditDialog(data)" v-tooltip.top="'Edit'" />
             <Button icon="pi pi-trash" class="p-button-text p-button p-button-danger" @click="openDeleteDialog(data)" v-tooltip.top="'Delete'" />
           </div>
@@ -105,6 +112,19 @@
         <Button label="Delete" icon="pi pi-trash" severity="danger" @click="confirmDeleteKey" />
       </template>
     </Dialog>
+
+    <!-- Share Key Dialog -->
+    <Dialog v-model:visible="showShareDialog" header="Share Key" :modal="true" :style="{ width: 'min(32rem, 92vw)' }" class="p-fluid">
+      <div class="field">
+        <label for="share_link">Share Link</label>
+        <InputText id="share_link" v-model="shareLink" readonly />
+        <small v-if="shareExpiresAt" class="hint">Expires on {{ formatDateTime(shareExpiresAt) }}</small>
+      </div>
+      <template #footer>
+        <Button label="Close" icon="pi pi-times" text @click="showShareDialog = false" />
+        <Button label="Copy Link" icon="pi pi-copy" :disabled="!shareLink" @click="copyShareLink" />
+      </template>
+    </Dialog>
   </div>
 </template>
 
@@ -119,7 +139,7 @@ import Dialog from 'primevue/dialog';
 import Dropdown from 'primevue/dropdown';
 import type { Key } from '@/models/Key';
 import { CURRENT_USE_OPTIONS } from '@/models/Key';
-import { addKey, updateKey, removeKey } from '../api/keys'
+import { addKey, updateKey, removeKey, createShareLink } from '../api/keys'
 import { useTableRowsPerPage } from '@/composables/useTableRowsPerPage'
 import { useToast } from 'primevue/usetoast'
 
@@ -139,8 +159,12 @@ const { rowsPerPage, containerRef: tableContainer } = useTableRowsPerPage()
 const showAddKeyDialog = ref(false)
 const showEditKeyDialog = ref(false)
 const showDeleteKeyDialog = ref(false)
+const showShareDialog = ref(false)
 const keyToDelete = ref<Key | null>(null)
 const keyToEdit = ref<Key | null>(null)
+const keyToShare = ref<Key | null>(null)
+const shareLink = ref('')
+const shareExpiresAt = ref('')
 
 function openEditDialog(key: Key) {
   keyToEdit.value = key
@@ -169,6 +193,26 @@ async function confirmDeleteKey() {
   emit('refresh')
 }
 
+async function openShareDialog(key: Key) {
+  if (!props.gameId) return
+  keyToShare.value = key
+  const data = await createShareLink(key.id, key.key)
+  shareLink.value = data.share_url || ''
+  shareExpiresAt.value = data.expires_at || ''
+  showShareDialog.value = true
+}
+
+async function copyShareLink() {
+  if (!shareLink.value) return
+  try {
+    await navigator.clipboard.writeText(shareLink.value)
+    toast.add({ severity: 'success', summary: 'Copied', detail: 'Share link copied to clipboard', life: 2000 })
+  } catch (err) {
+    console.error('Failed to copy share link:', err)
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to copy share link', life: 2000 })
+  }
+}
+
 async function copyKey(key: string) {
   try {
     await navigator.clipboard.writeText(key)
@@ -195,6 +239,18 @@ function formatDate(dateStr: string) {
     year: 'numeric',
     month: 'short',
     day: 'numeric'
+  })
+}
+
+function formatDateTime(dateStr: string) {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  return date.toLocaleString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
   })
 }
 
@@ -304,5 +360,11 @@ function getUsageClass(value: string | undefined) {
 .field-checkbox label {
   margin-bottom: 0;
   cursor: pointer;
+}
+
+.hint {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: var(--text-secondary);
 }
 </style>

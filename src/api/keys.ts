@@ -50,3 +50,23 @@ export async function removeKey(userGameId: number, keyId: number | string) {
   return res.data
 }
 
+export async function createShareLink(keyId: number, keyValue: string) {
+  const res = await axios.post(`${API_BASE_URL}/keys/share/${keyId}/create`, { key: keyValue }, getAxiosConfig())
+  return res.data
+}
+
+export async function getShareInfo(token: string) {
+  const res = await axios.get(`${API_BASE_URL}/keys/share/${token}`)
+  return res.data
+}
+
+export async function revealSharedKey(token: string, turnstileToken: string) {
+  const res = await axios.post(`${API_BASE_URL}/keys/share/${token}/reveal`, { turnstile_token: turnstileToken }, getAxiosConfig())
+  return res.data
+}
+
+export async function sendShareMessage(token: string, turnstileToken: string, message: string) {
+  const res = await axios.post(`${API_BASE_URL}/keys/share/${token}/message`, { turnstile_token: turnstileToken, message }, getAxiosConfig())
+  return res.data
+}
+
