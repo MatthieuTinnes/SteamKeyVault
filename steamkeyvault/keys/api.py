@@ -88,7 +88,6 @@ class ShareRevealOut(Schema):
 
 
 class ShareMessageIn(Schema):
-    turnstile_token: str
     message: str
 
 
@@ -335,11 +334,6 @@ def send_share_message(request, token: str, payload: ShareMessageIn):
     now = timezone.now()
     if share.expires_at <= now:
         return 410, {"error": "Share link has expired."}
-
-    if not payload.turnstile_token:
-        return 400, {"error": "Captcha token is required."}
-    if not _validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR"), expected_action="share_key_page"):
-        return 400, {"error": "Captcha validation failed."}
 
     message = (payload.message or '').strip()
     if len(message) < 3:
