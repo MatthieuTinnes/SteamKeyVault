@@ -34,6 +34,7 @@ class ShareKeyToken(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
     revealed_at = models.DateTimeField(null=True, blank=True)
+    message_sent_at = models.DateTimeField(null=True, blank=True)
     
     class Meta:
         db_table = 'keys_share_key_token'

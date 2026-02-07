@@ -334,6 +334,8 @@ def send_share_message(request, token: str, payload: ShareMessageIn):
     now = timezone.now()
     if share.expires_at <= now:
         return 410, {"error": "Share link has expired."}
+    if share.message_sent_at:
+        return 410, {"error": "Thank-you message has already been sent."}
 
     message = (payload.message or '').strip()
     if len(message) < 3:
@@ -356,5 +358,8 @@ def send_share_message(request, token: str, payload: ShareMessageIn):
     )
     if not sent:
         return 400, {"error": "Failed to send email."}
+
+    share.message_sent_at = timezone.now()
+    share.save(update_fields=["message_sent_at"])
 
     return 200, ShareMessageOut(success=True)
