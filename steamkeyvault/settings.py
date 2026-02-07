@@ -192,3 +192,7 @@ else:
 # Steam API Key
 STEAM_API_KEY = os.environ.get('STEAM_API_KEY', '16F7AC948566CC7166FE7D258E2B3C5B')
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+
+# Cloudflare Turnstile
+TURNSTILE_SECRET_KEY = os.environ.get('TURNSTILE_SECRET_KEY', '')
+TURNSTILE_VERIFY_URL = os.environ.get('TURNSTILE_VERIFY_URL', 'https://challenges.cloudflare.com/turnstile/v0/siteverify')

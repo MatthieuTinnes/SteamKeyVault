@@ -19,3 +19,19 @@ class Key(models.Model):
 
     def __str__(self):
         return self.key
+
+
+class ShareKeyToken(models.Model):
+    key = models.ForeignKey(Key, on_delete=models.CASCADE, related_name='share_key_token')
+    token = models.CharField(max_length=128, unique=True)
+    shared_key = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    revealed_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        db_table = 'keys_share_key_token'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"share:{self.key_id}:{self.token[:8]}"

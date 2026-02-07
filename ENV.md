@@ -26,6 +26,7 @@ Then edit `.env` with your actual database credentials and API keys.
 - `CSRF_TRUSTED_ORIGINS`: Comma-separated list of trusted CSRF origins
 - `STEAM_API_KEY`: Steam API key for Steam integration
 - Email configuration: `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`
+- Turnstile: `TURNSTILE_SECRET_KEY`, `TURNSTILE_VERIFY_URL` (optional override)
 
 ## Production Deployment
 

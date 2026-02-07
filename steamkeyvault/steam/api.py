@@ -1,10 +1,12 @@
-from ninja import Router
-from django.http import JsonResponse
-import requests
-from .models import SteamApp
 import logging
-from ninja.security import django_auth
 from typing import Optional
+
+import requests
+from django.http import JsonResponse
+from ninja import Router
+from ninja.security import django_auth
+
+from .models import SteamApp
 
 steam_router = Router()
 
@@ -15,13 +17,8 @@ def search_steam_apps(request, name: str):
     qs = SteamApp.objects.filter(name__istartswith=name).order_by('name')[:50]
     return [{"appid": app.id, "name": app.name} for app in qs]
 
-@steam_router.get("/appdetails/{appid}/", auth=django_auth)
-def get_app_details(request, appid: int, lang: Optional[str] = None):
-    """Proxy to Steam Store appdetails API and return the `data` object for the given appid.
-
-    Query params:
-    - lang: optional language code passed to Steam Store (e.g., 'en', 'fr'). If omitted the store defaults are used.
-    """
+def _fetch_app_details(appid: int, lang: Optional[str]) -> JsonResponse | dict:
+    """Proxy to Steam Store appdetails API and return the `data` object for the given appid."""
     url = f"https://store.steampowered.com/api/appdetails?appids={appid}"
     if lang:
         url += f"&l={lang}"
@@ -48,5 +45,16 @@ def get_app_details(request, appid: int, lang: Optional[str] = None):
         logger.info("No details available for appid=%s", appid)
         return JsonResponse({"error": "App details not available"}, status=404)
 
-    # Return only the 'data' object to the client
     return app_entry.get('data', {})
+
+
+@steam_router.get("/appdetails/{appid}/", auth=django_auth)
+def get_app_details(request, appid: int, lang: Optional[str] = None):
+    """Authenticated proxy to Steam Store appdetails API."""
+    return _fetch_app_details(appid, lang)
+
+
+@steam_router.get("/public/appdetails/{appid}/")
+def get_public_app_details(request, appid: int, lang: Optional[str] = None):
+    """Public proxy to Steam Store appdetails API."""
+    return _fetch_app_details(appid, lang)
