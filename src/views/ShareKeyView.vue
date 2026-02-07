@@ -176,13 +176,31 @@ async function loadTurnstile() {
     turnstileReady.value = true
     return
   }
+
   await new Promise<void>((resolve, reject) => {
-    const existing = document.getElementById('turnstile-script') as HTMLScriptElement | null
-    if (existing) {
-      existing.addEventListener('load', () => resolve())
-      existing.addEventListener('error', () => reject(new Error('Failed to load Turnstile')))
+    if (window.turnstile) {
+      resolve()
       return
     }
+
+    const existing = document.getElementById('turnstile-script')
+    if (existing) {
+      // If script exists, poll for window.turnstile
+      let attempts = 0
+      const interval = setInterval(() => {
+        if (window.turnstile) {
+          clearInterval(interval)
+          resolve()
+        }
+        attempts++
+        if (attempts > 50) { // ~5 seconds
+          clearInterval(interval)
+          reject(new Error('Turnstile load timeout'))
+        }
+      }, 100)
+      return
+    }
+
     const script = document.createElement('script')
     script.id = 'turnstile-script'
     script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
@@ -317,20 +335,21 @@ function formatDateTime(dateStr: string) {
 .share-body {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.5rem;
   align-items: flex-start;
+  gap: 1.5rem;
+  width: 100%;
 }
 
 .game-card {
-  flex: 1 1 24rem;
-  width: 100%;
+  flex: 1 1 20rem; /* Adjusted for better wrap behavior */
+  min-width: 0; /* Prevents overflow in flex items */
   position: sticky;
   top: 6rem;
 }
 
 .share-actions {
   flex: 1 1 20rem;
-  width: 100%;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -386,6 +405,7 @@ function formatDateTime(dateStr: string) {
 @media (max-width: 64rem) {
   .game-card {
     position: static;
+    flex-basis: 100%; /* Force stacking on small screens */
   }
 }
 </style>
