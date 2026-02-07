@@ -96,7 +96,7 @@ class ShareMessageOut(Schema):
     success: bool
 
 
-def _validate_turnstile(turnstile_token: str, remote_ip: Optional[str]) -> bool:
+def _validate_turnstile(turnstile_token: str, remote_ip: Optional[str], expected_action: Optional[str] = None) -> bool:
     secret = getattr(settings, 'TURNSTILE_SECRET_KEY', '')
     verify_url = getattr(settings, 'TURNSTILE_VERIFY_URL', '')
     if not secret or not verify_url:
@@ -118,6 +118,13 @@ def _validate_turnstile(turnstile_token: str, remote_ip: Optional[str]) -> bool:
     if not data.get('success'):
         logger.info("Turnstile verification rejected: %s", data)
         return False
+    
+    if expected_action:
+        action = data.get('action')
+        if action != expected_action:
+            logger.warning("Turnstile action mismatch: expected '%s', got '%s'", expected_action, action)
+            return False
+            
     return True
 
 
@@ -305,7 +312,7 @@ def reveal_share_key(request, token: str, payload: ShareRevealIn):
 
     if not payload.turnstile_token:
         return 400, {"error": "Captcha token is required."}
-    if not _validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR")):
+    if not _validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR"), expected_action="share_key_page"):
         return 400, {"error": "Captcha validation failed."}
 
     share.revealed_at = now
@@ -331,7 +338,7 @@ def send_share_message(request, token: str, payload: ShareMessageIn):
 
     if not payload.turnstile_token:
         return 400, {"error": "Captcha token is required."}
-    if not _validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR")):
+    if not _validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR"), expected_action="share_key_page"):
         return 400, {"error": "Captcha validation failed."}
 
     message = (payload.message or '').strip()
