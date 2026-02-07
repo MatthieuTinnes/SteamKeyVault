@@ -52,9 +52,3 @@ def _fetch_app_details(appid: int, lang: Optional[str]) -> JsonResponse | dict:
 def get_app_details(request, appid: int, lang: Optional[str] = None):
     """Authenticated proxy to Steam Store appdetails API."""
     return _fetch_app_details(appid, lang)
-
-
-@steam_router.get("/public/appdetails/{appid}/")
-def get_public_app_details(request, appid: int, lang: Optional[str] = None):
-    """Public proxy to Steam Store appdetails API."""
-    return _fetch_app_details(appid, lang)

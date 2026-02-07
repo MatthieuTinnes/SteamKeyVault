@@ -67,6 +67,9 @@ class ShareInfoOut(Schema):
     token: str
     game_name: str
     steamapp_id: Optional[int] = None
+    publisher: Optional[str] = None
+    header_image: Optional[str] = None
+    background_image: Optional[str] = None
     donor_username: str
     expires_at: str
     revealed: bool
@@ -116,6 +119,32 @@ def _validate_turnstile(turnstile_token: str, remote_ip: Optional[str]) -> bool:
         logger.info("Turnstile verification rejected: %s", data)
         return False
     return True
+
+
+def _fetch_steam_app_preview(steamapp_id: int) -> dict:
+    url = f"https://store.steampowered.com/api/appdetails?appids={steamapp_id}"
+    try:
+        resp = requests.get(url, timeout=8)
+        resp.raise_for_status()
+        payload = resp.json()
+    except Exception as exc:
+        logger.warning("Failed to fetch Steam app preview for appid=%s: %s", steamapp_id, exc)
+        return {}
+
+    app_entry = payload.get(str(steamapp_id))
+    if not app_entry or not app_entry.get('success'):
+        return {}
+
+    data = app_entry.get('data', {})
+    publisher = None
+    publishers = data.get('publishers') or []
+    if publishers:
+        publisher = publishers[0]
+    return {
+        'publisher': publisher,
+        'header_image': data.get('header_image'),
+        'background_image': data.get('background'),
+    }
 
 @router.post('/add', response={200: None, 400: dict}, auth=django_auth)
 def add_key(request, data: KeyIn):
@@ -180,6 +209,17 @@ def create_share_link(request, key_id: int, payload: ShareCreateIn):
         return 400, {"error": "Key is required to create a share link."}
 
     now = timezone.now()
+    game = key_obj.userGame
+    share_fields = {
+        'game_name': game.name,
+        'steamapp_id': game.steamapp_id,
+        'donor_username': game.user.username,
+        'publisher': None,
+        'header_image': None,
+        'background_image': None,
+    }
+    if game.steamapp_id:
+        share_fields.update(_fetch_steam_app_preview(game.steamapp_id))
     existing = ShareKeyToken.objects.filter(
         key=key_obj,
         revealed_at__isnull=True,
@@ -189,7 +229,10 @@ def create_share_link(request, key_id: int, payload: ShareCreateIn):
     if existing:
         if existing.shared_key != shared_key:
             existing.shared_key = shared_key
-            existing.save(update_fields=["shared_key"])
+        for field_name, field_value in share_fields.items():
+            if getattr(existing, field_name) != field_value:
+                setattr(existing, field_name, field_value)
+        existing.save(update_fields=["shared_key", *share_fields.keys()])
         share_url = f"{settings.FRONTEND_URL}/share/{existing.token}"
         return 200, ShareCreateOut(
             share_url=share_url,
@@ -212,6 +255,12 @@ def create_share_link(request, key_id: int, payload: ShareCreateIn):
         key=key_obj,
         token=token,
         shared_key=shared_key,
+        game_name=share_fields['game_name'],
+        steamapp_id=share_fields['steamapp_id'],
+        donor_username=share_fields['donor_username'],
+        publisher=share_fields['publisher'],
+        header_image=share_fields['header_image'],
+        background_image=share_fields['background_image'],
         expires_at=expires_at,
     )
 
@@ -228,13 +277,14 @@ def get_share_info(request, token: str):
     share = get_object_or_404(ShareKeyToken, token=token)
     now = timezone.now()
     expired = share.expires_at <= now
-    game = share.key.userGame
-    donor = game.user
     return 200, ShareInfoOut(
         token=share.token,
-        game_name=game.name,
-        steamapp_id=game.steamapp_id,
-        donor_username=donor.username,
+        game_name=share.game_name or '',
+        steamapp_id=share.steamapp_id,
+        publisher=share.publisher,
+        header_image=share.header_image,
+        background_image=share.background_image,
+        donor_username=share.donor_username or 'User',
         expires_at=share.expires_at.isoformat(),
         revealed=bool(share.revealed_at),
         expired=expired,
@@ -267,8 +317,8 @@ def reveal_share_key(request, token: str, payload: ShareRevealIn):
     donor = game.user
     return 200, ShareRevealOut(
         key=share.shared_key,
-        game_name=game.name,
-        donor_username=donor.username,
+        game_name=share.game_name or game.name,
+        donor_username=share.donor_username or donor.username,
     )
 
 
