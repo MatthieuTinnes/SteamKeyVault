@@ -8,7 +8,8 @@ from django.conf import settings
 from datetime import datetime
 
 from users import schemas
-from users.models import User
+from users.models import User, UserActionLog
+from users.action_logging import log_user_action
 from users.models_verification import EmailVerificationToken, PasswordResetToken
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -202,6 +203,7 @@ def change_password_view(request, payload: schemas.ChangePasswordSchema):
         user_obj.wrapped_mk_password = payload.wrapped_mk_password
         user_obj.save()
         logger.info(f"Password changed for user_id={user_obj.pk}")
+        log_user_action(UserActionLog.ACTION_PASSWORD_CHANGE, user_obj, request)
         
         # Send notification email about password change
         Mailer.send_template_email(
@@ -319,6 +321,13 @@ def confirm_email_change(request, token: str):
         
         # Mark token as used
         verification_token.mark_used()
+
+        log_user_action(
+            UserActionLog.ACTION_EMAIL_CHANGE,
+            user,
+            request,
+            metadata={"old_email": old_email, "new_email": new_email},
+        )
         
         logger.info(f"Email changed successfully for user_id={user.id} from {old_email} to {new_email}")
         return Response({"success": True, "message": "Email address changed successfully!"})

@@ -2,11 +2,14 @@
 from ninja import Router, Schema
 from ninja.security import django_auth
 from django.http import JsonResponse
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.contrib.auth import get_user_model
+from django.utils import timezone
+from datetime import datetime, timedelta
 import logging
 
 from users.admin_decorators import admin_required
+from users.models import UserActionLog
 from steamkeyvault.games.models import UserGame
 from steamkeyvault.keys.models import Key
 
@@ -14,6 +17,38 @@ logger = logging.getLogger(__name__)
 User = get_user_model()
 
 admin_router = Router()
+
+
+def _parse_iso_datetime(value: str | None):
+    if not value:
+        return None
+    try:
+        if value.endswith('Z'):
+            value = value.replace('Z', '+00:00')
+        parsed = datetime.fromisoformat(value)
+    except ValueError:
+        return None
+    if timezone.is_naive(parsed):
+        return timezone.make_aware(parsed, timezone.get_current_timezone())
+    return parsed
+
+
+def _resolve_period(start: str | None, end: str | None, period_hours: int) -> tuple[datetime | None, datetime | None, str | None]:
+    start_dt = _parse_iso_datetime(start)
+    end_dt = _parse_iso_datetime(end)
+    if start and not start_dt:
+        return None, None, 'Invalid start datetime'
+    if end and not end_dt:
+        return None, None, 'Invalid end datetime'
+    now = timezone.now()
+    period = period_hours if period_hours and period_hours > 0 else 24
+    if not end_dt:
+        end_dt = now
+    if not start_dt:
+        start_dt = end_dt - timedelta(hours=period)
+    if start_dt > end_dt:
+        return None, None, 'Start datetime must be before end datetime'
+    return start_dt, end_dt, None
 
 
 class AdminUserSchema(Schema):
@@ -227,4 +262,102 @@ def get_admin_stats(request):
         'admin_users': admin_users,
         'total_games': total_games,
         'total_keys': total_keys,
+    }
+
+
+@admin_router.get('/action-logs', auth=django_auth)
+@admin_required
+def list_action_logs(
+    request,
+    start: str | None = None,
+    end: str | None = None,
+    period_hours: int = 24,
+    action_type: str | None = None,
+    user_query: str | None = None,
+    limit: int = 200,
+    offset: int = 0,
+):
+    """List user action logs in a given time range (admin only)."""
+    logger.info(f"Admin {request.user.email} listing action logs")
+
+    start_dt, end_dt, error = _resolve_period(start, end, period_hours)
+    if error:
+        return JsonResponse({'error': error}, status=400)
+
+    limit = min(max(limit, 1), 1000)
+    offset = max(offset, 0)
+
+    logs_qs = UserActionLog.objects.select_related('user').filter(
+        created_at__gte=start_dt,
+        created_at__lte=end_dt,
+    )
+
+    if action_type:
+        logs_qs = logs_qs.filter(action_type=action_type)
+
+    if user_query:
+        logs_qs = logs_qs.filter(
+            Q(user__email__icontains=user_query) | Q(user__username__icontains=user_query)
+        )
+
+    total = logs_qs.count()
+    logs = logs_qs.order_by('-created_at')[offset:offset + limit]
+
+    results = []
+    for log in logs:
+        results.append({
+            'id': log.id,
+            'user_id': log.user_id,
+            'username': log.user.username,
+            'email': log.user.email,
+            'action_type': log.action_type,
+            'created_at': log.created_at.isoformat(),
+            'ip_address': log.ip_address,
+            'user_agent': log.user_agent,
+            'metadata': log.metadata,
+        })
+
+    return {
+        'logs': results,
+        'total': total,
+        'start': start_dt.isoformat(),
+        'end': end_dt.isoformat(),
+    }
+
+
+@admin_router.get('/action-logs/stats', auth=django_auth)
+@admin_required
+def get_action_log_stats(
+    request,
+    start: str | None = None,
+    end: str | None = None,
+    period_hours: int = 24,
+):
+    """Get action log statistics for a given time range (admin only)."""
+    logger.info(f"Admin {request.user.email} requesting action log stats")
+
+    start_dt, end_dt, error = _resolve_period(start, end, period_hours)
+    if error:
+        return JsonResponse({'error': error}, status=400)
+
+    logs_qs = UserActionLog.objects.filter(
+        created_at__gte=start_dt,
+        created_at__lte=end_dt,
+    )
+
+    total_actions = logs_qs.count()
+    unique_users = logs_qs.values('user_id').distinct().count()
+    action_counts = {
+        item['action_type']: item['count']
+        for item in logs_qs.values('action_type').annotate(count=Count('id'))
+    }
+
+    return {
+        'total_actions': total_actions,
+        'logins': action_counts.get(UserActionLog.ACTION_LOGIN, 0),
+        'password_changes': action_counts.get(UserActionLog.ACTION_PASSWORD_CHANGE, 0),
+        'email_changes': action_counts.get(UserActionLog.ACTION_EMAIL_CHANGE, 0),
+        'unique_users': unique_users,
+        'start': start_dt.isoformat(),
+        'end': end_dt.isoformat(),
     }
