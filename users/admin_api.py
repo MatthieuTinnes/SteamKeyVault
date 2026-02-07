@@ -181,6 +181,34 @@ def delete_user(request, user_id: int):
     return {'success': True, 'message': f'User {username} deleted successfully'}
 
 
+@admin_router.delete('/users/{user_id}/games-keys', auth=django_auth)
+@admin_required
+def delete_user_games_and_keys(request, user_id: int):
+    """Delete all games and keys for a specific user (admin only)."""
+    logger.info(f"Admin {request.user.email} deleting games/keys for user {user_id}")
+
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
+
+    keys_count = Key.objects.filter(userGame__user=user).count()
+    games_qs = UserGame.objects.filter(user=user)
+    games_count = games_qs.count()
+
+    games_qs.delete()
+
+    logger.info(
+        f"Admin {request.user.email} deleted {games_count} games and {keys_count} keys for user {user_id}"
+    )
+    return {
+        'success': True,
+        'message': 'User games and keys deleted successfully',
+        'deleted_games': games_count,
+        'deleted_keys': keys_count,
+    }
+
+
 @admin_router.get('/stats', auth=django_auth)
 @admin_required
 def get_admin_stats(request):
