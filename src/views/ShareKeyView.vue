@@ -67,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, nextTick } from 'vue'
+import { computed, onMounted, ref, nextTick, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import Button from 'primevue/button'
 import Textarea from 'primevue/textarea'
@@ -134,18 +134,24 @@ const publicGameInfo = computed(() => {
 
 const storageKey = computed(() => `shared-key:${shareToken.value}`)
 
+
+watch(shareInfo, async (newVal) => {
+  if (newVal && !newVal.revealed && !newVal.expired && !newVal.used) {
+    try {
+      await loadTurnstile()
+      await nextTick()
+      renderTurnstile()
+    } catch (err) {
+      turnstileReady.value = false
+    }
+  }
+})
+
 onMounted(async () => {
   await ensureCSRFToken()
   await loadShareInfo()
   const cached = sessionStorage.getItem(storageKey.value)
   if (cached) revealedKey.value = cached
-  try {
-    await loadTurnstile()
-    await nextTick()
-    renderTurnstile()
-  } catch (err) {
-    turnstileReady.value = false
-  }
 })
 
 async function loadShareInfo() {
