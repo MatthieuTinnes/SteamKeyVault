@@ -2,10 +2,12 @@ import axios from 'axios'
 import { API_BASE_URL, getAxiosConfig } from './apiHelper'
 import { useCryptoStore } from '@/stores/crypto'
 import { encryptValue } from '@/utils/crypto'
+import { handleMissingMasterKey } from '@/utils/missingMasterKey'
 
 export async function createImport(file: File) {
   const store = useCryptoStore()
   if (!store.masterKeyBytes) {
+    await handleMissingMasterKey()
     throw new Error('Missing master key. Please log in again.')
   }
 

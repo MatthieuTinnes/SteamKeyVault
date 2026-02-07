@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { API_BASE_URL, getAxiosConfig } from './apiHelper'
-import { getKeysForGame } from './keys'
 import { useCryptoStore } from '@/stores/crypto'
-import { encryptValue } from '@/utils/crypto'
+import { decryptValue, encryptValue } from '@/utils/crypto'
+import { handleMissingMasterKey } from '@/utils/missingMasterKey'
 
 export async function searchSteamGames(query: string) {
   if (!query.trim()) return []
@@ -29,18 +29,34 @@ export async function getSteamAppDetails(appid: number, lang?: string) {
 }
 
 export async function exportUserGamesCsv() {
-  const games = await getUserGames()
-  const rows = await Promise.all(
-    (games || []).map(async (game: any) => {
-      const keys = await getKeysForGame(game.user_game_id)
-      const keyValues = (keys || []).map((k: any) => k.key)
-      return [game.name, ...keyValues]
+  const store = useCryptoStore()
+  if (!store.masterKeyBytes) {
+    await handleMissingMasterKey()
+    throw new Error('Missing master key. Please log in again.')
+  }
+
+  const res = await axios.get(`${API_BASE_URL}/games/export_csv`, { ...getAxiosConfig(), responseType: 'blob' })
+  const csvText = await res.data.text()
+  const rows = parseCsv(csvText)
+
+  const decryptedRows = await Promise.all(
+    rows.map(async (row) => {
+      const [gameName, ...keys] = row
+      const decryptedKeys = await Promise.all(
+        keys.map(async (keyValue) => {
+          const rawKey = String(keyValue ?? '')
+          if (!rawKey.trim()) return rawKey
+          return decryptValue(rawKey, store.masterKeyBytes as Uint8Array)
+        })
+      )
+      return [gameName, ...decryptedKeys]
     })
   )
 
-  const csvLines = rows.map((row) => row.map(escapeCsvCell).join(';')).join('\n') + '\n'
+  const csvLines = decryptedRows.map((row) => row.map(escapeCsvCell).join(';')).join('\n') + '\n'
   const blob = new Blob([csvLines], { type: 'text/csv;charset=utf-8' })
-  const filename = `user_games_${new Date().toISOString().slice(0, 10)}.csv`
+  const headerFilename = res.headers?.['x-filename'] || res.headers?.['X-Filename']
+  const filename = headerFilename || `user_games_${new Date().toISOString().slice(0, 10)}.csv`
   return { blob, filename }
 }
 
@@ -52,6 +68,50 @@ function escapeCsvCell(value: string) {
   return str
 }
 
+function parseCsv(csvText: string) {
+  const lines = csvText.split(/\r?\n/).filter((line) => line.length > 0)
+  return lines.map((line) => parseCsvLine(line))
+}
+
+function parseCsvLine(line: string) {
+  const cells: string[] = []
+  let current = ''
+  let inQuotes = false
+
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i]
+    if (inQuotes) {
+      if (char === '"' && line[i + 1] === '"') {
+        current += '"'
+        i += 1
+        continue
+      }
+      if (char === '"') {
+        inQuotes = false
+        continue
+      }
+      current += char
+      continue
+    }
+
+    if (char === '"') {
+      inQuotes = true
+      continue
+    }
+
+    if (char === ';') {
+      cells.push(current)
+      current = ''
+      continue
+    }
+
+    current += char
+  }
+
+  cells.push(current)
+  return cells
+}
+
 export async function exportUserGamesJson() {
   const url = `${API_BASE_URL}/games/export_json`
   const res = await axios.get(url, { ...getAxiosConfig(), responseType: 'blob' })
@@ -61,6 +121,7 @@ export async function exportUserGamesJson() {
 export async function importUserGamesJson(file: File) {
   const store = useCryptoStore()
   if (!store.masterKeyBytes) {
+    await handleMissingMasterKey()
     throw new Error('Missing master key. Please log in again.')
   }
 
