@@ -20,7 +20,6 @@
         <div v-else class="custom-game-card">
           <div class="custom-header">
             <h3>{{ shareInfo.game_name }}</h3>
-            <span class="custom-tag">Custom Game</span>
           </div>
         </div>
       </div>
@@ -39,11 +38,11 @@
         </div>
 
         <div v-else class="reveal-panel">
-          <div class="turnstile" id="turnstile-widget"></div>
+          <div class="turnstile" id="turnstile-reveal"></div>
           <Button
             label="Reveal key"
             icon="pi pi-unlock"
-            :disabled="!canReveal || !turnstileToken"
+            :disabled="!canReveal || !revealToken"
             :loading="revealing"
             @click="revealKey"
           />
@@ -56,7 +55,7 @@
           <Button
             label="Send message"
             icon="pi pi-send"
-            :disabled="!canMessage || !turnstileToken || !message.trim()"
+            :disabled="!canMessage || !message.trim()"
             :loading="sending"
             @click="sendMessage"
           />
@@ -105,8 +104,8 @@ const toast = useToast()
 const shareInfo = ref<ShareInfo | null>(null)
 const error = ref('')
 const revealedKey = ref('')
-const turnstileToken = ref('')
-const turnstileWidgetId = ref<string | null>(null)
+const revealToken = ref('')
+const revealWidgetId = ref<string | null>(null)
 const turnstileReady = ref(false)
 const message = ref('')
 const revealing = ref(false)
@@ -136,12 +135,13 @@ const storageKey = computed(() => `shared-key:${shareToken.value}`)
 
 
 watch(shareInfo, async (newVal) => {
-  if (newVal && !newVal.revealed && !newVal.expired && !newVal.used) {
+  if (newVal) {
+    await nextTick()
     try {
       await loadTurnstile()
-      await nextTick()
       renderTurnstile()
     } catch (err) {
+      console.error('Turnstile load error:', err)
       turnstileReady.value = false
     }
   }
@@ -196,39 +196,43 @@ async function loadTurnstile() {
 }
 
 function renderTurnstile() {
-  if (!turnstileReady.value || !TURNSTILE_SITE_KEY) return
-  const container = document.getElementById('turnstile-widget')
-  if (!container || !window.turnstile) return
-  turnstileWidgetId.value = window.turnstile.render(container, {
-    sitekey: TURNSTILE_SITE_KEY,
-    callback: (token: string) => {
-      turnstileToken.value = token
-    },
-    'expired-callback': () => {
-      turnstileToken.value = ''
-    },
-    'error-callback': () => {
-      turnstileToken.value = ''
-    },
-    action: 'share_key_page'
-  })
+  if (!turnstileReady.value || !TURNSTILE_SITE_KEY || !window.turnstile) return
+
+  const revealEl = document.getElementById('turnstile-reveal')
+  if (revealEl && !revealWidgetId.value) {
+    revealWidgetId.value = window.turnstile.render(revealEl, {
+      sitekey: TURNSTILE_SITE_KEY,
+      callback: (token: string) => {
+        revealToken.value = token
+      },
+      'expired-callback': () => {
+        revealToken.value = ''
+      },
+      'error-callback': () => {
+        revealToken.value = ''
+      },
+      action: 'share_key_page'
+    })
+  }
 }
 
 function resetTurnstile() {
-  if (turnstileWidgetId.value && window.turnstile) {
-    window.turnstile.reset(turnstileWidgetId.value)
+  if (!window.turnstile) return
+  
+  if (revealWidgetId.value) {
+    window.turnstile.reset(revealWidgetId.value)
+    revealToken.value = ''
   }
-  turnstileToken.value = ''
 }
 
 async function revealKey() {
-  if (!turnstileToken.value || !shareToken.value) {
+  if (!revealToken.value || !shareToken.value) {
     toast.add({ severity: 'warn', summary: 'Captcha', detail: 'Please complete the captcha.', life: 2000 })
     return
   }
   revealing.value = true
   try {
-    const data = await revealSharedKey(shareToken.value, turnstileToken.value)
+    const data = await revealSharedKey(shareToken.value, revealToken.value)
     revealedKey.value = data.key
     sessionStorage.setItem(storageKey.value, data.key)
     await loadShareInfo()
@@ -242,21 +246,20 @@ async function revealKey() {
 }
 
 async function sendMessage() {
-  if (!turnstileToken.value || !shareToken.value) {
-    toast.add({ severity: 'warn', summary: 'Captcha', detail: 'Please complete the captcha.', life: 2000 })
+  if (!shareToken.value) {
+    toast.add({ severity: 'warn', summary: 'Error', detail: 'Invalid link.', life: 2000 })
     return
   }
   if (!message.value.trim()) return
   sending.value = true
   try {
-    await sendShareMessage(shareToken.value, turnstileToken.value, message.value.trim())
+    await sendShareMessage(shareToken.value, '', message.value.trim())
     message.value = ''
     toast.add({ severity: 'success', summary: 'Sent', detail: 'Message sent to the donor.', life: 2000 })
   } catch (err: any) {
     toast.add({ severity: 'error', summary: 'Error', detail: err?.response?.data?.error || 'Unable to send the message.', life: 3000 })
   } finally {
     sending.value = false
-    resetTurnstile()
   }
 }
 
@@ -312,46 +315,22 @@ function formatDateTime(dateStr: string) {
 }
 
 .share-body {
-  display: grid;
-  grid-template-columns: minmax(18rem, 32rem) minmax(18rem, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 1.5rem;
+  align-items: flex-start;
 }
 
 .game-card {
+  flex: 1 1 24rem;
+  width: 100%;
   position: sticky;
   top: 6rem;
-  align-self: start;
-}
-
-.custom-game-card {
-  padding: 1.5rem;
-  background: var(--bg-primary);
-  border-radius: 0.75rem;
-  border: 1px solid var(--border-color);
-}
-
-.custom-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.custom-header h3 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: var(--text-primary);
-}
-
-.custom-tag {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-  padding: 0.25rem 0.5rem;
-  border-radius: 999px;
 }
 
 .share-actions {
+  flex: 1 1 20rem;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -405,10 +384,6 @@ function formatDateTime(dateStr: string) {
 }
 
 @media (max-width: 64rem) {
-  .share-body {
-    grid-template-columns: 1fr;
-  }
-
   .game-card {
     position: static;
   }
