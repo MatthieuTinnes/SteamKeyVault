@@ -81,6 +81,12 @@ const router = createRouter({
       component: () => import('../views/AdminSteamSyncView.vue'),
       beforeEnter: requireAdmin,
     },
+    {
+      path: '/admin/logs',
+      name: 'admin-logs',
+      component: () => import('../views/AdminActionLogsView.vue'),
+      beforeEnter: requireAdmin,
+    },
   ],
 })
 

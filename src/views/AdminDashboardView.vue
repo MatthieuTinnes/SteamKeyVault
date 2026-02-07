@@ -56,6 +56,12 @@
         <h3>Steam Synchronization</h3>
         <p>Refresh Steam apps database and view sync statistics</p>
       </div>
+
+      <div class="section-card" @click="router.push('/admin/logs')">
+        <i class="pi pi-book"></i>
+        <h3>Action Logs</h3>
+        <p>Review logins and account changes with filters</p>
+      </div>
     </div>
   </div>
 </template>

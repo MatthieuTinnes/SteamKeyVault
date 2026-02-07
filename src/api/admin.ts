@@ -26,6 +26,28 @@ export interface SteamStats {
   unique_games_added: number
 }
 
+export interface ActionLogEntry {
+  id: number
+  user_id: number
+  username: string
+  email: string
+  action_type: string
+  created_at: string
+  ip_address: string | null
+  user_agent: string
+  metadata: Record<string, unknown> | null
+}
+
+export interface ActionLogStats {
+  total_actions: number
+  logins: number
+  password_changes: number
+  email_changes: number
+  unique_users: number
+  start: string
+  end: string
+}
+
 export async function getAdminStats() {
   return axios.get<AdminStats>(`${API_BASE_URL}/admin/stats`, getAxiosConfig())
 }
@@ -79,4 +101,33 @@ export async function refreshSteamApps() {
 
 export async function getSteamStats() {
   return axios.get<SteamStats>(`${API_BASE_URL}/admin/steam/steam-stats`, getAxiosConfig())
+}
+
+export async function getActionLogStats(params?: {
+  start?: string
+  end?: string
+  period_hours?: number
+}) {
+  return axios.get<ActionLogStats>(`${API_BASE_URL}/admin/action-logs/stats`, {
+    ...getAxiosConfig(),
+    params,
+  })
+}
+
+export async function getActionLogs(params?: {
+  start?: string
+  end?: string
+  period_hours?: number
+  action_type?: string
+  user_query?: string
+  limit?: number
+  offset?: number
+}) {
+  return axios.get<{ logs: ActionLogEntry[]; total: number; start: string; end: string }>(
+    `${API_BASE_URL}/admin/action-logs`,
+    {
+      ...getAxiosConfig(),
+      params,
+    }
+  )
 }
