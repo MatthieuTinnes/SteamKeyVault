@@ -15,6 +15,7 @@
           :steamAppId="shareInfo.steamapp_id"
           :gameName="shareInfo.game_name"
           :publicMode="true"
+          :publicData="publicGameInfo"
         />
         <div v-else class="custom-game-card">
           <div class="custom-header">
@@ -79,6 +80,9 @@ interface ShareInfo {
   token: string
   game_name: string
   steamapp_id?: number | null
+  publisher?: string | null
+  header_image?: string | null
+  background_image?: string | null
   donor_username: string
   expires_at: string
   revealed: boolean
@@ -116,6 +120,16 @@ const canReveal = computed(() => {
 const canMessage = computed(() => {
   if (!shareInfo.value) return false
   return !shareInfo.value.expired
+})
+
+const publicGameInfo = computed(() => {
+  if (!shareInfo.value) return null
+  return {
+    name: shareInfo.value.game_name,
+    publisher: shareInfo.value.publisher ?? null,
+    header_image: shareInfo.value.header_image ?? null,
+    background_image: shareInfo.value.background_image ?? null
+  }
 })
 
 const storageKey = computed(() => `shared-key:${shareToken.value}`)

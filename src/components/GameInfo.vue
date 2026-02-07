@@ -69,14 +69,27 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
-      import { getPublicSteamAppDetails, getSteamAppDetails } from '@/api/games'
+import { getSteamAppDetails } from '@/api/games'
 import DeleteGameModal from './DeleteGameModal.vue'
 import CustomGameInfo from './CustomGameInfo.vue'
 import Button from 'primevue/button'
 import { useDeleteGame } from '@/composables/useDeleteGame'
 import { useToast } from 'primevue/usetoast'
 
-      const props = defineProps<{ steamAppId: number | null; userGameId?: number | null; gameName?: string | null; publicMode?: boolean }>()
+type PublicGameInfo = {
+  name?: string | null
+  publisher?: string | null
+  header_image?: string | null
+  background_image?: string | null
+}
+
+const props = defineProps<{
+  steamAppId: number | null
+  userGameId?: number | null
+  gameName?: string | null
+  publicMode?: boolean
+  publicData?: PublicGameInfo | null
+}>()
 const emit = defineEmits<{
   (e: 'deleted'): void
 }>()
@@ -151,6 +164,10 @@ function getReviewClass(score: number): string {
 }
 
 const loadApp = async () => {
+  if (props.publicMode) {
+    applyPublicData()
+    return
+  }
   if (!props.steamAppId) return
 
   loading.value = true
@@ -169,10 +186,8 @@ const loadApp = async () => {
 
   try {
     const lang = navigator.language ? navigator.language.split('-')[0] : undefined
-    const data = props.publicMode
-      ? await getPublicSteamAppDetails(props.steamAppId, lang)
-      : await getSteamAppDetails(props.steamAppId, lang)
-    
+    const data = await getSteamAppDetails(props.steamAppId, lang)
+
     appName.value = data?.name ?? null
     publisher.value = data?.publishers?.[0] ?? null
     headerImage.value = data?.header_image ?? null
@@ -203,20 +218,47 @@ const loadApp = async () => {
   }
 }
 
-watch(() => props.steamAppId, (id) => {
-  if (id) loadApp()
-  else {
-    appName.value = null
-    price.value = null
-    error.value = null
-    publisher.value = null
-    headerImage.value = null
-    backgroundImage.value = null
-    reviews.value = null
-    hasCards.value = false
-    hasAchievements.value = false
-  }
-}, { immediate: true })
+function applyPublicData() {
+  loading.value = false
+  error.value = null
+  isSteamRemoved.value = false
+  appName.value = props.publicData?.name ?? props.gameName ?? null
+  publisher.value = props.publicData?.publisher ?? null
+  headerImage.value = props.publicData?.header_image ?? null
+  backgroundImage.value = props.publicData?.background_image ?? null
+  price.value = null
+  reviews.value = null
+  hasCards.value = false
+  hasAchievements.value = false
+}
+
+watch(
+  () => [props.steamAppId, props.publicData, props.publicMode],
+  ([steamAppId, publicData, publicMode]) => {
+    if (publicMode) {
+      if (!publicData) {
+        applyPublicData()
+        error.value = 'Game details unavailable.'
+        return
+      }
+      applyPublicData()
+      return
+    }
+    if (steamAppId) loadApp()
+    else {
+      appName.value = null
+      price.value = null
+      error.value = null
+      publisher.value = null
+      headerImage.value = null
+      backgroundImage.value = null
+      reviews.value = null
+      hasCards.value = false
+      hasAchievements.value = false
+    }
+  },
+  { immediate: true }
+)
 
 // wire composable actions to emit when deletion succeeded
 async function handleConfirmDelete() {
