@@ -110,9 +110,6 @@ const turnstileReady = ref(false)
 const message = ref('')
 const revealing = ref(false)
 const sending = ref(false)
-const maxTurnstileRenderRetries = 8
-const turnstileRenderDelayMs = 120
-let turnstileRenderTimer: number | null = null
 
 const shareToken = computed(() => String(route.params.token || ''))
 const canReveal = computed(() => {
@@ -199,33 +196,10 @@ async function loadTurnstile() {
 }
 
 function renderTurnstile() {
-  if (!turnstileReady.value || !TURNSTILE_SITE_KEY) return
+  if (!turnstileReady.value || !TURNSTILE_SITE_KEY || !window.turnstile) return
 
   const revealEl = document.getElementById('turnstile-reveal')
-  if (!revealEl || revealWidgetId.value) return
-
-  if (!window.turnstile?.render) {
-    if (turnstileRenderTimer === null && maxTurnstileRenderRetries > 0) {
-      let attempts = 0
-      turnstileRenderTimer = window.setInterval(() => {
-        attempts += 1
-        if (window.turnstile?.render) {
-          window.clearInterval(turnstileRenderTimer as number)
-          turnstileRenderTimer = null
-          renderTurnstile()
-          return
-        }
-        if (attempts >= maxTurnstileRenderRetries) {
-          window.clearInterval(turnstileRenderTimer as number)
-          turnstileRenderTimer = null
-          turnstileReady.value = false
-        }
-      }, turnstileRenderDelayMs)
-    }
-    return
-  }
-
-  try {
+  if (revealEl && !revealWidgetId.value) {
     revealWidgetId.value = window.turnstile.render(revealEl, {
       sitekey: TURNSTILE_SITE_KEY,
       callback: (token: string) => {
@@ -237,12 +211,8 @@ function renderTurnstile() {
       'error-callback': () => {
         revealToken.value = ''
       },
-      appearance: 'interaction-only',
       action: 'share_key_page'
     })
-  } catch (err) {
-    console.error('Turnstile render error:', err)
-    turnstileReady.value = false
   }
 }
 
