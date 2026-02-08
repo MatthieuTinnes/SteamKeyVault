@@ -1,7 +1,7 @@
 from ninja import Router
 from ninja.errors import HttpError
 from ninja.security import django_auth
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.middleware.csrf import get_token
 import logging
 from django.conf import settings
@@ -202,6 +202,7 @@ def change_password_view(request, payload: schemas.ChangePasswordSchema):
         user_obj.set_password(payload.new_password)
         user_obj.wrapped_mk_password = payload.wrapped_mk_password
         user_obj.save()
+        update_session_auth_hash(request, user_obj)
         logger.info(f"Password changed for user_id={user_obj.pk}")
         log_user_action(UserActionLog.ACTION_PASSWORD_CHANGE, user_obj, request)
         
