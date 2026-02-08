@@ -8,6 +8,7 @@ class SignUpSchema(BaseModel):
     email: str
     username: str
     password: str
+    preferred_language: str | None = None
     wrapped_mk_password: str
     wrapped_mk_recovery: str
     mk_salt: str
@@ -16,6 +17,10 @@ class SignUpSchema(BaseModel):
     kdf_hash: str
 class UpdateEmailSchema(BaseModel):
     email: str
+
+
+class UpdatePreferencesSchema(BaseModel):
+    preferred_language: str
 
 
 class RecoveryInfoSchema(BaseModel):

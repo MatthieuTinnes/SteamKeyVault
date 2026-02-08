@@ -5,6 +5,7 @@ from django.http import JsonResponse
 import logging
 
 from users.admin_decorators import admin_required
+from steamkeyvault.utils.i18n import get_request_locale
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +22,8 @@ def refresh_steam_apps(request):
     
     try:
         # Call the helper function
-        result = fetch_and_store_steam_apps()
+        locale = get_request_locale(request, request.user)
+        result = fetch_and_store_steam_apps(locale=locale)
         
         # Check if result is a JsonResponse (error case)
         if isinstance(result, JsonResponse):

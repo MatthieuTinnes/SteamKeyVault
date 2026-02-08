@@ -14,10 +14,25 @@ from ninja.security import django_auth
 
 from steamkeyvault.games.models import UserGame
 from steamkeyvault.utils.mailer import Mailer
+from steamkeyvault.utils.i18n import get_request_locale, translate_message
+from steamkeyvault.utils.i18n_messages import KEY_ERROR_MESSAGES
 from .models import Key, ShareKeyToken
 logger = logging.getLogger(__name__)
 
 router = Router()
+
+SUPPORTED_LOCALES = {'en', 'fr'}
+SHARE_MESSAGE_SUBJECTS = {
+    'en': 'New message about your shared key - SteamKeyVault',
+    'fr': 'Nouveau message concernant votre clé partagée - SteamKeyVault',
+}
+
+
+
+def normalize_locale(value: str | None, fallback: str = 'en') -> str:
+    if value in SUPPORTED_LOCALES:
+        return value
+    return fallback
 
 class CurrentUseValidatorMixin:
     @classmethod
@@ -203,13 +218,14 @@ def list_keys(request, user_game_id: int):
 
 @router.delete('/{user_game_id}/remove/{key_id}', response={200: dict, 404: dict}, auth=django_auth)
 def remove_key(request, user_game_id: int, key_id: int):
+    locale = get_request_locale(request, request.user)
     user_game = get_object_or_404(UserGame, id=user_game_id, user=request.user)
     try:
         key_obj = Key.objects.get(userGame=user_game, id=key_id)
         key_obj.delete()
         return 200, {"success": True}
     except Key.DoesNotExist:
-        return 404, {"error": "Key not found for this user and game."}
+        return 404, {"error": translate_message(KEY_ERROR_MESSAGES, 'key_not_found', locale)}
 
 @router.delete('/bulk/remove-used', response={200: DeleteUsedKeysOut}, auth=django_auth)
 def remove_all_used_keys(request):
@@ -219,6 +235,7 @@ def remove_all_used_keys(request):
 
 @router.patch('/{user_game_id}/update/{key_id}', response={200: None, 404: dict, 400: dict}, auth=django_auth)
 def update_key(request, user_game_id: int, key_id: int, data: KeyUpdateIn):
+    locale = get_request_locale(request, request.user)
     user_game = get_object_or_404(UserGame, id=user_game_id, user=request.user)
     try:
         key_obj = Key.objects.get(userGame=user_game, id=key_id)
@@ -231,17 +248,18 @@ def update_key(request, user_game_id: int, key_id: int, data: KeyUpdateIn):
         key_obj.save()
         return 200, None
     except Key.DoesNotExist:
-        return 404, {"error": "Key not found for this user and game."}
+        return 404, {"error": translate_message(KEY_ERROR_MESSAGES, 'key_not_found', locale)}
 
 
 @router.post('/share/{key_id}/create', response={200: ShareCreateOut, 400: dict, 404: dict}, auth=django_auth)
 def create_share_link(request, key_id: int, payload: ShareCreateIn):
+    locale = get_request_locale(request, request.user)
     key_obj = get_object_or_404(Key, id=key_id, userGame__user=request.user)
     if key_obj.used:
-        return 400, {"error": "Key is already used."}
+        return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'key_already_used', locale)}
     shared_key = (payload.key or '').strip()
     if not shared_key:
-        return 400, {"error": "Key is required to create a share link."}
+        return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'key_required', locale)}
 
     now = timezone.now()
     game = key_obj.userGame
@@ -284,7 +302,7 @@ def create_share_link(request, key_id: int, payload: ShareCreateIn):
             break
     if not token:
         logger.error("Failed to generate unique share token for key_id=%s", key_id)
-        return 400, {"error": "Unable to create share link. Please try again."}
+        return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'share_create_failed', locale)}
 
     ShareKeyToken.objects.create(
         key=key_obj,
@@ -342,19 +360,20 @@ def get_share_info(request, token: str):
 
 @router.post('/share/{token}/reveal', response={200: ShareRevealOut, 400: dict, 404: dict, 410: dict})
 def reveal_share_key(request, token: str, payload: ShareRevealIn):
+    locale = get_request_locale(request)
     share = get_object_or_404(ShareKeyToken, token=token)
     now = timezone.now()
     if share.expires_at <= now:
-        return 410, {"error": "Share link has expired."}
+        return 410, {"error": translate_message(KEY_ERROR_MESSAGES, 'share_expired', locale)}
     if share.revealed_at:
-        return 410, {"error": "Share link has already been used."}
+        return 410, {"error": translate_message(KEY_ERROR_MESSAGES, 'share_already_used', locale)}
     if share.key.used:
-        return 410, {"error": "Key has already been used."}
+        return 410, {"error": translate_message(KEY_ERROR_MESSAGES, 'key_already_used', locale)}
 
     if not payload.turnstile_token:
-        return 400, {"error": "Captcha token is required."}
+        return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'captcha_required', locale)}
     if not _validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR"), expected_action="share_key_page"):
-        return 400, {"error": "Captcha validation failed."}
+        return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'captcha_failed', locale)}
 
     share.revealed_at = now
     share.save(update_fields=["revealed_at"])
@@ -372,22 +391,24 @@ def reveal_share_key(request, token: str, payload: ShareRevealIn):
 
 @router.post('/share/{token}/message', response={200: ShareMessageOut, 400: dict, 404: dict, 410: dict})
 def send_share_message(request, token: str, payload: ShareMessageIn):
+    locale = get_request_locale(request)
     share = get_object_or_404(ShareKeyToken, token=token)
     now = timezone.now()
     if share.expires_at <= now:
-        return 410, {"error": "Share link has expired."}
+        return 410, {"error": translate_message(KEY_ERROR_MESSAGES, 'share_expired', locale)}
     if share.message_sent_at:
-        return 410, {"error": "Thank-you message has already been sent."}
+        return 410, {"error": translate_message(KEY_ERROR_MESSAGES, 'message_already_sent', locale)}
 
     message = (payload.message or '').strip()
     if len(message) < 3:
-        return 400, {"error": "Message is too short (min 3 characters)."}
+        return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'message_too_short', locale)}
     if len(message) > 100:
-        return 400, {"error": "Message is too long (max 100 characters)."}
+        return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'message_too_long', locale)}
 
     game = share.key.userGame
     donor = game.user
-    subject = 'New message about your shared key - SteamKeyVault'
+    locale = normalize_locale(getattr(donor, 'preferred_language', None))
+    subject = SHARE_MESSAGE_SUBJECTS.get(locale, SHARE_MESSAGE_SUBJECTS['en'])
     sent = Mailer.send_template_email(
         subject=subject,
         template_name='emails/share_key_message.html',
@@ -397,9 +418,10 @@ def send_share_message(request, token: str, payload: ShareMessageIn):
             'message': message,
         },
         to_emails=[donor.email],
+        locale=locale,
     )
     if not sent:
-        return 400, {"error": "Failed to send email."}
+        return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'email_send_failed', locale)}
 
     share.message_sent_at = timezone.now()
     share.save(update_fields=["message_sent_at"])

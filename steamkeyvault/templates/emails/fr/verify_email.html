@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      body { font-family: Inter, Arial, sans-serif; color: #111827; }
+      .container { max-width: 600px; margin: 0 auto; padding: 1.5rem; background: #ffffff; border-radius: 8px; }
+      .header { font-size: 1.25rem; font-weight: 700; color: #0f172a; }
+      .content { margin-top: 1rem; font-size: 1rem; color: #374151; }
+      .footer { margin-top: 1.5rem; font-size: 0.9rem; color: #6b7280; }
+      .button { display:inline-block; padding: 0.6rem 1rem; background:#2563eb; color:white; border-radius:6px; text-decoration:none; margin: 1rem 0; }
+      .token { background: #f3f4f6; padding: 0.5rem 1rem; border-radius: 4px; font-family: monospace; margin: 1rem 0; display: inline-block; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">Vérifiez votre adresse email</div>
+      <div class="content">
+        <p>Bonjour {{ username }},</p>
+        <p>Merci d'avoir créé un compte sur SteamKeyVault ! Veuillez vérifier votre adresse email pour terminer votre inscription.</p>
+        <p>
+          <a class="button" href="{{ verification_url }}">Vérifier l'adresse email</a>
+        </p>
+        <p>Ou copiez-collez ce lien dans votre navigateur :</p>
+        <div class="token">{{ verification_url }}</div>
+        <p>Ce lien expirera dans 24 heures.</p>
+        <p>Si vous n'êtes pas à l'origine de cette inscription, ignorez cet email.</p>
+      </div>
+      <div class="footer">L'équipe SteamKeyVault</div>
+    </div>
+  </body>
+</html>

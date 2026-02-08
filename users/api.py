@@ -19,11 +19,57 @@ from django.http import JsonResponse
 from steamkeyvault.utils.mailer import Mailer
 from steamkeyvault.games.models import UserGame
 from steamkeyvault.keys.models import Key
+from steamkeyvault.utils.i18n import get_request_locale, translate_message
+from steamkeyvault.utils.i18n_messages import PASSWORD_ERROR_MESSAGES, USER_ERROR_MESSAGES
 
 # Module logger
 logger = logging.getLogger(__name__)
 
 users_router = Router()
+
+SUPPORTED_LOCALES = {User.LANGUAGE_EN, User.LANGUAGE_FR}
+
+EMAIL_SUBJECTS = {
+    'verify_email': {
+        'en': 'Verify Your Email - SteamKeyVault',
+        'fr': 'Vérifiez votre adresse email - SteamKeyVault',
+    },
+    'email_change_confirmation': {
+        'en': 'Confirm Your Email Change - SteamKeyVault',
+        'fr': "Confirmez le changement d'adresse email - SteamKeyVault",
+    },
+    'password_changed': {
+        'en': 'Password Changed - SteamKeyVault',
+        'fr': 'Mot de passe modifié - SteamKeyVault',
+    },
+    'welcome': {
+        'en': 'Welcome to SteamKeyVault',
+        'fr': 'Bienvenue sur SteamKeyVault',
+    },
+    'password_reset_request': {
+        'en': 'Reset Your Password - SteamKeyVault',
+        'fr': 'Réinitialiser votre mot de passe - SteamKeyVault',
+    },
+    'password_reset_success': {
+        'en': 'Password Reset - SteamKeyVault',
+        'fr': 'Mot de passe réinitialisé - SteamKeyVault',
+    },
+}
+
+
+
+def normalize_locale(value: str | None, fallback: str = User.LANGUAGE_EN) -> str:
+    if value and value in SUPPORTED_LOCALES:
+        return value
+    return fallback
+
+
+def get_user_locale(user: User) -> str:
+    return normalize_locale(getattr(user, 'preferred_language', None))
+
+
+def get_subject(key: str, locale: str) -> str:
+    return EMAIL_SUBJECTS.get(key, {}).get(locale, EMAIL_SUBJECTS.get(key, {}).get('en', 'SteamKeyVault'))
 
 
 def validate_password_strength(password: str) -> tuple[bool, str]:
@@ -39,19 +85,19 @@ def validate_password_strength(password: str) -> tuple[bool, str]:
     - At least one special character from: #?!@$%^&*-'+()_[]
     """
     if len(password) < 12:
-        return False, "Password must be at least 12 characters long"
+        return False, "password_min_length"
     
     if not re.search(r'[a-z]', password):
-        return False, "Password must contain at least one lowercase letter"
+        return False, "password_lowercase"
     
     if not re.search(r'[A-Z]', password):
-        return False, "Password must contain at least one uppercase letter"
+        return False, "password_uppercase"
     
     if not re.search(r'\d', password):
-        return False, "Password must contain at least one digit"
+        return False, "password_digit"
     
     if not re.search(r'[#?!@$%^&*\-\'\+\(\)_\[\]]', password):
-        return False, "Password must contain at least one special character (#?!@$%^&*-'+()_[])"
+        return False, "password_special"
     
     return True, ""
 
@@ -70,7 +116,8 @@ def login_view(request, payload: schemas.SignInSchema):
         login(request, user)
         if not user.wrapped_mk_password or not user.mk_salt:
             logger.warning(f"Login failed: encryption not initialized user={user.email}")
-            raise HttpError(400, "Encryption not initialized for this account")
+            locale = get_request_locale(request, user)
+            raise HttpError(400, translate_message(USER_ERROR_MESSAGES, 'encryption_not_initialized', locale))
         response = JsonResponse({
             "success": True,
             "wrapped_mk_password": user.wrapped_mk_password,
@@ -80,7 +127,8 @@ def login_view(request, payload: schemas.SignInSchema):
         })
         return response
     logger.warning(f"Failed login for email={payload.email} from {addr}")
-    raise HttpError(403, "Invalid credentials")
+    locale = get_request_locale(request)
+    raise HttpError(403, translate_message(USER_ERROR_MESSAGES, 'invalid_credentials', locale))
 
 @users_router.post("/logout", auth=django_auth)
 def logout_view(request):
@@ -99,11 +147,13 @@ def user(request):
         "username": user_obj.username,
         "email": user_obj.email,
         "email_verified": user_obj.email_verified,
-        "is_admin": user_obj.is_admin
+        "is_admin": user_obj.is_admin,
+        "preferred_language": user_obj.preferred_language,
     }
 
 @users_router.post("/register")
 def register(request, payload: schemas.SignUpSchema):
+    locale = get_request_locale(request)
     addr = request.META.get("REMOTE_ADDR")
     logger.info(f"Register attempt username={payload.username} email={payload.email} from {addr}")
     # Log headers for debugging CORS issues
@@ -113,22 +163,24 @@ def register(request, payload: schemas.SignUpSchema):
     is_valid, error_msg = validate_password_strength(payload.password)
     if not is_valid:
         logger.warning(f"Registration failed: weak password username={payload.username}")
-        return JsonResponse({"error": error_msg}, status=400)
+        return JsonResponse({"error": translate_message(PASSWORD_ERROR_MESSAGES, error_msg, locale)}, status=400)
     
     if User.objects.filter(email=payload.email).exists():
         logger.warning(f"Registration failed: email exists email={payload.email}")
-        return JsonResponse({"error": "Email already exists"}, status=400)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'email_exists', locale)}, status=400)
     if User.objects.filter(username=payload.username).exists():
         logger.warning(f"Registration failed: username exists username={payload.username}")
-        return JsonResponse({"error": "Username already exists"}, status=400)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'username_exists', locale)}, status=400)
     try:
         user = User.objects.create_user(username=payload.username, email=payload.email, password=payload.password)
+        preferred_language = normalize_locale(payload.preferred_language, fallback=locale)
         user.wrapped_mk_password = payload.wrapped_mk_password
         user.wrapped_mk_recovery = payload.wrapped_mk_recovery
         user.mk_salt = payload.mk_salt
         user.rk_salt = payload.rk_salt
         user.kdf_iterations = payload.kdf_iterations
         user.kdf_hash = payload.kdf_hash
+        user.preferred_language = preferred_language
         user.save(update_fields=[
             "wrapped_mk_password",
             "wrapped_mk_recovery",
@@ -136,6 +188,7 @@ def register(request, payload: schemas.SignUpSchema):
             "rk_salt",
             "kdf_iterations",
             "kdf_hash",
+            "preferred_language",
         ])
         logger.info(f"User registered username={payload.username} email={payload.email} user_id={user.id}")
         
@@ -149,13 +202,14 @@ def register(request, payload: schemas.SignUpSchema):
         
         # Send verification email
         Mailer.send_template_email(
-            subject='Verify Your Email - SteamKeyVault',
+            subject=get_subject('verify_email', preferred_language),
             template_name='emails/verify_email.html',
             context={
                 'username': user.username,
                 'verification_url': verification_url,
             },
-            to_emails=[user.email]
+            to_emails=[user.email],
+            locale=preferred_language,
         )
         logger.info(f"Sent verification email to user_id={user.id} email={user.email}")
         return Response({"success": True, "message": "Registration successful. Please check your email to verify your account."}, status=201)
@@ -171,6 +225,7 @@ def update_account(request, payload: schemas.UpdateEmailSchema):
     """
     user_obj = request.user
     new_email = payload.email
+    locale = get_request_locale(request, user_obj)
     addr = request.META.get("REMOTE_ADDR")
     logger.info(f"Account update requested by user={getattr(user_obj, 'email', None)} -> new_email={new_email} from {addr}")
 
@@ -183,12 +238,12 @@ def update_account(request, payload: schemas.UpdateEmailSchema):
         validate_email(new_email)
     except ValidationError:
         logger.warning(f"Account update failed: invalid email format new_email={new_email}")
-        return JsonResponse({"error": "Invalid email format"}, status=400)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'invalid_email_format', locale)}, status=400)
 
     # Check uniqueness
     if User.objects.filter(email=new_email).exclude(pk=user_obj.pk).exists():
         logger.warning(f"Account update failed: email already in use new_email={new_email}")
-        return JsonResponse({"error": "Email already exists"}, status=400)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'email_exists', locale)}, status=400)
 
     try:
         # Generate confirmation token for new email
@@ -201,21 +256,37 @@ def update_account(request, payload: schemas.UpdateEmailSchema):
         confirmation_url = f"{frontend_url}/confirm-email-change?token={token.token}"
         
         # Send confirmation email to NEW email address
+        locale = get_user_locale(user_obj)
         Mailer.send_template_email(
-            subject='Confirm Your Email Change - SteamKeyVault',
+            subject=get_subject('email_change_confirmation', locale),
             template_name='emails/email_change_confirmation.html',
             context={
                 'username': user_obj.username,
                 'new_email': new_email,
                 'confirmation_url': confirmation_url,
             },
-            to_emails=[new_email]
+            to_emails=[new_email],
+            locale=locale,
         )
         logger.info(f"Sent email change confirmation to new_email={new_email} for user_id={user_obj.pk}")
         return Response({"success": True, "message": "Please check your new email address to confirm the change."})
     except Exception as e:
         logger.exception(f"Error processing email change for user_id={user_obj.pk}: {e}")
         return JsonResponse({"error": str(e)}, status=400)
+
+
+@users_router.put("/preferences", auth=django_auth)
+def update_preferences(request, payload: schemas.UpdatePreferencesSchema):
+    user_obj = request.user
+    next_locale = normalize_locale(payload.preferred_language, fallback='')
+    if not next_locale:
+        locale = get_request_locale(request, user_obj)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'invalid_language', locale)}, status=400)
+
+    user_obj.preferred_language = next_locale
+    user_obj.save(update_fields=["preferred_language"])
+    logger.info("Updated preferred language user_id=%s locale=%s", user_obj.pk, next_locale)
+    return Response({"success": True, "preferred_language": next_locale})
 
 
 @users_router.post("/change-password", auth=django_auth)
@@ -229,13 +300,15 @@ def change_password_view(request, payload: schemas.ChangePasswordSchema):
 
     if not user_obj.check_password(payload.current_password):
         logger.warning(f"Password change failed: invalid current password user={getattr(user_obj, 'email', None)}")
-        return JsonResponse({"error": "Current password is incorrect"}, status=400)
+        locale = get_request_locale(request, user_obj)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'current_password_incorrect', locale)}, status=400)
 
     # Validate password strength
     is_valid, error_msg = validate_password_strength(payload.new_password)
     if not is_valid:
         logger.warning(f"Password change failed: weak password user={getattr(user_obj, 'email', None)}")
-        return JsonResponse({"error": error_msg}, status=400)
+        locale = get_request_locale(request, user_obj)
+        return JsonResponse({"error": translate_message(PASSWORD_ERROR_MESSAGES, error_msg, locale)}, status=400)
 
     try:
         user_obj.set_password(payload.new_password)
@@ -246,14 +319,16 @@ def change_password_view(request, payload: schemas.ChangePasswordSchema):
         log_user_action(UserActionLog.ACTION_PASSWORD_CHANGE, user_obj, request)
         
         # Send notification email about password change
+        locale = get_user_locale(user_obj)
         Mailer.send_template_email(
-            subject='Password Changed - SteamKeyVault',
+            subject=get_subject('password_changed', locale),
             template_name='emails/password_changed.html',
             context={
                 'username': user_obj.username,
                 'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC'),
             },
-            to_emails=[user_obj.email]
+            to_emails=[user_obj.email],
+            locale=locale,
         )
         logger.info(f"Sent password change notification to user_id={user_obj.pk}")
         return Response({"success": True})
@@ -266,9 +341,11 @@ def change_password_view(request, payload: schemas.ChangePasswordSchema):
 def recovery_info(request, payload: schemas.RecoveryInfoSchema):
     user = User.objects.filter(email=payload.email).first()
     if not user:
-        return JsonResponse({"error": "User not found"}, status=404)
+        locale = get_request_locale(request)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'user_not_found', locale)}, status=404)
     if not user.wrapped_mk_recovery or not user.rk_salt:
-        return JsonResponse({"error": "Recovery data not available"}, status=400)
+        locale = get_request_locale(request, user)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'recovery_data_unavailable', locale)}, status=400)
     return Response({
         "wrapped_mk_recovery": user.wrapped_mk_recovery,
         "rk_salt": user.rk_salt,
@@ -305,7 +382,8 @@ def verify_email(request, token: str):
         
         if not verification_token.is_valid():
             logger.warning(f"Email verification failed: token expired or used token={token}")
-            return JsonResponse({"error": "This verification link is invalid or has expired."}, status=400)
+            locale = get_request_locale(request, verification_token.user)
+            return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'verification_invalid_or_expired', locale)}, status=400)
         
         # Mark user as verified and token as used
         user = verification_token.user
@@ -316,14 +394,16 @@ def verify_email(request, token: str):
         # Send welcome email after successful verification
         user = verification_token.user
         frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
+        locale = get_user_locale(user)
         Mailer.send_template_email(
-            subject='Welcome to SteamKeyVault',
+            subject=get_subject('welcome', locale),
             template_name='emails/welcome.html',
             context={
                 'username': user.username,
                 'site_url': frontend_url,
             },
-            to_emails=[user.email]
+            to_emails=[user.email],
+            locale=locale,
         )
         
         logger.info(f"Email verified successfully for user_id={user.id}")
@@ -331,10 +411,12 @@ def verify_email(request, token: str):
         
     except EmailVerificationToken.DoesNotExist:
         logger.warning(f"Email verification failed: token not found token={token}")
-        return JsonResponse({"error": "Invalid verification link."}, status=404)
+        locale = get_request_locale(request)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'verification_invalid', locale)}, status=404)
     except Exception as e:
         logger.exception(f"Error during email verification: {e}")
-        return JsonResponse({"error": "An error occurred during verification."}, status=500)
+        locale = get_request_locale(request)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'verification_error', locale)}, status=500)
 
 
 @users_router.get('/confirm-email-change')
@@ -348,7 +430,8 @@ def confirm_email_change(request, token: str):
         
         if not verification_token.is_valid():
             logger.warning(f"Email change confirmation failed: token expired or used token={token}")
-            return JsonResponse({"error": "This confirmation link is invalid or has expired."}, status=400)
+            locale = get_request_locale(request, verification_token.user)
+            return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'confirmation_invalid_or_expired', locale)}, status=400)
         
         # Update user email
         user = verification_token.user
@@ -374,17 +457,20 @@ def confirm_email_change(request, token: str):
         
     except EmailVerificationToken.DoesNotExist:
         logger.warning(f"Email change confirmation failed: token not found token={token}")
-        return JsonResponse({"error": "Invalid confirmation link."}, status=404)
+        locale = get_request_locale(request)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'confirmation_invalid', locale)}, status=404)
     except Exception as e:
         logger.exception(f"Error during email change confirmation: {e}")
-        return JsonResponse({"error": "An error occurred during confirmation."}, status=500)
+        locale = get_request_locale(request)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'confirmation_error', locale)}, status=500)
 
 
 @users_router.post("/resend-verification-email", auth=django_auth)
 def resend_verification_email(request):
     user = request.user
     if user.email_verified:
-        return JsonResponse({"error": "Email is already verified."}, status=400)
+        locale = get_request_locale(request, user)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'email_already_verified', locale)}, status=400)
     
     try:
         # Generate verification token
@@ -396,14 +482,16 @@ def resend_verification_email(request):
         verification_url = f"{frontend_url}/verify-email?token={token.token}"
         
         # Send verification email
+        locale = get_user_locale(user)
         Mailer.send_template_email(
-            subject='Verify Your Email - SteamKeyVault',
+            subject=get_subject('verify_email', locale),
             template_name='emails/verify_email.html',
             context={
                 'username': user.username,
                 'verification_url': verification_url,
             },
-            to_emails=[user.email]
+            to_emails=[user.email],
+            locale=locale,
         )
         logger.info(f"Resent verification email to user_id={user.id} email={user.email}")
         return Response({"success": True, "message": "Verification email sent."})
@@ -424,14 +512,16 @@ def forgot_password(request, payload: schemas.ForgotPasswordSchema):
     frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
     reset_url = f"{frontend_url}/reset-password?token={token.token}"
 
+    locale = get_user_locale(user)
     Mailer.send_template_email(
-        subject='Reset Your Password - SteamKeyVault',
+        subject=get_subject('password_reset_request', locale),
         template_name='emails/password_reset_request.html',
         context={
             'username': user.username,
             'reset_url': reset_url,
         },
-        to_emails=[user.email]
+        to_emails=[user.email],
+        locale=locale,
     )
     logger.info(f"Password reset email sent user_id={user.id}")
     return Response({"success": True})
@@ -441,10 +531,12 @@ def forgot_password(request, payload: schemas.ForgotPasswordSchema):
 def reset_password_info(request, token: str):
     reset_token = PasswordResetToken.objects.filter(token=token).first()
     if not reset_token or not reset_token.is_valid():
-        return JsonResponse({"error": "Invalid or expired reset token"}, status=400)
+        locale = get_request_locale(request)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'reset_token_invalid_or_expired', locale)}, status=400)
     user = reset_token.user
     if not user.wrapped_mk_recovery or not user.rk_salt or not user.mk_salt:
-        return JsonResponse({"error": "Recovery data not available"}, status=400)
+        locale = get_request_locale(request, user)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'recovery_data_unavailable', locale)}, status=400)
     return Response({
         "wrapped_mk_recovery": user.wrapped_mk_recovery,
         "rk_salt": user.rk_salt,
@@ -458,12 +550,14 @@ def reset_password_info(request, token: str):
 def reset_password(request, payload: schemas.ResetPasswordSchema):
     reset_token = PasswordResetToken.objects.filter(token=payload.token).first()
     if not reset_token or not reset_token.is_valid():
-        return JsonResponse({"error": "Invalid or expired reset token"}, status=400)
+        locale = get_request_locale(request)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'reset_token_invalid_or_expired', locale)}, status=400)
 
     # Validate password strength
     is_valid, error_msg = validate_password_strength(payload.new_password)
     if not is_valid:
-        return JsonResponse({"error": error_msg}, status=400)
+        locale = get_request_locale(request, reset_token.user if reset_token else None)
+        return JsonResponse({"error": translate_message(PASSWORD_ERROR_MESSAGES, error_msg, locale)}, status=400)
 
     user = reset_token.user
     try:
@@ -471,14 +565,16 @@ def reset_password(request, payload: schemas.ResetPasswordSchema):
         user.wrapped_mk_password = payload.wrapped_mk_password
         user.save(update_fields=["password", "wrapped_mk_password"])
         reset_token.mark_used()
+        locale = get_user_locale(user)
         Mailer.send_template_email(
-            subject='Password Reset - SteamKeyVault',
+            subject=get_subject('password_reset_success', locale),
             template_name='emails/password_reset_success.html',
             context={
                 'username': user.username,
                 'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC'),
             },
-            to_emails=[user.email]
+            to_emails=[user.email],
+            locale=locale,
         )
         logger.info(f"Password reset completed for user_id={user.id}")
         return Response({"success": True})

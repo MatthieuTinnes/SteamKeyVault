@@ -1,0 +1,9 @@
+Bienvenue sur SteamKeyVault, {{ username }} !
+
+Merci d'avoir créé un compte sur SteamKeyVault. Vous pouvez maintenant stocker et gérer vos clés Steam en toute sécurité.
+
+Ouvrir votre coffre : {{ site_url }}
+
+Si vous n'êtes pas à l'origine de cette création de compte, ignorez ce message.
+
+— L'équipe SteamKeyVault

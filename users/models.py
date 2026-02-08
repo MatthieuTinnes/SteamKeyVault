@@ -5,9 +5,17 @@ from django.conf import settings
 # Create your models here.
 
 class User(AbstractUser):
+    LANGUAGE_EN = 'en'
+    LANGUAGE_FR = 'fr'
+    LANGUAGE_CHOICES = [
+        (LANGUAGE_EN, 'English'),
+        (LANGUAGE_FR, 'French'),
+    ]
+
     email = models.EmailField(unique=True)
     email_verified = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
+    preferred_language = models.CharField(max_length=8, choices=LANGUAGE_CHOICES, default=LANGUAGE_EN)
     wrapped_mk_password = models.CharField(max_length=512, null=True, blank=True)
     wrapped_mk_recovery = models.CharField(max_length=512, null=True, blank=True)
     mk_salt = models.CharField(max_length=255, null=True, blank=True)

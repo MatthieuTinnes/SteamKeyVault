@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      body { font-family: Inter, Arial, sans-serif; color: #111827; }
+      .container { max-width: 600px; margin: 0 auto; padding: 1.5rem; background: #ffffff; border-radius: 8px; }
+      .header { font-size: 1.25rem; font-weight: 700; color: #0f172a; }
+      .content { margin-top: 1rem; font-size: 1rem; color: #374151; }
+      .message { margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 6px; white-space: pre-wrap; }
+      .footer { margin-top: 1.5rem; font-size: 0.9rem; color: #6b7280; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">Nouveau message concernant votre clé partagée</div>
+      <div class="content">
+        <p>Bonjour {{ donor_username }},</p>
+        <p>Vous avez reçu un message au sujet de votre clé partagée pour <strong>{{ game_name }}</strong> :</p>
+        <div class="message">{{ message }}</div>
+      </div>
+      <div class="footer">L'équipe SteamKeyVault</div>
+    </div>
+  </body>
+</html>

@@ -9,8 +9,11 @@ import re
 from django.utils import timezone
 import json
 from steamkeyvault.keys.models import Key
+from steamkeyvault.utils.i18n import get_request_locale, translate_message
+from steamkeyvault.utils.i18n_messages import GAME_ERROR_MESSAGES
 
 router = Router()
+
 
 class GameIn(Schema):
     name: str
@@ -50,11 +53,12 @@ class SteamKeyVaultImportIn(Schema):
 
 @router.post('/add', response={201: GameIdOut, 400: dict}, auth=django_auth)
 def add_game(request, data: GameIn):
+    locale = get_request_locale(request, request.user)
     name = data.name.strip()
     if not name:
-        return 400, {"error": "Name is required."}
+        return 400, {"error": translate_message(GAME_ERROR_MESSAGES, 'name_required', locale)}
     if data.steamapp_id and UserGame.objects.filter(user=request.user, steamapp_id=data.steamapp_id).exists():
-        return 400, {"error": "User already has this game."}
+        return 400, {"error": translate_message(GAME_ERROR_MESSAGES, 'user_has_game', locale)}
 
     game = UserGame.objects.create(
         user=request.user,
@@ -78,30 +82,32 @@ def list_games(request):
 
 @router.delete('/remove/{user_game_id}', response={204: None, 404: dict}, auth=django_auth)
 def remove_game(request, user_game_id: int):
+    locale = get_request_locale(request, request.user)
     user_game_qs = UserGame.objects.filter(user=request.user, id=user_game_id)
     if not user_game_qs.exists():
-        return 404, {"error": "Game not found for this user."}
+        return 404, {"error": translate_message(GAME_ERROR_MESSAGES, 'game_not_found', locale)}
     user_game_qs.delete()
     return 204, None
 
 
 @router.patch('/{user_game_id}/update', response={200: None, 400: dict, 404: dict}, auth=django_auth)
 def update_user_game(request, user_game_id: int, data: GameUpdateIn):
+    locale = get_request_locale(request, request.user)
     try:
         ug = UserGame.objects.get(id=user_game_id, user=request.user)
     except UserGame.DoesNotExist:
-        return 404, {"error": "UserGame not found."}
+        return 404, {"error": translate_message(GAME_ERROR_MESSAGES, 'usergame_not_found', locale)}
 
     if data.steamapp_id is not None:
         # if setting a steamapp_id, ensure user doesn't already have another entry with same steamapp_id
         if UserGame.objects.filter(user=request.user, steamapp_id=data.steamapp_id).exclude(id=ug.id).exists():
-            return 400, {"error": "User already has a game with this Steam App ID."}
+            return 400, {"error": translate_message(GAME_ERROR_MESSAGES, 'duplicate_steam_app', locale)}
         ug.steamapp_id = data.steamapp_id
 
     if data.name is not None:
         name = data.name.strip()
         if not name:
-            return 400, {"error": "Name cannot be empty."}
+            return 400, {"error": translate_message(GAME_ERROR_MESSAGES, 'name_empty', locale)}
         ug.name = name
 
     ug.save()
@@ -176,6 +182,7 @@ def export_games_json(request):
 
 @router.post('/import_json', response={200: dict, 400: dict}, auth=django_auth)
 def import_games_json(request):
+    locale = get_request_locale(request, request.user)
     max_size = 10 * 1024 * 1024
     payload = None
     file_bytes = None
@@ -196,18 +203,18 @@ def import_games_json(request):
             file_bytes = None
 
     if not file_bytes:
-        return 400, {"error": "No JSON payload provided"}
+        return 400, {"error": translate_message(GAME_ERROR_MESSAGES, 'no_json_payload', locale)}
     if len(file_bytes) > max_size:
-        return 400, {"error": "File too large. Maximum size is 10 MB."}
+        return 400, {"error": translate_message(GAME_ERROR_MESSAGES, 'file_too_large', locale)}
 
     try:
         raw = json.loads(file_bytes.decode('utf-8'))
         payload = SteamKeyVaultImportIn(**raw)
     except Exception:
-        return 400, {"error": "Invalid JSON payload"}
+        return 400, {"error": translate_message(GAME_ERROR_MESSAGES, 'invalid_json_payload', locale)}
 
     if payload.format != "SteamKeyVault" or payload.version != 1:
-        return 400, {"error": "Invalid SteamKeyVault format or version"}
+        return 400, {"error": translate_message(GAME_ERROR_MESSAGES, 'invalid_format_version', locale)}
 
     summary = {
         "games_created": 0,
@@ -220,7 +227,7 @@ def import_games_json(request):
     for game in payload.games:
         name = (game.name or '').strip()
         if not name:
-            summary["errors"].append({"game": game.name, "error": "Name is required"})
+            summary["errors"].append({"game": game.name, "error": translate_message(GAME_ERROR_MESSAGES, 'name_required', locale)})
             continue
 
         if game.steamapp_id is not None:

@@ -1,0 +1,9 @@
+Nouveau message concernant votre clé partagée
+
+Bonjour {{ donor_username }},
+
+Vous avez reçu un message au sujet de votre clé partagée pour "{{ game_name }}" :
+
+{{ message }}
+
+L'équipe SteamKeyVault

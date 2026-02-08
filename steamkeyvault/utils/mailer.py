@@ -1,5 +1,5 @@
 import logging
-from typing import Iterable
+from typing import Iterable, Sequence
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -22,10 +22,26 @@ class Mailer:
     """
 
     @classmethod
-    def send_template_email(cls, subject: str, template_name: str, context: dict, to_emails: Iterable[str], from_email: str | None = None) -> bool:
+    def send_template_email(
+        cls,
+        subject: str,
+        template_name: str,
+        context: dict,
+        to_emails: Iterable[str],
+        from_email: str | None = None,
+        locale: str | None = None,
+    ) -> bool:
         from_email = from_email or getattr(settings, 'DEFAULT_FROM_EMAIL', None)
         try:
-            html_content = render_to_string(template_name, context)
+            template_candidates: Sequence[str] | str = template_name
+            if locale:
+                if template_name.startswith('emails/'):
+                    localized = f"emails/{locale}/" + template_name[len('emails/'):]
+                else:
+                    localized = f"{locale}/{template_name}"
+                template_candidates = [localized, template_name]
+
+            html_content = render_to_string(template_candidates, context)
             text_content = strip_tags(html_content)
 
             msg = EmailMultiAlternatives(subject=subject, body=text_content, from_email=from_email, to=list(to_emails))

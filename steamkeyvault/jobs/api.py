@@ -9,10 +9,13 @@ import csv
 import io
 import threading
 import logging
+from steamkeyvault.utils.i18n import get_request_locale, translate_message
+from steamkeyvault.utils.i18n_messages import JOB_ERROR_MESSAGES
 
 jobs_router = Router()
 
 logger = logging.getLogger(__name__)
+
 
 
 class ImportCreateOut(Schema):
@@ -38,9 +41,11 @@ def create_import(request, file: bytes = None):
                 except Exception:
                     file = None
     if not file:
-        return 400, {"error": "No file provided"}
+        locale = get_request_locale(request, request.user)
+        return 400, {"error": translate_message(JOB_ERROR_MESSAGES, 'file_missing', locale)}
     if len(file) > max_size:
-        return 400, {"error": "File too large. Maximum size is 10 MB."}
+        locale = get_request_locale(request, request.user)
+        return 400, {"error": translate_message(JOB_ERROR_MESSAGES, 'file_too_large', locale)}
 
     job = ImportJob.objects.create(user=user, status="pending")
 
@@ -121,7 +126,8 @@ def import_status(request, job_id: int):
     try:
         job = ImportJob.objects.get(id=job_id, user=request.user)
     except ImportJob.DoesNotExist:
-        return 404, {"error": "Job not found"}
+        locale = get_request_locale(request, request.user)
+        return 404, {"error": translate_message(JOB_ERROR_MESSAGES, 'job_not_found', locale)}
 
     return {
         "id": job.id,

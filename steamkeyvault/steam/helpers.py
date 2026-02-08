@@ -3,11 +3,14 @@ import logging
 import requests
 from django.http import JsonResponse
 from .models import SteamApp
+from steamkeyvault.utils.i18n import translate_message
+from steamkeyvault.utils.i18n_messages import STEAM_ERROR_MESSAGES
 
 logger = logging.getLogger(__name__)
 
 
-def fetch_and_store_steam_apps():
+
+def fetch_and_store_steam_apps(locale: str = 'en'):
     from django.conf import settings
     """Fetch Steam apps from Steam API and store/update them in the database.
     
@@ -18,7 +21,7 @@ def fetch_and_store_steam_apps():
     api_key = getattr(settings, "STEAM_API_KEY", None)
     if not api_key:
         logger.error("STEAM_API_KEY not set in Django settings")
-        return JsonResponse({"error": "Server configuration error: STEAM_API_KEY not set"}, status=500)
+        return JsonResponse({"error": translate_message(STEAM_ERROR_MESSAGES, 'missing_api_key', locale)}, status=500)
 
     url = "https://api.steampowered.com/IStoreService/GetAppList/v1/"
     logger.info("Fetching Steam apps from %s", url)
@@ -46,17 +49,17 @@ def fetch_and_store_steam_apps():
             resp = requests.get(url, params=request_params, headers=headers, timeout=30)
         except requests.RequestException as e:
             logger.error("Request failed: %s", e)
-            return JsonResponse({"error": "Failed to connect to Steam API"}, status=502)
+            return JsonResponse({"error": translate_message(STEAM_ERROR_MESSAGES, 'connect_failed', locale)}, status=502)
 
         if resp.status_code != 200:
             logger.error("Failed to fetch from Steam API, status code: %d, response: %s", resp.status_code, resp.text)
-            return JsonResponse({"error": f"Failed to fetch from Steam API: {resp.status_code}"}, status=502)
+            return JsonResponse({"error": f"{translate_message(STEAM_ERROR_MESSAGES, 'fetch_failed_status', locale)}: {resp.status_code}"}, status=502)
 
         try:
             data = resp.json()
         except ValueError:
             logger.error("Invalid JSON response from Steam API")
-            return JsonResponse({"error": "Invalid JSON response from Steam API"}, status=502)
+            return JsonResponse({"error": translate_message(STEAM_ERROR_MESSAGES, 'invalid_json', locale)}, status=502)
 
         response_data = data.get("response", {})
         apps = response_data.get("apps", [])
