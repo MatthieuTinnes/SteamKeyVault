@@ -53,9 +53,6 @@
                         <a v-if="steamDbUrl" :href="steamDbUrl" target="_blank" rel="noopener" class="steamdb-link" title="View on SteamDB">
                             <i class="pi pi-chart-line"></i> SteamDB
                         </a>
-                        <button v-if="asfCommand" @click="copyAsfCommand" class="asf-button" title="Copy ASF Command">
-                            <i class="pi pi-copy"></i> ASF
-                        </button>
                     </div>
                 </div>
             </div>

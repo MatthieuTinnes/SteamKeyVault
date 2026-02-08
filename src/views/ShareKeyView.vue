@@ -29,15 +29,35 @@
         <div class="status" v-else-if="shareInfo.revealed">This link has already been used.</div>
         <div class="status" v-else-if="shareInfo.used">This key is already marked as used.</div>
 
+        <div class="promo-card">
+          <div class="promo-text">
+            This key was shared using SteamKeyVault — manage and share your keys securely.
+          </div>
+          <Button label="Create an account" class="p-button-sm p-button-primary" @click="goToRegister" />
+        </div>
+
         <div v-if="revealedKey" class="revealed-key">
           <div class="key-label">Revealed key</div>
           <div class="key-row">
             <span class="key-value">{{ revealedKey }}</span>
-            <Button icon="pi pi-copy" class="p-button-sm" @click="copyRevealedKey" />
+            <div class="key-actions">
+              <Button icon="pi pi-copy" class="p-button-sm" @click="copyRevealedKey" />
+              <a
+                v-if="revealedKey"
+                :href="`https://store.steampowered.com/account/registerkey?key=${encodeURIComponent(revealedKey)}`"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="p-button p-button-sm p-button-success"
+                style="margin-left:0.5rem"
+              >
+                <i class="pi pi-external-link"></i>
+                <span style="margin-left:0.5rem">Activate on Steam</span>
+              </a>
+            </div>
           </div>
         </div>
 
-        <div v-else class="reveal-panel">
+        <div v-else-if="!shareInfo.used" class="reveal-panel">
           <div class="turnstile" id="turnstile-reveal"></div>
           <Button
             label="Reveal key"
@@ -49,13 +69,14 @@
           <small v-if="!turnstileReady" class="hint">Turnstile captcha is not configured.</small>
         </div>
 
-        <div class="message-panel">
+        <div v-if="!shareInfo.used && !shareInfo.message_sent" class="message-panel">
           <h3>Send a message to the donor</h3>
-          <Textarea v-model="message" rows="4" autoResize placeholder="Write a thank-you message..." />
+          <Textarea v-model="message" rows="4" autoResize placeholder="Write a thank-you message..." maxlength="100" />
+          <small class="hint">{{ message.trim().length }}/100</small>
           <Button
             label="Send message"
             icon="pi pi-send"
-            :disabled="!canMessage || !message.trim()"
+            :disabled="!canMessage || !message.trim() || message.trim().length > 100"
             :loading="sending"
             @click="sendMessage"
           />
@@ -66,7 +87,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, nextTick, watch } from 'vue'
+import { computed, onMounted, ref, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
 import Button from 'primevue/button'
 import Textarea from 'primevue/textarea'
@@ -87,6 +109,7 @@ interface ShareInfo {
   revealed: boolean
   expired: boolean
   used: boolean
+  message_sent?: boolean
 }
 
 declare global {
@@ -100,6 +123,7 @@ declare global {
 
 const route = useRoute()
 const toast = useToast()
+const router = useRouter()
 
 const shareInfo = ref<ShareInfo | null>(null)
 const error = ref('')
@@ -118,7 +142,7 @@ const canReveal = computed(() => {
 })
 const canMessage = computed(() => {
   if (!shareInfo.value) return false
-  return !shareInfo.value.expired
+  return !shareInfo.value.expired && !shareInfo.value.message_sent
 })
 
 const publicGameInfo = computed(() => {
@@ -131,11 +155,21 @@ const publicGameInfo = computed(() => {
   }
 })
 
+function goToRegister() {
+  router.push('/register')
+}
+
 const storageKey = computed(() => `shared-key:${shareToken.value}`)
 
 
-watch(shareInfo, async (newVal) => {
-  if (newVal) {
+// Turnstile is loaded once on mount after share info is fetched.
+
+onMounted(async () => {
+  await ensureCSRFToken()
+  await loadShareInfo()
+  const cached = sessionStorage.getItem(storageKey.value)
+  if (cached) revealedKey.value = cached
+  if (shareInfo.value) {
     await nextTick()
     try {
       await loadTurnstile()
@@ -145,13 +179,6 @@ watch(shareInfo, async (newVal) => {
       turnstileReady.value = false
     }
   }
-})
-
-onMounted(async () => {
-  await ensureCSRFToken()
-  await loadShareInfo()
-  const cached = sessionStorage.getItem(storageKey.value)
-  if (cached) revealedKey.value = cached
 })
 
 async function loadShareInfo() {
@@ -250,11 +277,17 @@ async function sendMessage() {
     toast.add({ severity: 'warn', summary: 'Error', detail: 'Invalid link.', life: 2000 })
     return
   }
-  if (!message.value.trim()) return
+  const text = message.value.trim()
+  if (!text) return
+  if (text.length > 100) {
+    toast.add({ severity: 'warn', summary: 'Too long', detail: 'Message must be 100 characters or less.', life: 3000 })
+    return
+  }
   sending.value = true
   try {
     await sendShareMessage(shareToken.value, '', message.value.trim())
     message.value = ''
+    await loadShareInfo()
     toast.add({ severity: 'success', summary: 'Sent', detail: 'Message sent to the donor.', life: 2000 })
   } catch (err: any) {
     toast.add({ severity: 'error', summary: 'Error', detail: err?.response?.data?.error || 'Unable to send the message.', life: 3000 })
@@ -381,6 +414,21 @@ function formatDateTime(dateStr: string) {
 
 .hint {
   color: var(--text-secondary);
+}
+
+.promo-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(90deg, rgba(14,165,233,0.06), rgba(99,102,241,0.04));
+  border: 1px solid rgba(99,102,241,0.08);
+}
+.promo-text {
+  color: var(--text-primary);
+  font-size: 0.95rem;
 }
 
 @media (max-width: 64rem) {
