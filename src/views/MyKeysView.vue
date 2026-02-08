@@ -110,15 +110,8 @@ function confirmDeleteAllUsedKeys() {
     message: t('myKeys.deleteAllMessage'),
     header: t('myKeys.deleteAllHeader'),
     icon: 'pi pi-exclamation-triangle',
-    rejectProps: {
-      label: t('myKeys.deleteAllCancel'),
-      severity: 'secondary',
-      outlined: true
-    },
-    acceptProps: {
-      label: t('myKeys.deleteAllConfirm'),
-      severity: 'danger'
-    },
+    rejectLabel: t('myKeys.deleteAllCancel'),
+    acceptLabel: t('myKeys.deleteAllConfirm'),
     accept: async () => {
       try {
         const result = await removeAllUsedKeys()
