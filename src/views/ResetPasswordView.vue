@@ -18,6 +18,9 @@
           <div class="form-group">
             <label for="newPassword">New Password</label>
             <Password id="newPassword" v-model="newPassword" :feedback="true" toggleMask class="w-full" inputClass="w-full" />
+            <small class="password-requirements">
+              Password must: be 12+ characters, contain lowercase, uppercase, digit, and special character (#?!@$%^&*-'+()_[])
+            </small>
           </div>
           <div class="form-group">
             <label for="confirmPassword">Confirm Password</label>
@@ -45,6 +48,7 @@ import Button from 'primevue/button'
 import Message from 'primevue/message'
 import { fetchResetPasswordInfo, resetPassword } from '@/api/auth'
 import { deriveKeyFromPassword, unwrapMasterKey, wrapMasterKey } from '@/utils/crypto'
+import { validatePasswordStrength } from '@/utils/passwordValidation'
 import { showErrorToast, showSuccessToast } from '@/utils/toast'
 
 const route = useRoute()
@@ -86,6 +90,14 @@ async function handleReset() {
   if (!resetInfo.value) return
   error.value = ''
   success.value = false
+  
+  // Validate password strength
+  const validation = validatePasswordStrength(newPassword.value)
+  if (!validation.isValid) {
+    error.value = validation.errors.join('. ')
+    return
+  }
+  
   submitting.value = true
   try {
     const phrase = recoveryPhrase.value.trim().toLowerCase()
@@ -161,6 +173,14 @@ function goToLogin() {
   font-weight: 600;
   color: var(--text-primary);
   font-size: 0.875rem;
+}
+
+.password-requirements {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  margin-top: 0.25rem;
+  display: block;
 }
 
 .loading-state {

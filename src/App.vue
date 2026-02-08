@@ -1,5 +1,6 @@
 <template>
   <Toast ref="toastRef" />
+  <ConfirmDialog />
   <Navbar />
   <main>
     <RouterView />
@@ -10,6 +11,7 @@
 import { RouterView } from 'vue-router'
 import Navbar from './components/Navbar.vue'
 import Toast from 'primevue/toast'
+import ConfirmDialog from 'primevue/confirmdialog'
 import { ref, onMounted } from 'vue'
 import { setGlobalToast } from './utils/toast'
 import { useTheme } from './composables/useTheme'

@@ -15,6 +15,9 @@
           <div class="form-group">
             <label for="password">Password</label>
             <Password id="password" v-model="password" :feedback="false" toggleMask required class="w-full" inputClass="w-full" />
+            <small class="password-requirements">
+              Password must: be 12+ characters, contain lowercase, uppercase, digit, and special character (#?!@$%^&*-'+()_[])
+            </small>
           </div>
           <div class="form-group">
             <label for="confirmPassword">Confirm Password</label>
@@ -54,6 +57,7 @@ import { registerUser } from '../api/auth'
 import { useToast } from 'primevue/usetoast'
 import Dialog from 'primevue/dialog'
 import { deriveKeyFromPassword, generateMasterKeyBytes, generateRecoveryPhrase, generateSalt, getDefaultKdfParams, wrapMasterKey } from '@/utils/crypto'
+import { validatePasswordStrength } from '@/utils/passwordValidation'
 import Card from 'primevue/card';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
@@ -78,6 +82,14 @@ const handleRegister = async () => {
     error.value = 'Passwords do not match.'
     return
   }
+  
+  // Validate password strength
+  const validation = validatePasswordStrength(password.value)
+  if (!validation.isValid) {
+    error.value = validation.errors.join('. ')
+    return
+  }
+  
   try {
     const kdfParams = getDefaultKdfParams()
     const mkSalt = generateSalt()
@@ -171,6 +183,14 @@ function confirmRecoverySaved() {
   font-weight: 600;
   color: var(--text-primary);
   font-size: 0.875rem;
+}
+
+.password-requirements {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  margin-top: 0.25rem;
+  display: block;
 }
 
 .w-full {

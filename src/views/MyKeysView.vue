@@ -8,7 +8,8 @@
           <Button icon="pi pi-ellipsis-v" class="p-button-text overflow-btn" @click="op && op.toggle($event)" aria-label="More actions" />
           <OverlayPanel ref="op">
             <div class="overflow-menu">
-              <Button class="p-button-text" icon="pi pi-external-link" label="Export for lestrades.com" @click="exportForLesTrades(); op.hide()" />
+              <Button class="p-button-text" icon="pi pi-external-link" label="Export for lestrades.com" @click="exportForLesTrades(); op && op.hide()" />
+              <Button class="p-button-text p-button-danger" icon="pi pi-trash" label="Delete all used keys" @click="confirmDeleteAllUsedKeys(); op && op.hide()" />
             </div>
           </OverlayPanel>
         </div>
@@ -56,11 +57,12 @@ import GameInfo from '../components/GameInfo.vue'
 import CustomGameInfo from '../components/CustomGameInfo.vue'
 import AddGameModal from '../components/AddGameModal.vue'
 import { getUserGames } from '../api/games'
-import { getKeysForGame } from '../api/keys'
+import { getKeysForGame, removeAllUsedKeys } from '../api/keys'
 import type { Game } from '@/models/Game';
 import Button from 'primevue/button'
 import OverlayPanel from 'primevue/overlaypanel'
 import { useToast } from 'primevue/usetoast'
+import { useConfirm } from 'primevue/useconfirm'
 import { ref as vueRef } from 'vue'
 
 const userStore = useUserStore()
@@ -77,6 +79,7 @@ onMounted(async () => {
 })
 
 const toast = useToast()
+const confirm = useConfirm()
 const op = vueRef<InstanceType<typeof OverlayPanel> | null>(null)
 
 function exportForLesTrades() {
@@ -98,6 +101,46 @@ function exportForLesTrades() {
     console.error('Failed to copy export:', err)
     toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to copy export', life: 3000 })
   }
+}
+
+function confirmDeleteAllUsedKeys() {
+  confirm.require({
+    message: 'Are you sure you want to delete all used keys from all your games? This action cannot be undone.',
+    header: 'Delete All Used Keys',
+    icon: 'pi pi-exclamation-triangle',
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Delete',
+      severity: 'danger'
+    },
+    accept: async () => {
+      try {
+        const result = await removeAllUsedKeys()
+        toast.add({ 
+          severity: 'success', 
+          summary: 'Keys Deleted', 
+          detail: `${result.deleted} key${result.deleted !== 1 ? 's' : ''} deleted`, 
+          life: 3000 
+        })
+        // Refresh the current game's keys if one is selected
+        if (selectedGameId.value) {
+          await refreshKeys()
+        }
+      } catch (err) {
+        console.error('Failed to delete used keys:', err)
+        toast.add({ 
+          severity: 'error', 
+          summary: 'Error', 
+          detail: 'Failed to delete used keys', 
+          life: 3000 
+        })
+      }
+    }
+  })
 }
 
 function handleGameSelected(game: Game) {

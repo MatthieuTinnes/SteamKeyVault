@@ -75,3 +75,7 @@ export async function cancelShareLink(keyId: number) {
   return res.data
 }
 
+export async function removeAllUsedKeys() {
+  const res = await axios.delete(`${API_BASE_URL}/keys/bulk/remove-used`, getAxiosConfig())
+  return res.data
+}

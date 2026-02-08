@@ -97,7 +97,10 @@
           </div>
           <div class="form-group">
             <label for="new">New Password</label>
-            <Password id="new" v-model="newPassword" :feedback="true" toggleMask inputClass="w-full" />
+            <Password id="new" v-model="newPassword" :feedback="false" toggleMask inputClass="w-full" />
+            <small class="password-requirements">
+              Password must: be 12+ characters, contain lowercase, uppercase, digit, and special character (#?!@$%^&*-'+()_[])
+            </small>
           </div>
           <div class="form-group">
             <label for="confirm">Confirm Password</label>
@@ -125,6 +128,7 @@ import { exportUserGamesCsv, exportUserGamesJson, importUserGamesJson } from '@/
 import { showErrorToast, showSuccessToast } from '@/utils/toast'
 import Message from 'primevue/message';
 import { deriveKeyFromPassword, wrapMasterKey } from '@/utils/crypto'
+import { validatePasswordStrength } from '@/utils/passwordValidation'
 import { MAX_IMPORT_BYTES } from '@/utils/importLimits'
 
 const userStore = useUserStore()
@@ -191,6 +195,14 @@ async function saveEmail() {
 
 async function changePwd() {
   if (!canChange.value) return showErrorToast('Invalid data', 'Please check the password fields')
+  
+  // Validate password strength
+  const validation = validatePasswordStrength(newPassword.value)
+  if (!validation.isValid) {
+    showErrorToast('Invalid password', validation.errors.join('. '))
+    return
+  }
+  
   saving.value = true
   try {
     if (!cryptoStore.masterKeyBytes || !cryptoStore.mkSalt || !cryptoStore.kdfParams) {
@@ -506,6 +518,14 @@ async function exportJson() {
 
 .w-full {
   width: 100%;
+}
+
+.password-requirements {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  margin-top: 0.25rem;
+  display: block;
 }
 
 /* Responsive adjustments */
