@@ -6,6 +6,7 @@ from django.middleware.csrf import get_token
 import logging
 from django.conf import settings
 from datetime import datetime
+import re
 
 from users import schemas
 from users.models import User, UserActionLog
@@ -23,6 +24,36 @@ from steamkeyvault.keys.models import Key
 logger = logging.getLogger(__name__)
 
 users_router = Router()
+
+
+def validate_password_strength(password: str) -> tuple[bool, str]:
+    """
+    Validate password strength requirements.
+    Returns (is_valid, error_message)
+    
+    Requirements:
+    - Minimum 12 characters
+    - At least one lowercase letter
+    - At least one uppercase letter
+    - At least one digit
+    - At least one special character from: #?!@$%^&*-'+()_[]
+    """
+    if len(password) < 12:
+        return False, "Password must be at least 12 characters long"
+    
+    if not re.search(r'[a-z]', password):
+        return False, "Password must contain at least one lowercase letter"
+    
+    if not re.search(r'[A-Z]', password):
+        return False, "Password must contain at least one uppercase letter"
+    
+    if not re.search(r'\d', password):
+        return False, "Password must contain at least one digit"
+    
+    if not re.search(r'[#?!@$%^&*\-\'\+\(\)_\[\]]', password):
+        return False, "Password must contain at least one special character (#?!@$%^&*-'+()_[])"
+    
+    return True, ""
 
 @users_router.get("/set-csrf-token")
 def get_csrf_token(request):
@@ -77,6 +108,13 @@ def register(request, payload: schemas.SignUpSchema):
     logger.info(f"Register attempt username={payload.username} email={payload.email} from {addr}")
     # Log headers for debugging CORS issues
     logger.debug("Request headers: %s", {k: v for k, v in request.headers.items() if k.lower().startswith(('origin', 'referer', 'host', 'x-', 'access-', 'sec-'))})
+    
+    # Validate password strength
+    is_valid, error_msg = validate_password_strength(payload.password)
+    if not is_valid:
+        logger.warning(f"Registration failed: weak password username={payload.username}")
+        return JsonResponse({"error": error_msg}, status=400)
+    
     if User.objects.filter(email=payload.email).exists():
         logger.warning(f"Registration failed: email exists email={payload.email}")
         return JsonResponse({"error": "Email already exists"}, status=400)
@@ -193,10 +231,11 @@ def change_password_view(request, payload: schemas.ChangePasswordSchema):
         logger.warning(f"Password change failed: invalid current password user={getattr(user_obj, 'email', None)}")
         return JsonResponse({"error": "Current password is incorrect"}, status=400)
 
-    # Optional: enforce minimal password strength
-    if not payload.new_password or len(payload.new_password) < 6:
-        logger.warning(f"Password change failed: new password too short user={getattr(user_obj, 'email', None)}")
-        return JsonResponse({"error": "New password must be at least 6 characters"}, status=400)
+    # Validate password strength
+    is_valid, error_msg = validate_password_strength(payload.new_password)
+    if not is_valid:
+        logger.warning(f"Password change failed: weak password user={getattr(user_obj, 'email', None)}")
+        return JsonResponse({"error": error_msg}, status=400)
 
     try:
         user_obj.set_password(payload.new_password)
@@ -421,8 +460,10 @@ def reset_password(request, payload: schemas.ResetPasswordSchema):
     if not reset_token or not reset_token.is_valid():
         return JsonResponse({"error": "Invalid or expired reset token"}, status=400)
 
-    if not payload.new_password or len(payload.new_password) < 6:
-        return JsonResponse({"error": "New password must be at least 6 characters"}, status=400)
+    # Validate password strength
+    is_valid, error_msg = validate_password_strength(payload.new_password)
+    if not is_valid:
+        return JsonResponse({"error": error_msg}, status=400)
 
     user = reset_token.user
     try:

@@ -103,6 +103,11 @@ class ShareCancelOut(Schema):
     deleted: int
 
 
+class DeleteUsedKeysOut(Schema):
+    success: bool
+    deleted: int
+
+
 def _validate_turnstile(turnstile_token: str, remote_ip: Optional[str], expected_action: Optional[str] = None) -> bool:
     secret = getattr(settings, 'TURNSTILE_SECRET_KEY', '')
     verify_url = getattr(settings, 'TURNSTILE_VERIFY_URL', '')
@@ -205,6 +210,12 @@ def remove_key(request, user_game_id: int, key_id: int):
         return 200, {"success": True}
     except Key.DoesNotExist:
         return 404, {"error": "Key not found for this user and game."}
+
+@router.delete('/bulk/remove-used', response={200: DeleteUsedKeysOut}, auth=django_auth)
+def remove_all_used_keys(request):
+    user_games = UserGame.objects.filter(user=request.user)
+    deleted, _ = Key.objects.filter(userGame__in=user_games, used=True).delete()
+    return 200, DeleteUsedKeysOut(success=True, deleted=deleted)
 
 @router.patch('/{user_game_id}/update/{key_id}', response={200: None, 404: dict, 400: dict}, auth=django_auth)
 def update_key(request, user_game_id: int, key_id: int, data: KeyUpdateIn):
