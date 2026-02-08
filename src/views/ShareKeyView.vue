@@ -142,7 +142,7 @@ const canReveal = computed(() => {
 })
 const canMessage = computed(() => {
   if (!shareInfo.value) return false
-  return !shareInfo.value.expired && !shareInfo.value.message_sent && !shareInfo.value.revealed
+  return !shareInfo.value.expired && !shareInfo.value.message_sent
 })
 
 const publicGameInfo = computed(() => {
@@ -285,10 +285,6 @@ async function sendMessage() {
   }
   sending.value = true
   try {
-    if (shareInfo.value && shareInfo.value.revealed) {
-      toast.add({ severity: 'warn', summary: 'Cannot send', detail: "Cannot send message: key has already been revealed.", life: 3000 })
-      return
-    }
     await sendShareMessage(shareToken.value, '', message.value.trim())
     message.value = ''
     await loadShareInfo()
