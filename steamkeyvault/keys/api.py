@@ -7,6 +7,7 @@ import requests
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.db.models import Exists, OuterRef
 from ninja import Router, Schema
 from ninja.errors import ValidationError
 from ninja.security import django_auth
@@ -42,6 +43,7 @@ class KeyOut(Schema):
     date_added: str
     date_used: Optional[str] = None
     current_use: Optional[str] = None
+    share_in_progress: bool
 
 class KeyUpdateIn(Schema, CurrentUseValidatorMixin):
     key: Optional[str] = None
@@ -93,6 +95,11 @@ class ShareMessageIn(Schema):
 
 class ShareMessageOut(Schema):
     success: bool
+
+
+class ShareCancelOut(Schema):
+    success: bool
+    deleted: int
 
 
 def _validate_turnstile(turnstile_token: str, remote_ip: Optional[str], expected_action: Optional[str] = None) -> bool:
@@ -166,7 +173,16 @@ def add_key(request, data: KeyIn):
 @router.get('/list/{user_game_id}', response=List[KeyOut], auth=django_auth)
 def list_keys(request, user_game_id: int):
     user_game = get_object_or_404(UserGame, id=user_game_id, user=request.user)
-    keys = Key.objects.filter(userGame=user_game)
+    now = timezone.now()
+    active_share_tokens = ShareKeyToken.objects.filter(
+        key_id=OuterRef('pk'),
+        revealed_at__isnull=True,
+        expires_at__gt=now,
+    )
+    keys = (
+        Key.objects.filter(userGame=user_game)
+        .annotate(share_in_progress=Exists(active_share_tokens))
+    )
     return [
         KeyOut(
             id=k.id,
@@ -174,7 +190,8 @@ def list_keys(request, user_game_id: int):
             used=k.used,
             date_added=k.date_added.isoformat(),
             date_used=k.date_used.isoformat() if k.date_used else None,
-            current_use=k.current_use
+            current_use=k.current_use,
+            share_in_progress=bool(k.share_in_progress),
         ) for k in keys
     ]
 
@@ -276,6 +293,18 @@ def create_share_link(request, key_id: int, payload: ShareCreateIn):
         token=token,
         expires_at=expires_at.isoformat(),
     )
+
+
+@router.delete('/share/{key_id}/cancel', response={200: ShareCancelOut, 404: dict}, auth=django_auth)
+def cancel_share_link(request, key_id: int):
+    key_obj = get_object_or_404(Key, id=key_id, userGame__user=request.user)
+    now = timezone.now()
+    deleted, _ = ShareKeyToken.objects.filter(
+        key=key_obj,
+        revealed_at__isnull=True,
+        expires_at__gt=now,
+    ).delete()
+    return 200, ShareCancelOut(success=deleted > 0, deleted=deleted)
 
 
 @router.get('/share/{token}', response={200: ShareInfoOut, 404: dict})
