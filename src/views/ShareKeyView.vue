@@ -69,7 +69,7 @@
           <small v-if="!turnstileReady" class="hint">Turnstile captcha is not configured.</small>
         </div>
 
-        <div v-if="!shareInfo.used && !shareInfo.message_sent" class="message-panel">
+        <div v-if="!shareInfo.message_sent && (!shareInfo.used || shareInfo.revealed)" class="message-panel">
           <h3>Send a message to the donor</h3>
           <Textarea v-model="message" rows="4" autoResize placeholder="Write a thank-you message..." maxlength="100" />
           <small class="hint">{{ message.trim().length }}/100</small>
@@ -142,7 +142,7 @@ const canReveal = computed(() => {
 })
 const canMessage = computed(() => {
   if (!shareInfo.value) return false
-  return !shareInfo.value.expired && !shareInfo.value.message_sent
+  return !shareInfo.value.expired && !shareInfo.value.message_sent && !shareInfo.value.revealed
 })
 
 const publicGameInfo = computed(() => {
@@ -285,6 +285,10 @@ async function sendMessage() {
   }
   sending.value = true
   try {
+    if (shareInfo.value && shareInfo.value.revealed) {
+      toast.add({ severity: 'warn', summary: 'Cannot send', detail: "Cannot send message: key has already been revealed.", life: 3000 })
+      return
+    }
     await sendShareMessage(shareToken.value, '', message.value.trim())
     message.value = ''
     await loadShareInfo()
