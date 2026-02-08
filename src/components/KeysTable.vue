@@ -38,12 +38,17 @@
       </Column>
       <Column sortable field="used" header="Status" style="width: 8rem; text-align: center">
         <template #body="{ data }">
-          <span v-if="data.used" class="status-badge used">
-            <i class="pi pi-check-circle"></i> Used
-          </span>
-          <span v-else class="status-badge available">
-            <i class="pi pi-circle"></i> Available
-          </span>
+          <div class="status-stack">
+            <span v-if="data.share_in_progress" class="status-badge sharing">
+              <i class="pi pi-share-alt"></i> Sharing
+            </span>
+            <span v-if="data.used" class="status-badge used">
+              <i class="pi pi-check-circle"></i> Used
+            </span>
+            <span v-else class="status-badge available">
+              <i class="pi pi-circle"></i> Available
+            </span>
+          </div>
         </template>
       </Column>
       <Column header="Actions" style="width: 10rem; text-align: right">
@@ -122,6 +127,7 @@
       </div>
       <template #footer>
         <Button label="Close" icon="pi pi-times" text @click="showShareDialog = false" />
+        <Button v-if="shareToken" label="Disable Link" icon="pi pi-ban" severity="danger" text @click="handleCancelShareLink" />
         <Button label="Copy Link" icon="pi pi-copy" :disabled="!shareLink" @click="copyShareLink" />
       </template>
     </Dialog>
@@ -139,7 +145,7 @@ import Dialog from 'primevue/dialog';
 import Dropdown from 'primevue/dropdown';
 import type { Key } from '@/models/Key';
 import { CURRENT_USE_OPTIONS } from '@/models/Key';
-import { addKey, updateKey, removeKey, createShareLink } from '../api/keys'
+import { addKey, updateKey, removeKey, createShareLink, cancelShareLink } from '../api/keys'
 import { useTableRowsPerPage } from '@/composables/useTableRowsPerPage'
 import { useToast } from 'primevue/usetoast'
 
@@ -165,6 +171,7 @@ const keyToEdit = ref<Key | null>(null)
 const keyToShare = ref<Key | null>(null)
 const shareLink = ref('')
 const shareExpiresAt = ref('')
+const shareToken = ref('')
 
 function openEditDialog(key: Key) {
   keyToEdit.value = key
@@ -199,7 +206,24 @@ async function openShareDialog(key: Key) {
   const data = await createShareLink(key.id, key.key)
   shareLink.value = data.share_url || ''
   shareExpiresAt.value = data.expires_at || ''
+  shareToken.value = data.token || ''
   showShareDialog.value = true
+}
+
+async function handleCancelShareLink() {
+  if (!keyToShare.value) return
+  try {
+    await cancelShareLink(keyToShare.value.id)
+    shareLink.value = ''
+    shareExpiresAt.value = ''
+    shareToken.value = ''
+    showShareDialog.value = false
+    emit('refresh')
+    toast.add({ severity: 'success', summary: 'Link disabled', detail: 'Share link has been disabled', life: 2000 })
+  } catch (err) {
+    console.error('Failed to disable share link:', err)
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to disable share link', life: 2000 })
+  }
 }
 
 async function copyShareLink() {
@@ -304,6 +328,13 @@ function getUsageClass(value: string | undefined) {
   font-weight: 500;
 }
 
+.status-stack {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: center;
+}
+
 .status-badge.used {
   background: #fee2e2;
   color: #991b1b;
@@ -312,6 +343,11 @@ function getUsageClass(value: string | undefined) {
 .status-badge.available {
   background: #d1fae5;
   color: #065f46;
+}
+
+.status-badge.sharing {
+  background: #fef3c7;
+  color: #92400e;
 }
 
 .action-buttons {

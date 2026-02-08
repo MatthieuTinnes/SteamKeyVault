@@ -70,3 +70,8 @@ export async function sendShareMessage(token: string, turnstileToken: string, me
   return res.data
 }
 
+export async function cancelShareLink(keyId: number) {
+  const res = await axios.delete(`${API_BASE_URL}/keys/share/${keyId}/cancel`, getAxiosConfig())
+  return res.data
+}
+
