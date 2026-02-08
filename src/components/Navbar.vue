@@ -17,6 +17,13 @@
     />
 
     <div class="navbar-links" :class="{ open: menuOpen }">
+      <Button
+        label="Documentation"
+        icon="pi pi-book"
+        text
+        class="nav-item"
+        @click="goTo('/documentation')"
+      />
       <Button 
         v-if="isLoggedIn" 
         label="My Keys" 
