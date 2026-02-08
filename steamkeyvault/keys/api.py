@@ -77,6 +77,7 @@ class ShareInfoOut(Schema):
     revealed: bool
     expired: bool
     used: bool
+    message_sent: bool
 
 
 class ShareRevealIn(Schema):
@@ -324,6 +325,7 @@ def get_share_info(request, token: str):
         revealed=bool(share.revealed_at),
         expired=expired,
         used=share.key.used,
+        message_sent=bool(share.message_sent_at),
     )
 
 
@@ -368,9 +370,9 @@ def send_share_message(request, token: str, payload: ShareMessageIn):
 
     message = (payload.message or '').strip()
     if len(message) < 3:
-        return 400, {"error": "Message is too short."}
-    if len(message) > 2000:
-        return 400, {"error": "Message is too long."}
+        return 400, {"error": "Message is too short (min 3 characters)."}
+    if len(message) > 100:
+        return 400, {"error": "Message is too long (max 100 characters)."}
 
     game = share.key.userGame
     donor = game.user
