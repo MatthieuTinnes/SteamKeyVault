@@ -3,7 +3,7 @@
     <div class="content">
       <div class="header-section">
         <div class="image-container">
-          <img :src="placeholderCustom" alt="Custom Game" class="header-image" />
+          <img :src="placeholderCustom" :alt="t('games.customGame')" class="header-image" />
         </div>
 
         <div class="info-container">
@@ -11,21 +11,21 @@
             <h2 class="title">{{ gameName }}</h2>
             <div class="actions">
               <Button 
-                :label="steamRemoved ? 'Removed from Steam' : 'Match with a Steam game'" 
+                :label="steamRemoved ? t('games.removedFromSteam') : t('games.matchSteam')" 
                 :icon="steamRemoved ? 'pi pi-exclamation-triangle' : 'pi pi-sync'" 
                 class="p-button-sm p-button-outlined"
                 :class="{ 'p-disabled': steamRemoved }"
                 :disabled="steamRemoved"
                 @click="openConvert" 
               />
-              <Button icon="pi pi-trash" severity="danger" text rounded aria-label="Delete game"
-                @click="openDeleteHandler" v-tooltip.bottom="'Delete game from library'" />
+              <Button icon="pi pi-trash" severity="danger" text rounded :aria-label="t('common.delete')"
+                @click="openDeleteHandler" v-tooltip.bottom="t('games.deleteGameTooltip')" />
             </div>
           </div>
-          <div class="publisher">Custom Game</div>
+          <div class="publisher">{{ t('games.customPublisher') }}</div>
           <div v-if="steamRemoved" class="steam-removed-message">
             <i class="pi pi-info-circle"></i>
-            <span>This game has been removed from the Steam store or the App ID is invalid.</span>
+            <span>{{ t('games.steamRemovedMessage') }}</span>
           </div>
         </div>
       </div>
@@ -49,6 +49,7 @@ import DeleteGameModal from './DeleteGameModal.vue'
 import ConvertGameModal from './ConvertGameModal.vue'
 import { useDeleteGame } from '@/composables/useDeleteGame'
 import placeholderCustom from '@/assets/placeholder_custom-game.svg'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ 
   gameName: string; 
@@ -62,6 +63,7 @@ const emit = defineEmits<{
 
 const convertVisible = ref(false)
 const { showDeleteModal, hasKeys, openDelete, confirmDelete, onModalUpdate } = useDeleteGame()
+const { t } = useI18n()
 
 function openConvert() {
   convertVisible.value = true

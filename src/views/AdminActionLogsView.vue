@@ -1,87 +1,86 @@
 <template>
   <div class="admin-logs">
     <div class="header">
-      <h2><i class="pi pi-clipboard"></i> User Action Logs</h2>
+      <h2><i class="pi pi-clipboard"></i> {{ t('admin.logs.title') }}</h2>
       <div class="header-actions">
         <Button
-          label="Back to Dashboard"
+          :label="t('admin.users.backToDashboard')"
           icon="pi pi-arrow-left"
           @click="router.push('/admin')"
           severity="secondary"
         />
-        <Button label="Refresh" icon="pi pi-refresh" @click="loadAll" :loading="loading" />
+        <Button :label="t('admin.logs.refresh')" icon="pi pi-refresh" @click="loadAll" :loading="loading" />
       </div>
     </div>
 
     <div class="filters-card">
       <div class="filters-grid">
         <div class="field">
-          <label>Start</label>
+          <label>{{ t('admin.logs.start') }}</label>
           <InputText v-model="startInput" type="datetime-local" />
         </div>
         <div class="field">
-          <label>End</label>
+          <label>{{ t('admin.logs.end') }}</label>
           <InputText v-model="endInput" type="datetime-local" />
         </div>
         <div class="field">
-          <label>Action</label>
+          <label>{{ t('admin.logs.action') }}</label>
           <Dropdown
             v-model="actionFilter"
             :options="actionOptions"
             optionLabel="label"
             optionValue="value"
-            placeholder="All actions"
+            :placeholder="t('admin.logs.allActionsOption')"
           />
         </div>
         <div class="field">
-          <label>User search</label>
-          <InputText v-model="userQuery" placeholder="Email or username" />
+          <label>{{ t('admin.logs.userSearch') }}</label>
+          <InputText v-model="userQuery" :placeholder="t('admin.logs.userSearchPlaceholder')" />
         </div>
       </div>
       <div class="filters-actions">
-        <Button label="Apply" icon="pi pi-filter" @click="loadAll" :loading="loading" />
-        <Button label="Last 24h" text @click="setLast24Hours" />
+        <Button :label="t('admin.logs.apply')" icon="pi pi-filter" @click="loadAll" :loading="loading" />
+        <Button :label="t('admin.logs.last24h')" text @click="setLast24Hours" />
       </div>
     </div>
 
     <div class="period-summary" v-if="stats.start && stats.end">
-      Showing data from <strong>{{ formatDateTime(stats.start) }}</strong> to
-      <strong>{{ formatDateTime(stats.end) }}</strong>
+      {{ t('admin.logs.showingRange', { start: formatDateTime(stats.start), end: formatDateTime(stats.end) }) }}
     </div>
 
     <div class="stats-grid">
       <div class="stat-card">
         <i class="pi pi-chart-line stat-icon"></i>
         <div class="stat-content">
-          <div class="stat-label">Total Actions</div>
+          <div class="stat-label">{{ t('admin.logs.totalActions') }}</div>
           <div class="stat-value">{{ stats.total_actions ?? '-' }}</div>
         </div>
       </div>
       <div class="stat-card">
         <i class="pi pi-sign-in stat-icon login"></i>
         <div class="stat-content">
-          <div class="stat-label">Logins</div>
+          <div class="stat-label">{{ t('admin.logs.logins') }}</div>
           <div class="stat-value">{{ stats.logins ?? '-' }}</div>
         </div>
       </div>
       <div class="stat-card">
         <i class="pi pi-lock stat-icon password"></i>
         <div class="stat-content">
-          <div class="stat-label">Password Changes</div>
+          <div class="stat-label">{{ t('admin.logs.passwordChanges') }}</div>
           <div class="stat-value">{{ stats.password_changes ?? '-' }}</div>
         </div>
       </div>
       <div class="stat-card">
         <i class="pi pi-envelope stat-icon email"></i>
         <div class="stat-content">
-          <div class="stat-label">Email Changes</div>
+          <div class="stat-label">{{ t('admin.logs.emailChanges') }}</div>
           <div class="stat-value">{{ stats.email_changes ?? '-' }}</div>
         </div>
       </div>
       <div class="stat-card">
         <i class="pi pi-users stat-icon users"></i>
         <div class="stat-content">
-          <div class="stat-label">Unique Users</div>
+          <div class="stat-label">{{ t('admin.logs.uniqueUsers') }}</div>
           <div class="stat-value">{{ stats.unique_users ?? '-' }}</div>
         </div>
       </div>
@@ -89,23 +88,23 @@
 
     <div class="table-card">
       <div class="table-header">
-        <h3>All Actions</h3>
-        <span class="table-total">{{ total }} results</span>
+        <h3>{{ t('admin.logs.allActions') }}</h3>
+        <span class="table-total">{{ t('admin.logs.results', { count: total }) }}</span>
       </div>
       <DataTable :value="logs" :loading="loading" stripedRows paginator :rows="rowsPerPage">
-        <Column field="created_at" header="Time" sortable style="width: 12rem">
+        <Column field="created_at" :header="t('admin.logs.time')" sortable style="width: 12rem">
           <template #body="{ data }">
             {{ formatDateTime(data.created_at) }}
           </template>
         </Column>
-        <Column field="action_type" header="Action" sortable style="width: 12rem">
+        <Column field="action_type" :header="t('admin.logs.action')" sortable style="width: 12rem">
           <template #body="{ data }">
             <span class="action-pill" :class="actionClass(data.action_type)">
               {{ formatAction(data.action_type) }}
             </span>
           </template>
         </Column>
-        <Column header="User" style="width: 16rem">
+        <Column :header="t('admin.logs.user')" style="width: 16rem">
           <template #body="{ data }">
             <div class="user-cell">
               <div class="user-name">{{ data.username }}</div>
@@ -113,13 +112,13 @@
             </div>
           </template>
         </Column>
-        <Column field="ip_address" header="IP" style="width: 10rem"></Column>
-        <Column field="user_agent" header="User Agent">
+        <Column field="ip_address" :header="t('admin.logs.ip')" style="width: 10rem"></Column>
+        <Column field="user_agent" :header="t('admin.logs.userAgent')">
           <template #body="{ data }">
             <span class="muted">{{ data.user_agent || '-' }}</span>
           </template>
         </Column>
-        <Column header="Metadata" style="width: 16rem">
+        <Column :header="t('admin.logs.metadata')" style="width: 16rem">
           <template #body="{ data }">
             <span class="muted">{{ formatMetadata(data.metadata) }}</span>
           </template>
@@ -130,7 +129,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
@@ -141,6 +140,7 @@ import { getActionLogStats, getActionLogs } from '@/api/admin'
 import type { ActionLogEntry, ActionLogStats } from '@/api/admin'
 import { showErrorToast } from '@/utils/toast'
 import { useTableRowsPerPage } from '@/composables/useTableRowsPerPage'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const logs = ref<ActionLogEntry[]>([])
@@ -160,13 +160,14 @@ const startInput = ref('')
 const endInput = ref('')
 const actionFilter = ref('')
 const userQuery = ref('')
+const { t } = useI18n()
 
-const actionOptions = [
-  { label: 'All actions', value: '' },
-  { label: 'Login', value: 'login' },
-  { label: 'Change password', value: 'password_change' },
-  { label: 'Change email', value: 'email_change' },
-]
+const actionOptions = computed(() => [
+  { label: t('admin.logs.allActionsOption'), value: '' },
+  { label: t('admin.logs.loginOption'), value: 'login' },
+  { label: t('admin.logs.passwordChangeOption'), value: 'password_change' },
+  { label: t('admin.logs.emailChangeOption'), value: 'email_change' },
+])
 
 const { rowsPerPage } = useTableRowsPerPage(300)
 
@@ -187,7 +188,7 @@ async function loadAll() {
     logs.value = logsResponse.data.logs
     total.value = logsResponse.data.total
   } catch (error: any) {
-    showErrorToast(error?.response?.data?.error || 'Failed to load action logs')
+    showErrorToast(error?.response?.data?.error || t('admin.logs.failedLoad'))
   } finally {
     loading.value = false
   }
@@ -231,7 +232,7 @@ function formatDateTime(value: string) {
 }
 
 function formatAction(value: string) {
-  const match = actionOptions.find((option) => option.value === value)
+  const match = actionOptions.value.find((option) => option.value === value)
   return match?.label || value
 }
 

@@ -1,9 +1,9 @@
 <template>
   <div class="about">
     <Card>
-      <template #title>About</template>
+      <template #title>{{ t('about.title') }}</template>
       <template #content>
-        <h1>This is an about page</h1>
+        <h1>{{ t('about.body') }}</h1>
       </template>
     </Card>
   </div>
@@ -11,6 +11,9 @@
 
 <script setup>
 import Card from 'primevue/card';
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 </script>
 
 <style>

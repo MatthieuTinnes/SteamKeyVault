@@ -1,16 +1,16 @@
 <template>
   <div class="import-view">
     <div class="header">
-      <h2><i class="pi pi-upload"></i> Import Games</h2>
-      <Button label="Back to Account" icon="pi pi-arrow-left" @click="router.push('/my-account')" severity="secondary" />
+      <h2><i class="pi pi-upload"></i> {{ t('import.title') }}</h2>
+      <Button :label="t('import.backToAccount')" icon="pi pi-arrow-left" @click="router.push('/my-account')" severity="secondary" />
     </div>
 
     <div class="content-card">
       <div class="card-header">
-        <h3>Upload CSV File</h3>
+        <h3>{{ t('import.uploadTitle') }}</h3>
         <p class="section-desc">
-          Import your game library using a CSV or TXT file.<br>
-          Format: <code>gameName;key1;key2</code>
+          {{ t('import.uploadDesc') }}<br>
+          {{ t('import.format') }}
         </p>
       </div>
 
@@ -23,20 +23,20 @@
         @click="openFilePicker"
       >
         <i class="pi pi-cloud-upload drop-icon"></i>
-        <p class="drop-text">Drop your CSV file here or click to browse</p>
+        <p class="drop-text">{{ t('import.dropText') }}</p>
         <input type="file" ref="fileInput" @change="onFileChange" accept=".csv,text/csv,.txt,text/plain" style="display:none" />
-        <Button label="Select File" icon="pi pi-folder-open" class="p-button-outlined" />
+        <Button :label="t('import.selectFile')" icon="pi pi-folder-open" class="p-button-outlined" />
       </div>
 
       <div v-if="jobId" class="progress-section">
         <div class="section-title">
-          <h3>Import Progress</h3>
-          <span class="status-badge" :class="status">{{ status }}</span>
+          <h3>{{ t('import.progressTitle') }}</h3>
+          <span class="status-badge" :class="status">{{ status ? t(`import.status.${status}`) : '' }}</span>
         </div>
 
         <div class="progress-container" v-if="total">
           <div class="progress-info">
-            <span>Processing...</span>
+            <span>{{ t('import.processing') }}</span>
             <span>{{ progress }} / {{ total }}</span>
           </div>
           <progress :value="progress" :max="total" class="styled-progress"></progress>
@@ -47,7 +47,7 @@
         </div>
 
         <div v-if="result" class="results-section">
-          <h4>Results</h4>
+          <h4>{{ t('import.results') }}</h4>
           <div class="results-list">
             <div v-for="(r, i) in result" :key="i" class="result-item">
               <div class="result-game">
@@ -56,7 +56,7 @@
               </div>
               <div class="result-details">
                 <span v-if="r.created_keys" class="success-tag">
-                  <i class="pi pi-check"></i> {{ r.created_keys.length }} keys added
+                  <i class="pi pi-check"></i> {{ t('import.keysAdded', { count: r.created_keys.length }) }}
                 </span>
                 <span v-if="r.error" class="error-tag">
                   <i class="pi pi-times"></i> {{ r.error }}
@@ -77,6 +77,7 @@ import Button from 'primevue/button'
 import { createImport, getImportStatus } from '@/api/jobs'
 import { showSuccessToast, showErrorToast } from '@/utils/toast'
 import { MAX_IMPORT_BYTES } from '@/utils/importLimits'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -87,8 +88,9 @@ const total = ref<number>(0)
 const error = ref<string | null>(null)
 const result = ref<any[] | null>(null)
 const isDragOver = ref(false)
+const { t } = useI18n()
 
-const toast = { success: (s: any) => showSuccessToast(s.summary || 'Info', s.detail), error: (s: any) => showErrorToast(s.summary || 'Error', s.detail) }
+const toast = { success: (s: any) => showSuccessToast(s.summary || t('common.info'), s.detail), error: (s: any) => showErrorToast(s.summary || t('import.error'), s.detail) }
 let pollTimer: number | null = null
 
 function openFilePicker() {
@@ -110,7 +112,7 @@ function onDrop(e: DragEvent) {
 
 async function uploadFile(file: File) {
   if (file.size > MAX_IMPORT_BYTES) {
-    toast.error({ summary: 'File too large', detail: 'Maximum file size is 10 MB.' })
+    toast.error({ summary: t('import.fileTooLarge'), detail: t('import.maxFileSize') })
     return
   }
   try {
@@ -118,9 +120,9 @@ async function uploadFile(file: File) {
     jobId.value = res.job_id
     status.value = 'pending'
     startPolling()
-    toast.success({ summary: 'Upload', detail: 'File uploaded, processing started' })
+    toast.success({ summary: t('import.upload'), detail: t('import.uploadStarted') })
   } catch (err: any) {
-    toast.error({ summary: 'Error', detail: err?.response?.data?.error || err.message || String(err) })
+    toast.error({ summary: t('import.error'), detail: err?.response?.data?.error || err.message || String(err) })
   }
 }
 
@@ -149,7 +151,7 @@ async function poll() {
     if (s.status === 'completed' || s.status === 'failed') stopPolling()
   } catch (err: any) {
     stopPolling()
-    toast.error({ summary: 'Error', detail: err?.response?.data?.error || err.message || String(err) })
+    toast.error({ summary: t('import.error'), detail: err?.response?.data?.error || err.message || String(err) })
   }
 }
 </script>

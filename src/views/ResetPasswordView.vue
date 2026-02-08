@@ -1,36 +1,36 @@
 <template>
   <div class="reset-container">
     <Card class="reset-card">
-      <template #title><h2 class="reset-title">Reset Password</h2></template>
+      <template #title><h2 class="reset-title">{{ t('auth.reset.title') }}</h2></template>
       <template #content>
-        <div v-if="loading" class="loading-state">Validating reset link...</div>
+        <div v-if="loading" class="loading-state">{{ t('auth.reset.validating') }}</div>
         <div v-else-if="loadError" class="error-state">
           <Message severity="error">{{ loadError }}</Message>
           <div class="login-link mt-4">
-            <Button label="Back to Login" link size="small" @click="goToLogin" />
+            <Button :label="t('common.backToLogin')" link size="small" @click="goToLogin" />
           </div>
         </div>
         <form v-else @submit.prevent="handleReset" class="reset-form">
           <div class="form-group">
-            <label for="recovery">Recovery Phrase</label>
-            <InputText id="recovery" v-model="recoveryPhrase" type="text" class="w-full" placeholder="twelve words" />
+            <label for="recovery">{{ t('auth.reset.recoveryPhrase') }}</label>
+            <InputText id="recovery" v-model="recoveryPhrase" type="text" class="w-full" :placeholder="t('auth.reset.recoveryPlaceholder')" />
           </div>
           <div class="form-group">
-            <label for="newPassword">New Password</label>
+            <label for="newPassword">{{ t('auth.reset.newPassword') }}</label>
             <Password id="newPassword" v-model="newPassword" :feedback="true" toggleMask class="w-full" inputClass="w-full" />
             <small class="password-requirements">
-              Password must: be 12+ characters, contain lowercase, uppercase, digit, and special character (#?!@$%^&*-'+()_[])
+              {{ t('account.security.passwordRequirements') }}
             </small>
           </div>
           <div class="form-group">
-            <label for="confirmPassword">Confirm Password</label>
+            <label for="confirmPassword">{{ t('auth.reset.confirmPassword') }}</label>
             <Password id="confirmPassword" v-model="confirmPassword" :feedback="false" toggleMask class="w-full" inputClass="w-full" :class="{ 'p-invalid': confirmPassword && newPassword !== confirmPassword }" />
           </div>
-          <Button type="submit" label="Reset Password" class="w-full mt-4" :loading="submitting" :disabled="!canSubmit" />
+          <Button type="submit" :label="t('auth.reset.submit')" class="w-full mt-4" :loading="submitting" :disabled="!canSubmit" />
           <Message v-if="error" severity="error" class="mt-4">{{ error }}</Message>
-          <Message v-if="success" severity="success" class="mt-4">Password reset. You can log in now.</Message>
+          <Message v-if="success" severity="success" class="mt-4">{{ t('auth.reset.success') }}</Message>
           <div class="login-link mt-4">
-            <Button label="Back to Login" link size="small" @click="goToLogin" />
+            <Button :label="t('common.backToLogin')" link size="small" @click="goToLogin" />
           </div>
         </form>
       </template>
@@ -50,6 +50,7 @@ import { fetchResetPasswordInfo, resetPassword } from '@/api/auth'
 import { deriveKeyFromPassword, unwrapMasterKey, wrapMasterKey } from '@/utils/crypto'
 import { validatePasswordStrength } from '@/utils/passwordValidation'
 import { showErrorToast, showSuccessToast } from '@/utils/toast'
+import { useI18n } from 'vue-i18n'
 
 const route = useRoute()
 const router = useRouter()
@@ -59,6 +60,7 @@ const loadError = ref('')
 const submitting = ref(false)
 const success = ref(false)
 const error = ref('')
+const { t } = useI18n()
 
 const recoveryPhrase = ref('')
 const newPassword = ref('')
@@ -73,14 +75,14 @@ const canSubmit = computed(() => {
 onMounted(async () => {
   token.value = String(route.query.token || '')
   if (!token.value) {
-    loadError.value = 'Reset link is invalid.'
+    loadError.value = t('auth.reset.invalidLink')
     loading.value = false
     return
   }
   try {
     resetInfo.value = await fetchResetPasswordInfo(token.value)
   } catch (e: any) {
-    loadError.value = e?.response?.data?.error || 'Reset link is invalid or expired.'
+    loadError.value = e?.response?.data?.error || t('auth.reset.invalidOrExpired')
   } finally {
     loading.value = false
   }
@@ -117,10 +119,10 @@ async function handleReset() {
       wrapped_mk_password: wrappedMkPassword
     })
     success.value = true
-    showSuccessToast('Password reset', 'You can log in with your new password.')
+    showSuccessToast(t('auth.reset.resetToastTitle'), t('auth.reset.resetToastDetail'))
   } catch (e: any) {
-    error.value = e?.response?.data?.error || e?.message || 'Failed to reset password.'
-    showErrorToast('Reset failed', error.value)
+    error.value = e?.response?.data?.error || e?.message || t('auth.reset.failed')
+    showErrorToast(t('auth.forgot.resetFailed'), error.value)
   } finally {
     submitting.value = false
   }

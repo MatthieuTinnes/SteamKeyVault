@@ -1,43 +1,40 @@
 <template>
   <div class="admin-steam">
     <div class="header">
-      <h2><i class="pi pi-cloud-download"></i> Steam Synchronization</h2>
-      <Button label="Back to Dashboard" icon="pi pi-arrow-left" @click="router.push('/admin')" severity="secondary" />
+      <h2><i class="pi pi-cloud-download"></i> {{ t('admin.steam.title') }}</h2>
+      <Button :label="t('admin.users.backToDashboard')" icon="pi pi-arrow-left" @click="router.push('/admin')" severity="secondary" />
     </div>
 
     <div class="stats-section">
-      <h3>Steam Database Statistics</h3>
+      <h3>{{ t('admin.steam.statsTitle') }}</h3>
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-label">Total Steam Apps in DB</div>
+          <div class="stat-label">{{ t('admin.steam.totalApps') }}</div>
           <div class="stat-value">{{ steamStats.total_steam_apps?.toLocaleString() ?? '-' }}</div>
         </div>
         
         <div class="stat-card">
-          <div class="stat-label">Total User Games</div>
+          <div class="stat-label">{{ t('admin.steam.totalUserGames') }}</div>
           <div class="stat-value">{{ steamStats.total_user_games?.toLocaleString() ?? '-' }}</div>
         </div>
         
         <div class="stat-card">
-          <div class="stat-label">Unique Games Added</div>
+          <div class="stat-label">{{ t('admin.steam.uniqueGamesAdded') }}</div>
           <div class="stat-value">{{ steamStats.unique_games_added?.toLocaleString() ?? '-' }}</div>
         </div>
       </div>
     </div>
 
     <div class="actions-section">
-      <h3>Synchronization Actions</h3>
+      <h3>{{ t('admin.steam.actionsTitle') }}</h3>
       
       <div class="action-card">
         <div class="action-info">
-          <h4><i class="pi pi-refresh"></i> Refresh Steam Apps Database</h4>
-          <p>
-            Fetches the latest list of all Steam applications from the Steam API and updates the local database.
-            This process may take several minutes.
-          </p>
+          <h4><i class="pi pi-refresh"></i> {{ t('admin.steam.refreshTitle') }}</h4>
+          <p>{{ t('admin.steam.refreshDesc') }}</p>
         </div>
         <Button 
-          label="Refresh Steam Apps" 
+          :label="t('admin.steam.refreshButton')" 
           icon="pi pi-refresh" 
           @click="refreshSteamAppsAction"
           :loading="refreshing"
@@ -46,12 +43,12 @@
       </div>
     </div>
 
-    <Dialog v-model:visible="showRefreshDialog" header="Refresh Complete" :modal="true" :style="{ width: '30rem' }">
+    <Dialog v-model:visible="showRefreshDialog" :header="t('admin.steam.refreshComplete')" :modal="true" :style="{ width: '30rem' }">
       <p v-if="refreshResult">
-        Successfully refreshed <strong>{{ refreshResult.total_apps?.toLocaleString() }}</strong> Steam apps in the database.
+        {{ t('admin.steam.refreshSuccess', { count: refreshResult.total_apps?.toLocaleString() }) }}
       </p>
       <template #footer>
-        <Button label="OK" @click="closeRefreshDialog" />
+        <Button :label="t('common.ok')" @click="closeRefreshDialog" />
       </template>
     </Dialog>
   </div>
@@ -65,6 +62,7 @@ import Dialog from 'primevue/dialog'
 import { getSteamStats, refreshSteamApps } from '@/api/admin'
 import type { SteamStats } from '@/api/admin'
 import { showSuccessToast, showErrorToast } from '@/utils/toast'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const steamStats = ref<SteamStats>({
@@ -75,6 +73,7 @@ const steamStats = ref<SteamStats>({
 const refreshing = ref(false)
 const showRefreshDialog = ref(false)
 const refreshResult = ref<any>(null)
+const { t } = useI18n()
 
 onMounted(async () => {
   await loadSteamStats()
@@ -85,7 +84,7 @@ async function loadSteamStats() {
     const response = await getSteamStats()
     steamStats.value = response.data
   } catch (error: any) {
-    showErrorToast(error?.response?.data?.error || 'Failed to load Steam stats')
+    showErrorToast(error?.response?.data?.error || t('admin.steam.failedLoadStats'))
   }
 }
 
@@ -97,7 +96,7 @@ async function refreshSteamAppsAction() {
     showRefreshDialog.value = true
     await loadSteamStats()
   } catch (error: any) {
-    showErrorToast(error?.response?.data?.error || 'Failed to refresh Steam apps')
+    showErrorToast(error?.response?.data?.error || t('admin.steam.failedRefresh'))
   } finally {
     refreshing.value = false
   }

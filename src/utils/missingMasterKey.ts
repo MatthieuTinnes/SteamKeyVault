@@ -2,9 +2,10 @@ import { logoutUser } from '@/api/auth'
 import { useCryptoStore } from '@/stores/crypto'
 import { useUserStore } from '@/stores/user'
 import { showErrorToast } from '@/utils/toast'
+import { i18n } from '@/i18n'
 
 export async function handleMissingMasterKey() {
-  showErrorToast('Missing master key', 'Please log in again.')
+  showErrorToast(i18n.global.t('errors.missingMasterKey'), i18n.global.t('errors.loginAgain'))
   try {
     await logoutUser()
   } catch (error) {

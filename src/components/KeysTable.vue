@@ -2,7 +2,7 @@
   <div class="keys-table">
     <!-- Toolbar for Add Key -->
     <div class="toolbar">
-      <Button label="Add Key" icon="pi pi-plus" @click="showAddKeyDialog = true" :disabled="!gameId" :tooltip="!gameId ? 'Please select a game first' : undefined" />
+      <Button :label="t('keys.addKey')" icon="pi pi-plus" @click="showAddKeyDialog = true" :disabled="!gameId" :tooltip="!gameId ? t('keys.selectGameFirst') : undefined" />
     </div>
     <div ref="tableContainer" class="datatable-wrapper">
       <DataTable
@@ -16,54 +16,54 @@
       <template #empty>
         <div class="empty-state">
           <i class="pi pi-key empty-icon"></i>
-          <p>No keys found. Add a key to start.</p>
+          <p>{{ t('keys.emptyTitle') }}</p>
         </div>
       </template>
-      <Column field="key" header="Key">
+      <Column field="key" :header="t('keys.columnKey')">
         <template #body="{ data }">
           <span class="key-text">{{ data.key }}</span>
         </template>
       </Column>
-      <Column sortable field="date_added" header="Date Added">
+      <Column sortable field="date_added" :header="t('keys.columnDateAdded')">
         <template #body="{ data }">
           {{ formatDate(data.date_added) }}
         </template>
       </Column>
-      <Column sortable field="current_use" header="Usage">
+      <Column sortable field="current_use" :header="t('keys.columnUsage')">
         <template #body="{ data }">
           <span class="usage-badge" :class="getUsageClass(data.current_use)">
             {{ getCurrentUseLabel(data.current_use) }}
           </span>
         </template>
       </Column>
-      <Column sortable field="used" header="Status" style="width: 8rem; text-align: center">
+      <Column sortable field="used" :header="t('keys.columnStatus')" style="width: 8rem; text-align: center">
         <template #body="{ data }">
           <div class="status-stack">
             <span v-if="data.share_in_progress" class="status-badge sharing">
-              <i class="pi pi-share-alt"></i> Sharing
+              <i class="pi pi-share-alt"></i> {{ t('keys.statusSharing') }}
             </span>
             <span v-if="data.used" class="status-badge used">
-              <i class="pi pi-check-circle"></i> Used
+              <i class="pi pi-check-circle"></i> {{ t('keys.statusUsed') }}
             </span>
             <span v-else class="status-badge available">
-              <i class="pi pi-circle"></i> Available
+              <i class="pi pi-circle"></i> {{ t('keys.statusAvailable') }}
             </span>
           </div>
         </template>
       </Column>
-      <Column header="Actions" style="width: 10rem; text-align: right">
+      <Column :header="t('keys.columnActions')" style="width: 10rem; text-align: right">
         <template #body="{ data }">
           <div class="action-buttons">
-            <Button icon="pi pi-copy" class="p-button-text p-button p-button-secondary" @click="copyKey(data.key)" v-tooltip.top="'Copy Key'" />
+            <Button icon="pi pi-copy" class="p-button-text p-button p-button-secondary" @click="copyKey(data.key)" v-tooltip.top="t('keys.actionCopyKey')" />
             <Button
               icon="pi pi-share-alt"
               class="p-button-text p-button p-button-help"
               :disabled="data.used"
               @click="openShareDialog(data)"
-              v-tooltip.top="data.used ? 'Key already used' : 'Share'"
+              v-tooltip.top="data.used ? t('keys.actionKeyUsed') : t('keys.actionShare')"
             />
-            <Button icon="pi pi-pencil" class="p-button-text p-button p-button-info" @click="openEditDialog(data)" v-tooltip.top="'Edit'" />
-            <Button icon="pi pi-trash" class="p-button-text p-button p-button-danger" @click="openDeleteDialog(data)" v-tooltip.top="'Delete'" />
+            <Button icon="pi pi-pencil" class="p-button-text p-button p-button-info" @click="openEditDialog(data)" v-tooltip.top="t('keys.actionEdit')" />
+            <Button icon="pi pi-trash" class="p-button-text p-button p-button-danger" @click="openDeleteDialog(data)" v-tooltip.top="t('keys.actionDelete')" />
           </div>
         </template>
       </Column>
@@ -71,71 +71,71 @@
     </div>
 
     <!-- Add Key Dialog -->
-    <Dialog v-model:visible="showAddKeyDialog" header="Add Key" :modal="true" :style="{ width: 'min(30rem, 90vw)' }" class="p-fluid">
+    <Dialog v-model:visible="showAddKeyDialog" :header="t('keys.addDialogTitle')" :modal="true" :style="{ width: 'min(30rem, 90vw)' }" class="p-fluid">
       <div class="field">
-        <label for="add_key">Key</label>
-        <InputText id="add_key" v-model="newKey" placeholder="XXXXX-XXXXX-XXXXX" />
+        <label for="add_key">{{ t('keys.keyLabel') }}</label>
+        <InputText id="add_key" v-model="newKey" :placeholder="t('keys.keyPlaceholder')" />
       </div>
       <div class="field">
-        <label for="add_current_use">Usage (Optional)</label>
-        <Dropdown id="add_current_use" v-model="newCurrentUse" :options="CURRENT_USE_OPTIONS" optionLabel="label" optionValue="value" placeholder="Select usage" />
+        <label for="add_current_use">{{ t('keys.usageOptional') }}</label>
+        <Dropdown id="add_current_use" v-model="newCurrentUse" :options="currentUseOptions" optionLabel="label" optionValue="value" :placeholder="t('keys.usagePlaceholder')" />
       </div>
       <template #footer>
-        <Button label="Cancel" icon="pi pi-times" text @click="showAddKeyDialog = false" />
-        <Button label="Add Key" icon="pi pi-check" :disabled="!newKey || !gameId" @click="handleAddKey" />
+        <Button :label="t('common.cancel')" icon="pi pi-times" text @click="showAddKeyDialog = false" />
+        <Button :label="t('keys.addKey')" icon="pi pi-check" :disabled="!newKey || !gameId" @click="handleAddKey" />
       </template>
     </Dialog>
 
     <!-- Edit Key Dialog -->
-    <Dialog v-model:visible="showEditKeyDialog" header="Edit Key" :modal="true" :style="{ width: 'min(30rem, 90vw)' }" class="p-fluid">
+    <Dialog v-model:visible="showEditKeyDialog" :header="t('keys.editDialogTitle')" :modal="true" :style="{ width: 'min(30rem, 90vw)' }" class="p-fluid">
       <div class="field">
-        <label for="edit_key">Key</label>
+        <label for="edit_key">{{ t('keys.keyLabel') }}</label>
         <InputText id="edit_key" v-model="editKeyValue" />
       </div>
       <div class="field">
-        <label for="edit_current_use">Usage</label>
-        <Dropdown id="edit_current_use" v-model="editCurrentUse" :options="CURRENT_USE_OPTIONS" optionLabel="label" optionValue="value" placeholder="Select usage" />
+        <label for="edit_current_use">{{ t('keys.usageLabel') }}</label>
+        <Dropdown id="edit_current_use" v-model="editCurrentUse" :options="currentUseOptions" optionLabel="label" optionValue="value" :placeholder="t('keys.usagePlaceholder')" />
       </div>
       <div class="field-checkbox">
         <Checkbox v-model="editUsed" :binary="true" inputId="edit_used" />
-        <label for="edit_used">Mark as Used</label>
+        <label for="edit_used">{{ t('keys.markUsed') }}</label>
       </div>
       <template #footer>
-        <Button label="Cancel" icon="pi pi-times" text @click="showEditKeyDialog = false" />
-        <Button label="Save Changes" icon="pi pi-check" @click="saveEditKey" />
+        <Button :label="t('common.cancel')" icon="pi pi-times" text @click="showEditKeyDialog = false" />
+        <Button :label="t('keys.saveChanges')" icon="pi pi-check" @click="saveEditKey" />
       </template>
     </Dialog>
 
     <!-- Delete Key Dialog -->
-    <Dialog v-model:visible="showDeleteKeyDialog" header="Confirm Delete" :modal="true" :style="{ width: 'min(25rem, 90vw)' }">
+    <Dialog v-model:visible="showDeleteKeyDialog" :header="t('keys.deleteDialogTitle')" :modal="true" :style="{ width: 'min(25rem, 90vw)' }">
       <div class="confirmation-content">
         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem; color: #ef4444" />
-        <span>Are you sure you want to delete this key? This action cannot be undone.</span>
+        <span>{{ t('keys.deleteConfirm') }}</span>
       </div>
       <template #footer>
-        <Button label="Cancel" icon="pi pi-times" text @click="showDeleteKeyDialog = false" />
-        <Button label="Delete" icon="pi pi-trash" severity="danger" @click="confirmDeleteKey" />
+        <Button :label="t('common.cancel')" icon="pi pi-times" text @click="showDeleteKeyDialog = false" />
+        <Button :label="t('common.delete')" icon="pi pi-trash" severity="danger" @click="confirmDeleteKey" />
       </template>
     </Dialog>
 
     <!-- Share Key Dialog -->
-    <Dialog v-model:visible="showShareDialog" header="Share Key" :modal="true" :style="{ width: 'min(32rem, 92vw)' }" class="p-fluid">
+    <Dialog v-model:visible="showShareDialog" :header="t('keys.shareDialogTitle')" :modal="true" :style="{ width: 'min(32rem, 92vw)' }" class="p-fluid">
       <div class="field">
-        <label for="share_link">Share Link</label>
+        <label for="share_link">{{ t('keys.shareLink') }}</label>
         <InputText id="share_link" v-model="shareLink" readonly />
-        <small v-if="shareExpiresAt" class="hint">Expires on {{ formatDateTime(shareExpiresAt) }}</small>
+        <small v-if="shareExpiresAt" class="hint">{{ t('keys.expiresOn', { date: formatDateTime(shareExpiresAt) }) }}</small>
       </div>
       <template #footer>
-        <Button label="Close" icon="pi pi-times" text @click="showShareDialog = false" />
-        <Button v-if="shareToken" label="Disable Link" icon="pi pi-ban" severity="danger" text @click="handleCancelShareLink" />
-        <Button label="Copy Link" icon="pi pi-copy" :disabled="!shareLink" @click="copyShareLink" />
+        <Button :label="t('common.close')" icon="pi pi-times" text @click="showShareDialog = false" />
+        <Button v-if="shareToken" :label="t('keys.disableLink')" icon="pi pi-ban" severity="danger" text @click="handleCancelShareLink" />
+        <Button :label="t('keys.copyLink')" icon="pi pi-copy" :disabled="!shareLink" @click="copyShareLink" />
       </template>
     </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
@@ -144,15 +144,17 @@ import Checkbox from 'primevue/checkbox';
 import Dialog from 'primevue/dialog';
 import Dropdown from 'primevue/dropdown';
 import type { Key } from '@/models/Key';
-import { CURRENT_USE_OPTIONS } from '@/models/Key';
+import { CURRENT_USE_VALUES } from '@/models/Key';
 import { addKey, updateKey, removeKey, createShareLink, cancelShareLink } from '../api/keys'
 import { useTableRowsPerPage } from '@/composables/useTableRowsPerPage'
 import { useToast } from 'primevue/usetoast'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ keys: Key[], gameId: number | null }>()
 const emit = defineEmits(['refresh'])
 
 const toast = useToast()
+const { t } = useI18n()
 const newKey = ref('')
 const newCurrentUse = ref('')
 const editingKey = ref<string | null>(null)
@@ -172,6 +174,15 @@ const keyToShare = ref<Key | null>(null)
 const shareLink = ref('')
 const shareExpiresAt = ref('')
 const shareToken = ref('')
+const currentUseOptions = computed(() => {
+  return CURRENT_USE_VALUES.map((value) => {
+    const key = value.toLowerCase()
+    return {
+      label: t(`keys.currentUse.${key}`),
+      value
+    }
+  })
+})
 
 function openEditDialog(key: Key) {
   keyToEdit.value = key
@@ -219,10 +230,10 @@ async function handleCancelShareLink() {
     shareToken.value = ''
     showShareDialog.value = false
     emit('refresh')
-    toast.add({ severity: 'success', summary: 'Link disabled', detail: 'Share link has been disabled', life: 2000 })
+    toast.add({ severity: 'success', summary: t('keys.linkDisabled'), detail: t('keys.linkDisabledDetail'), life: 2000 })
   } catch (err) {
     console.error('Failed to disable share link:', err)
-    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to disable share link', life: 2000 })
+    toast.add({ severity: 'error', summary: t('common.error'), detail: t('keys.disableFailed'), life: 2000 })
   }
 }
 
@@ -230,20 +241,20 @@ async function copyShareLink() {
   if (!shareLink.value) return
   try {
     await navigator.clipboard.writeText(shareLink.value)
-    toast.add({ severity: 'success', summary: 'Copied', detail: 'Share link copied to clipboard', life: 2000 })
+    toast.add({ severity: 'success', summary: t('share.copied'), detail: t('keys.shareCopied'), life: 2000 })
   } catch (err) {
     console.error('Failed to copy share link:', err)
-    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to copy share link', life: 2000 })
+    toast.add({ severity: 'error', summary: t('common.error'), detail: t('keys.copyShareFailed'), life: 2000 })
   }
 }
 
 async function copyKey(key: string) {
   try {
     await navigator.clipboard.writeText(key)
-    toast.add({ severity: 'success', summary: 'Copied', detail: 'Key copied to clipboard', life: 2000 })
+    toast.add({ severity: 'success', summary: t('share.copied'), detail: t('keys.keyCopied'), life: 2000 })
   } catch (err) {
     console.error('Failed to copy key:', err)
-    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to copy key', life: 2000 })
+    toast.add({ severity: 'error', summary: t('common.error'), detail: t('keys.copyFailed'), life: 2000 })
   }
 }
 
@@ -279,7 +290,7 @@ function formatDateTime(dateStr: string) {
 }
 
 function getCurrentUseLabel(value: string | undefined) {
-  const found = CURRENT_USE_OPTIONS.find(opt => opt.value === value)
+  const found = currentUseOptions.value.find(opt => opt.value === value)
   return found ? found.label : ''
 }
 

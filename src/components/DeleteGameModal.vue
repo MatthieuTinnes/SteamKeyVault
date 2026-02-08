@@ -1,7 +1,7 @@
 <template>
   <Dialog 
     v-model:visible="visible" 
-    header="Confirm Delete" 
+    :header="t('games.confirmDelete')" 
     :modal="true" 
     :style="{ width: 'min(24rem, 90vw)' }"
     class="p-fluid"
@@ -11,15 +11,15 @@
         <i class="pi pi-exclamation-triangle warning-icon"></i>
         <div class="message-text">
           <p v-if="hasKeys" class="warning-text">
-            This game has associated keys. Deleting the game will also <strong>permanently delete all its keys</strong>.
+            {{ t('games.deleteWarning') }}
           </p>
-          <p v-else>Are you sure you want to delete this game?</p>
+          <p v-else>{{ t('games.deleteConfirm') }}</p>
         </div>
       </div>
       
       <div class="dialog-footer">
-        <Button label="Cancel" icon="pi pi-times" text @click="cancel" />
-        <Button label="Delete" icon="pi pi-trash" severity="danger" @click="confirm" />
+        <Button :label="t('common.cancel')" icon="pi pi-times" text @click="cancel" />
+        <Button :label="t('common.delete')" icon="pi pi-trash" severity="danger" @click="confirm" />
       </div>
     </div>
   </Dialog>
@@ -29,12 +29,14 @@
 import { ref, watch, computed } from 'vue'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ modelValue: boolean; hasKeys?: boolean }>()
 const emit = defineEmits<{ (e: 'update:modelValue', v: boolean): void; (e: 'confirmed'): void }>()
 
 const visible = ref<boolean>(!!props.modelValue)
 const hasKeys = computed(() => !!props.hasKeys)
+const { t } = useI18n()
 
 watch(() => props.modelValue, (v) => { visible.value = !!v })
 watch(visible, (v) => { emit('update:modelValue', v) })

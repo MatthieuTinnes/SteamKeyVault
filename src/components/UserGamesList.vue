@@ -3,7 +3,7 @@
     <div class="filter-container">
       <IconField>
           <InputIcon class="pi pi-search" />
-          <InputText v-model="filter" placeholder="Filter games..."  />
+          <InputText v-model="filter" :placeholder="t('games.filterPlaceholder')"  />
       </IconField>
     </div>
 
@@ -21,7 +21,7 @@
           </div>
         </template>
         <template #empty>
-          <div class="empty-message">No games found.</div>
+          <div class="empty-message">{{ t('games.noGamesFound') }}</div>
         </template>
       </Listbox>
     </div>
@@ -35,11 +35,13 @@ import InputText from 'primevue/inputtext';
 import type { Game } from '../models/Game';
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ games: Game[] }>()
 const emit = defineEmits(['gameSelected'])
 const selectedGame = ref<Game | null>(null)
 const filter = ref('')
+const { t } = useI18n()
 
 const filteredGames = computed(() => {
   if (!filter.value) return props.games

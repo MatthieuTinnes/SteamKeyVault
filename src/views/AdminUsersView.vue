@@ -1,34 +1,34 @@
 <template>
   <div class="admin-users">
     <div class="header">
-      <h2><i class="pi pi-users"></i> User Management</h2>
-      <Button label="Back to Dashboard" icon="pi pi-arrow-left" @click="router.push('/admin')" severity="secondary" />
+      <h2><i class="pi pi-users"></i> {{ t('admin.users.title') }}</h2>
+      <Button :label="t('admin.users.backToDashboard')" icon="pi pi-arrow-left" @click="router.push('/admin')" severity="secondary" />
     </div>
 
     <div ref="tableContainer">
       <DataTable :value="users" :loading="loading" stripedRows paginator :rows="rowsPerPage">
-        <Column field="id" header="ID" sortable style="width: 5rem"></Column>
-        <Column field="username" header="Username" sortable></Column>
-        <Column field="email" header="Email" sortable></Column>
-        <Column field="email_verified" header="Verified" sortable style="width: 7rem">
+        <Column field="id" :header="t('admin.users.id')" sortable style="width: 5rem"></Column>
+        <Column field="username" :header="t('admin.users.username')" sortable></Column>
+        <Column field="email" :header="t('admin.users.email')" sortable></Column>
+        <Column field="email_verified" :header="t('admin.users.verified')" sortable style="width: 7rem">
           <template #body="{ data }">
             <i v-if="data.email_verified" class="pi pi-check-circle" style="color: #059669"></i>
             <i v-else class="pi pi-times-circle" style="color: #dc2626"></i>
           </template>
         </Column>
-        <Column field="is_admin" header="Admin" sortable style="width: 6rem">
+        <Column field="is_admin" :header="t('admin.users.admin')" sortable style="width: 6rem">
           <template #body="{ data }">
             <i v-if="data.is_admin" class="pi pi-shield" style="color: #dc2626"></i>
           </template>
         </Column>
-        <Column field="games_count" header="Games" sortable style="width: 6rem"></Column>
-        <Column field="keys_count" header="Keys" sortable style="width: 6rem"></Column>
-        <Column field="date_joined" header="Joined" sortable style="width: 10rem">
+        <Column field="games_count" :header="t('admin.users.games')" sortable style="width: 6rem"></Column>
+        <Column field="keys_count" :header="t('admin.users.keys')" sortable style="width: 6rem"></Column>
+        <Column field="date_joined" :header="t('admin.users.joined')" sortable style="width: 10rem">
           <template #body="{ data }">
             {{ formatDate(data.date_joined) }}
           </template>
         </Column>
-        <Column header="Actions" style="width: 10rem">
+        <Column :header="t('admin.users.actions')" style="width: 10rem">
           <template #body="{ data }">
             <div class="action-buttons">
               <Button class="p-button-text p-button p-button-info" @click="editUser(data)"><i
@@ -43,56 +43,54 @@
       </DataTable>
     </div>
 
-    <Dialog v-model:visible="showEditDialog" header="Edit User" :modal="true" :style="{ width: '30rem' }">
+    <Dialog v-model:visible="showEditDialog" :header="t('admin.users.editUser')" :modal="true" :style="{ width: '30rem' }">
       <div v-if="editingUser" class="edit-form">
         <div class="form-group">
-          <label>Username</label>
+          <label>{{ t('admin.users.username') }}</label>
           <InputText v-model="editingUser.username" disabled />
         </div>
         
         <div class="form-group">
-          <label>Email</label>
+          <label>{{ t('admin.users.email') }}</label>
           <InputText v-model="editForm.email" type="email" />
         </div>
         
         <div class="form-group">
-          <label>New Password (leave empty to keep current)</label>
+          <label>{{ t('admin.users.newPasswordHint') }}</label>
           <InputText v-model="editForm.password" type="password" />
         </div>
         
         <div class="form-group">
           <label style="display: flex; align-items: center; gap: 0.5rem">
             <Checkbox v-model="editForm.is_admin" :binary="true" />
-            Admin Privileges
+            {{ t('admin.users.adminPrivileges') }}
           </label>
         </div>
       </div>
       
       <template #footer>
-        <Button label="Cancel" @click="showEditDialog = false" severity="secondary" />
-        <Button label="Save Changes" @click="saveUser" :loading="saving" />
+        <Button :label="t('common.cancel')" @click="showEditDialog = false" severity="secondary" />
+        <Button :label="t('admin.users.saveChanges')" @click="saveUser" :loading="saving" />
       </template>
     </Dialog>
 
-    <Dialog v-model:visible="showDeleteDialog" header="Confirm Delete" :modal="true" :style="{ width: '25rem' }">
+    <Dialog v-model:visible="showDeleteDialog" :header="t('admin.users.confirmDelete')" :modal="true" :style="{ width: '25rem' }">
       <p v-if="deletingUser">
-        Are you sure you want to delete user <strong>{{ deletingUser.username }}</strong>?
-        This action cannot be undone.
+        {{ t('admin.users.deleteUserPrompt', { username: deletingUser.username }) }}
       </p>
       <template #footer>
-        <Button label="Cancel" @click="showDeleteDialog = false" severity="secondary" />
-        <Button label="Delete" @click="deleteUserConfirmed" severity="danger" :loading="deleting" />
+        <Button :label="t('common.cancel')" @click="showDeleteDialog = false" severity="secondary" />
+        <Button :label="t('common.delete')" @click="deleteUserConfirmed" severity="danger" :loading="deleting" />
       </template>
     </Dialog>
 
-    <Dialog v-model:visible="showClearDialog" header="Confirm Clear" :modal="true" :style="{ width: '28rem' }">
+    <Dialog v-model:visible="showClearDialog" :header="t('admin.users.confirmClear')" :modal="true" :style="{ width: '28rem' }">
       <p v-if="clearingUser">
-        This will delete all games and keys for <strong>{{ clearingUser.username }}</strong>.
-        The user account will remain active.
+        {{ t('admin.users.clearUserPrompt', { username: clearingUser.username }) }}
       </p>
       <template #footer>
-        <Button label="Cancel" @click="showClearDialog = false" severity="secondary" />
-        <Button label="Delete Games & Keys" @click="clearUserGamesAndKeys" severity="warning" :loading="clearing" />
+        <Button :label="t('common.cancel')" @click="showClearDialog = false" severity="secondary" />
+        <Button :label="t('admin.users.deleteGamesKeys')" @click="clearUserGamesAndKeys" severity="warning" :loading="clearing" />
       </template>
     </Dialog>
   </div>
@@ -118,6 +116,7 @@ import {
 import type { AdminUser } from '@/api/admin'
 import { showSuccessToast, showErrorToast } from '@/utils/toast'
 import { useTableRowsPerPage } from '@/composables/useTableRowsPerPage'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const users = ref<AdminUser[]>([])
@@ -131,6 +130,7 @@ const clearingUser = ref<AdminUser | null>(null)
 const saving = ref(false)
 const deleting = ref(false)
 const clearing = ref(false)
+const { t } = useI18n()
 
 const { rowsPerPage, containerRef: tableContainer } = useTableRowsPerPage(350)
 
@@ -150,7 +150,7 @@ async function loadUsers() {
     const response = await getAllUsers()
     users.value = response.data.users
   } catch (error: any) {
-    showErrorToast(error?.response?.data?.error || 'Failed to load users')
+    showErrorToast(error?.response?.data?.error || t('admin.users.failedLoadUsers'))
   } finally {
     loading.value = false
   }
@@ -187,11 +187,11 @@ async function saveUser() {
     
     await Promise.all(promises)
     
-    showSuccessToast('User updated successfully')
+    showSuccessToast(t('admin.users.userUpdated'))
     showEditDialog.value = false
     await loadUsers()
   } catch (error: any) {
-    showErrorToast(error?.response?.data?.error || 'Failed to update user')
+    showErrorToast(error?.response?.data?.error || t('admin.users.failedUpdateUser'))
   } finally {
     saving.value = false
   }
@@ -213,11 +213,11 @@ async function deleteUserConfirmed() {
   deleting.value = true
   try {
     await deleteUser(deletingUser.value.id)
-    showSuccessToast('User deleted successfully')
+    showSuccessToast(t('admin.users.userDeleted'))
     showDeleteDialog.value = false
     await loadUsers()
   } catch (error: any) {
-    showErrorToast(error?.response?.data?.error || 'Failed to delete user')
+    showErrorToast(error?.response?.data?.error || t('admin.users.failedDeleteUser'))
   } finally {
     deleting.value = false
   }
@@ -233,13 +233,13 @@ async function clearUserGamesAndKeys() {
     const deletedKeys = response.data?.deleted_keys
     const details =
       typeof deletedGames === 'number' && typeof deletedKeys === 'number'
-        ? `Deleted ${deletedGames} games and ${deletedKeys} keys.`
-        : 'Games and keys deleted.'
+        ? t('admin.users.deletedGamesKeys', { games: deletedGames, keys: deletedKeys })
+        : t('admin.users.deletedGamesKeysFallback')
     showSuccessToast(details)
     showClearDialog.value = false
     await loadUsers()
   } catch (error: any) {
-    showErrorToast(error?.response?.data?.error || 'Failed to delete games and keys')
+    showErrorToast(error?.response?.data?.error || t('admin.users.failedDeleteGamesKeys'))
   } finally {
     clearing.value = false
   }

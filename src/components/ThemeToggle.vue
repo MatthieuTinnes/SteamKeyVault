@@ -16,8 +16,10 @@
 import { computed } from 'vue'
 import InputSwitch from 'primevue/inputswitch'
 import { useTheme } from '../composables/useTheme'
+import { useI18n } from 'vue-i18n'
 
 const { currentTheme, toggleTheme } = useTheme()
+const { t } = useI18n()
 
 const isDarkMode = computed({
   get: () => currentTheme.value === 'dark',
@@ -31,7 +33,7 @@ const themeIcon = computed(() => {
 })
 
 const themeLabel = computed(() => {
-  return currentTheme.value === 'dark' ? 'Dark Mode' : 'Light Mode'
+  return currentTheme.value === 'dark' ? t('theme.dark') : t('theme.light')
 })
 
 const handleToggle = () => {

@@ -8,14 +8,14 @@
       />
     </div>
     <div v-else class="game-info" :class="{ 'has-background': !!backgroundImage }" :style="backgroundStyle">
-        <div v-if="loading" class="loading">Loading...</div>
+        <div v-if="loading" class="loading">{{ t('gameInfo.loading') }}</div>
         <div v-else-if="error" class="error">{{ error }}</div>
         <div v-else-if="appName" class="content">
             <div class="header">
                 <img v-if="headerImage" :src="headerImage" :alt="appName" class="header-image" />
                 <div class="title-section">
                     <h2 class="title">{{ appName }}</h2>
-                    <div class="publisher" v-if="publisher">by {{ publisher }}</div>
+                    <div class="publisher" v-if="publisher">{{ t('gameInfo.byPublisher', { publisher }) }}</div>
                 </div>
               <div v-if="showDelete" style="display:flex;align-items:flex-start;gap:0.5rem">
                 <Button class="p-button-sm p-button-danger" @click="handleOpenDelete">
@@ -28,7 +28,7 @@
                     <div class="price" v-if="price">{{ price }}</div>
                     <div class="reviews" v-if="reviews">
                         <span :class="['review-score', getReviewClass(reviews)]">
-                            Metascore {{ reviews }}
+                        {{ t('gameInfo.metascore', { score: reviews }) }}
                         </span>
                     </div>
                 </div>
@@ -39,18 +39,18 @@
                            target="_blank" 
                            rel="noopener" 
                            class="feature-badge clickable" 
-                           title="View Trading Cards on Steam Market">
+                         :title="t('gameInfo.viewCards')">
                             <i class="pi pi-credit-card"></i>
                         </a>
-            <a v-if="hasAchievements && steamAchievementsUrl" :href="steamAchievementsUrl" target="_blank" rel="noopener" class="feature-badge clickable" title="View Achievements on Steam">
+                <a v-if="hasAchievements && steamAchievementsUrl" :href="steamAchievementsUrl" target="_blank" rel="noopener" class="feature-badge clickable" :title="t('gameInfo.viewAchievements')">
               <i class="pi pi-star"></i>
             </a>
                     </div>
                     <div class="external-links">
-                        <a v-if="steamStoreUrl" :href="steamStoreUrl" target="_blank" rel="noopener" class="steam-link" title="View on Steam Store">
+                      <a v-if="steamStoreUrl" :href="steamStoreUrl" target="_blank" rel="noopener" class="steam-link" :title="t('gameInfo.viewSteamStore')">
                             <i class="pi pi-external-link"></i> Steam
                         </a>
-                        <a v-if="steamDbUrl" :href="steamDbUrl" target="_blank" rel="noopener" class="steamdb-link" title="View on SteamDB">
+                      <a v-if="steamDbUrl" :href="steamDbUrl" target="_blank" rel="noopener" class="steamdb-link" :title="t('gameInfo.viewSteamDb')">
                             <i class="pi pi-chart-line"></i> SteamDB
                         </a>
                     </div>
@@ -72,6 +72,7 @@ import CustomGameInfo from './CustomGameInfo.vue'
 import Button from 'primevue/button'
 import { useDeleteGame } from '@/composables/useDeleteGame'
 import { useToast } from 'primevue/usetoast'
+import { useI18n } from 'vue-i18n'
 
 type PublicGameInfo = {
   name?: string | null
@@ -104,6 +105,7 @@ const hasCards = ref<boolean>(false)
 const hasAchievements = ref<boolean>(false)
 const { showDeleteModal, hasKeys, openDelete, confirmDelete, onModalUpdate } = useDeleteGame()
 const toast = useToast()
+const { t } = useI18n()
 
 const showDelete = computed(() => !props.publicMode && !!props.userGameId)
 
@@ -129,16 +131,16 @@ async function copyAsfCommand() {
       await navigator.clipboard.writeText(asfCommand.value)
       toast.add({
         severity: 'success',
-        summary: 'Command Copied',
-        detail: 'ASF command has been copied to clipboard',
+        summary: t('gameInfo.commandCopied'),
+        detail: t('gameInfo.commandCopiedDetail'),
         life: 3000
       })
     } catch (err) {
       console.error('Failed to copy ASF command:', err)
       toast.add({
         severity: 'error',
-        summary: 'Copy Failed',
-        detail: 'Failed to copy command to clipboard',
+        summary: t('gameInfo.copyFailed'),
+        detail: t('gameInfo.copyFailedDetail'),
         life: 3000
       })
     }
@@ -196,7 +198,7 @@ const loadApp = async () => {
       const currency = priceOverview.currency || 'USD'
       price.value = (priceOverview.final / 100).toLocaleString(undefined, { style: 'currency', currency })
     } else {
-      price.value = data?.is_free ? 'Free to Play' : null
+      price.value = data?.is_free ? t('gameInfo.freeToPlay') : null
     }
     reviews.value = data?.metacritic?.score
 
@@ -235,7 +237,7 @@ watch(
     if (publicMode) {
       if (!publicData) {
         applyPublicData()
-        error.value = 'Game details unavailable.'
+        error.value = t('gameInfo.unavailable')
         return
       }
       applyPublicData()

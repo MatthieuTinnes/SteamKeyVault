@@ -2,11 +2,13 @@ import { ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { getKeysForGame } from '@/api/keys'
 import { removeUserGame } from '@/api/games'
+import { useI18n } from 'vue-i18n'
 
 export function useDeleteGame() {
   const showDeleteModal = ref(false)
   const hasKeys = ref(false)
   const toast = useToast()
+  const { t } = useI18n()
 
   async function openDelete(userGameId?: number | null) {
     showDeleteModal.value = true
@@ -26,15 +28,15 @@ export function useDeleteGame() {
   async function confirmDelete(userGameId?: number | null) {
     const ugid = userGameId ?? null
     if (!ugid) {
-      toast.add({ severity: 'error', summary: 'Delete Failed', detail: 'Could not determine game id', life: 3000 })
+      toast.add({ severity: 'error', summary: t('games.deleteFailed'), detail: t('games.deleteUnknownId'), life: 3000 })
       return false
     }
     try {
       await removeUserGame(ugid)
-      toast.add({ severity: 'success', summary: 'Deleted', detail: 'Game deleted', life: 3000 })
+      toast.add({ severity: 'success', summary: t('games.deleteSuccess'), detail: t('games.deleteSuccessDetail'), life: 3000 })
       return true
     } catch (e) {
-      toast.add({ severity: 'error', summary: 'Delete Failed', detail: 'Failed to delete game', life: 3000 })
+      toast.add({ severity: 'error', summary: t('games.deleteFailed'), detail: t('games.deleteFailedDetail'), life: 3000 })
       return false
     }
   }

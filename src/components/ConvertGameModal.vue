@@ -2,15 +2,13 @@
   <Dialog 
     :visible="modelValue" 
     @update:visible="updateVisible"
-    header="Match with a Steam game" 
+    :header="t('games.convertHeader')" 
     :style="{ width: 'min(32rem, 95vw)' }"
     :modal="true"
     class="convert-game-modal"
   >
     <div class="dialog-content">
-      <p class="description">
-        Search for the Steam version of this game to enable Steam integration features like images and links.
-      </p>
+      <p class="description">{{ t('games.convertDesc') }}</p>
       
       <div class="field">
         <span class="w-full">
@@ -19,7 +17,7 @@
             :suggestions="results" 
             @complete="onComplete" 
             optionLabel="name"
-            placeholder="Search for a Steam game..." 
+            :placeholder="t('games.searchSteamPlaceholder')" 
             class="w-full" 
             :loading="loading"
             @item-select="(e) => selected = e.value"
@@ -36,20 +34,20 @@
       </div>
 
       <div v-if="selected" class="selected-preview">
-        <div class="preview-label">Selected Game:</div>
+        <div class="preview-label">{{ t('games.selectedGame') }}</div>
         <div class="preview-card">
           <img :src="`https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${selected.appid}/header.jpg`" :alt="selected.name" class="preview-image" />
           <div class="preview-details">
             <div class="preview-name">{{ selected.name }}</div>
-            <div class="preview-id">App ID: {{ selected.appid }}</div>
+            <div class="preview-id">{{ t('games.appId', { id: selected.appid }) }}</div>
           </div>
         </div>
       </div>
     </div>
 
     <template #footer>
-      <Button label="Cancel" icon="pi pi-times" text @click="closeModal" />
-      <Button label="Convert" icon="pi pi-sync" :disabled="!selected" @click="applySelection" />
+      <Button :label="t('common.cancel')" icon="pi pi-times" text @click="closeModal" />
+      <Button :label="t('games.convertAction')" icon="pi pi-sync" :disabled="!selected" @click="applySelection" />
     </template>
   </Dialog>
 </template>
@@ -60,6 +58,7 @@ import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import AutoComplete from 'primevue/autocomplete'
 import { searchSteamGames, updateUserGame } from '@/api/games'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ 
   modelValue: boolean;
@@ -75,6 +74,7 @@ const searchQuery = ref('')
 const results = ref<any[]>([])
 const loading = ref(false)
 const selected = ref<any | null>(null)
+const { t } = useI18n()
 
 watch(() => props.modelValue, (newVal) => {
   if (newVal) {

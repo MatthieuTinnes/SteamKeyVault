@@ -2,19 +2,19 @@
   <div class="home-view">
     <div class="hero-section">
       <div class="hero-content">
-        <h1 class="hero-title">Your Steam Keys, Simplified</h1>
+        <h1 class="hero-title">{{ t('home.heroTitle') }}</h1>
         <p class="hero-subtitle">
-          SteamKeyVault is the easiest way to securely store, organize, and trade your Steam keys.
+          {{ t('home.heroSubtitle') }}
         </p>
         <div class="hero-actions">
-          <Button label="Get started" class="p-button-lg" @click="goToMyKeys" />
-          <Button label="Learn More" class="p-button-lg" severity="secondary" outlined style="margin-left: 1rem;" @click="goToLearnMore" />
+          <Button :label="t('home.getStarted')" class="p-button-lg" @click="goToMyKeys" />
+          <Button :label="t('home.learnMore')" class="p-button-lg" severity="secondary" outlined style="margin-left: 1rem;" @click="goToLearnMore" />
         </div>
       </div>
       <div class="features-section">
-        <h2 class="features-title">Why Choose SteamKeyVault?</h2>
+        <h2 class="features-title">{{ t('home.featuresTitle') }}</h2>
         <p class="features-desc">
-          Discover the features that make SteamKeyVault the best solution for Steam key collectors, traders, and gamers.
+          {{ t('home.featuresDesc') }}
         </p>
         <div class="features-grid">
           <div class="feature-card" v-for="feature in features" :key="feature.title">
@@ -24,9 +24,9 @@
         </div>
       </div>
       <div class="discover-section">
-        <h2 class="discover-title">Trade, Store, and Access Anywhere</h2>
+        <h2 class="discover-title">{{ t('home.discoverTitle') }}</h2>
         <p class="discover-desc">
-          With SteamKeyVault, your keys are always at your fingertips. Trade securely, store with confidence, and access your collection from any device.
+          {{ t('home.discoverDesc') }}
         </p>
         <div class="discover-features-grid">
           <div class="discover-feature-card" v-for="feature in discoverFeatures" :key="feature.title">
@@ -36,7 +36,7 @@
         </div>
       </div>
       <div class="faq-section">
-        <h2 class="faq-title">Frequently Asked Questions</h2>
+        <h2 class="faq-title">{{ t('home.faqTitle') }}</h2>
         <div class="faq-list">
           <div class="faq-item" v-for="faq in faqs" :key="faq.q">
             <h3 class="faq-question">{{ faq.q }}</h3>
@@ -54,33 +54,17 @@ import { useRouter, useRoute } from 'vue-router'
 import { computed } from 'vue'
 import { useUserStore } from '../stores/user'
 import { logoutUser } from '../api/auth'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
 const isLoggedIn = computed(() => !!userStore.user && !!userStore.user.username)
+const { t, tm } = useI18n()
 
-const features = [
-  { title: 'End-to-End Encryption', desc: 'Your Steam keys are encrypted before they leave your device, ensuring only you can access them.' },
-  { title: 'Easy Trading', desc: 'Share and trade keys with friends or partners in just a few clicks, with full control and privacy.' },
-  { title: 'Access Anywhere', desc: 'Your collection is always available, whether you’re on desktop, tablet, or mobile.' },
-  { title: 'Organize & Search', desc: 'Tag, categorize, and search your keys for instant access and better management.' },
-  { title: 'One-Click Import', desc: 'Quickly import keys from bundles, emails, or CSV files.' },
-  { title: 'Secure Sharing', desc: 'Generate secure, time-limited links to share keys safely.' }
-]
-
-const discoverFeatures = [
-  { title: 'Trade with Confidence', desc: 'Built-in escrow and audit trail for every trade.' },
-  { title: 'Store Securely', desc: 'All keys are protected with industry-leading encryption.' },
-  { title: 'Access Anywhere', desc: 'Your vault is always available, on any device.' }
-]
-
-const faqs = [
-  { q: 'How secure is SteamKeyVault?', a: 'All keys are encrypted end-to-end. Only you have the decryption key, not even we can see your keys.' },
-  { q: 'Can I trade keys with others?', a: 'Yes! You can securely trade or share keys with anyone, even if they don’t have a SteamKeyVault account.' },
-  { q: 'How do I import my existing keys?', a: 'Use our one-click import tool to add keys from bundles, emails, or CSV files.' },
-  { q: 'Is SteamKeyVault free?', a: 'You can get started for free. Premium features are available for power users and traders.' }
-]
+const features = computed(() => tm('home.features') as { title: string; desc: string }[])
+const discoverFeatures = computed(() => tm('home.discoverFeatures') as { title: string; desc: string }[])
+const faqs = computed(() => tm('home.faqs') as { q: string; a: string }[])
 
 function goTo(path: string) {
   router.push(path)

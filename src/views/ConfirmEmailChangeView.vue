@@ -3,23 +3,23 @@
     <div class="confirm-card">
       <div v-if="loading" class="status-content">
         <i class="pi pi-spin pi-spinner" style="font-size: 3rem; color: #2563eb;"></i>
-        <h2>Confirming email change...</h2>
-        <p>Please wait while we update your email address.</p>
+        <h2>{{ t('auth.confirmEmail.confirmingTitle') }}</h2>
+        <p>{{ t('auth.confirmEmail.confirmingDesc') }}</p>
       </div>
 
       <div v-else-if="success" class="status-content success">
         <i class="pi pi-check-circle" style="font-size: 3rem; color: #059669;"></i>
-        <h2>Email Changed!</h2>
+        <h2>{{ t('auth.confirmEmail.successTitle') }}</h2>
         <p>{{ message }}</p>
-        <p>Your email address has been updated successfully.</p>
-        <Button label="Go to My Account" icon="pi pi-user" @click="router.push('/my-account')" class="mt-3" />
+        <p>{{ t('auth.confirmEmail.successDesc') }}</p>
+        <Button :label="t('auth.confirmEmail.goToAccount')" icon="pi pi-user" @click="router.push('/my-account')" class="mt-3" />
       </div>
 
       <div v-else class="status-content error">
         <i class="pi pi-times-circle" style="font-size: 3rem; color: #dc2626;"></i>
-        <h2>Confirmation Failed</h2>
+        <h2>{{ t('auth.confirmEmail.failedTitle') }}</h2>
         <p>{{ errorMessage }}</p>
-        <Button label="Go to Home" icon="pi pi-home" @click="router.push('/')" class="mt-3" severity="secondary" />
+        <Button :label="t('common.backToHome')" icon="pi pi-home" @click="router.push('/')" class="mt-3" severity="secondary" />
       </div>
     </div>
   </div>
@@ -31,6 +31,7 @@ import { useRoute, useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import { confirmEmailChange } from '@/api/auth'
 import { useUserStore } from '@/stores/user'
+import { useI18n } from 'vue-i18n'
 
 const route = useRoute()
 const router = useRouter()
@@ -38,21 +39,22 @@ const userStore = useUserStore()
 const loading = ref(true)
 const success = ref(false)
 const message = ref('')
-const errorMessage = ref('An error occurred during confirmation.')
+const { t } = useI18n()
+const errorMessage = ref(t('auth.confirmEmail.failedDefault'))
 
 onMounted(async () => {
   const token = route.query.token as string
   
   if (!token) {
     loading.value = false
-    errorMessage.value = 'No confirmation token provided.'
+    errorMessage.value = t('auth.confirmEmail.noToken')
     return
   }
 
   try {
     const response = await confirmEmailChange(token)
     success.value = true
-    message.value = response.data.message || 'Email address changed successfully!'
+    message.value = response.data.message || t('auth.confirmEmail.successFallback')
     
     // Refresh user data to get the new email
     try {
@@ -62,7 +64,7 @@ onMounted(async () => {
     }
   } catch (error: any) {
     success.value = false
-    errorMessage.value = error?.response?.data?.error || 'Invalid or expired confirmation link.'
+    errorMessage.value = error?.response?.data?.error || t('auth.confirmEmail.invalidLink')
   } finally {
     loading.value = false
   }

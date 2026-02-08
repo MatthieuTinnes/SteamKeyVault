@@ -14,6 +14,7 @@ import ConfirmationService from 'primevue/confirmationservice'
 import Toast from 'primevue/toast'
 import ConfirmDialog from 'primevue/confirmdialog'
 import Aura from '@primeuix/themes/aura';
+import { i18n } from './i18n'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -25,6 +26,7 @@ app.use(PrimeVue, {
 });
 app.use(router)
 app.use(pinia)
+app.use(i18n)
 app.use(ToastService)
 app.use(ConfirmationService)
 app.component('Toast', Toast)

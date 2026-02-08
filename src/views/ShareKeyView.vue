@@ -1,9 +1,9 @@
 <template>
   <div class="share-key-view">
     <div class="share-header">
-      <h2 v-if="shareInfo">{{ shareInfo.donor_username }} is offering you a key for {{ shareInfo.game_name }}</h2>
-      <h2 v-else>Loading the key...</h2>
-      <p v-if="shareInfo" class="subtitle">Link valid until {{ formatDateTime(shareInfo.expires_at) }}</p>
+      <h2 v-if="shareInfo">{{ t('share.offerTitle', { donor: shareInfo.donor_username, game: shareInfo.game_name }) }}</h2>
+      <h2 v-else>{{ t('share.loadingKey') }}</h2>
+      <p v-if="shareInfo" class="subtitle">{{ t('share.validUntil', { date: formatDateTime(shareInfo.expires_at) }) }}</p>
     </div>
 
     <div v-if="error" class="error">{{ error }}</div>
@@ -25,19 +25,19 @@
       </div>
 
       <div class="share-actions">
-        <div class="status" v-if="shareInfo.expired">This link has expired.</div>
-        <div class="status" v-else-if="shareInfo.revealed">This link has already been used.</div>
-        <div class="status" v-else-if="shareInfo.used">This key is already marked as used.</div>
+        <div class="status" v-if="shareInfo.expired">{{ t('share.expired') }}</div>
+        <div class="status" v-else-if="shareInfo.revealed">{{ t('share.revealed') }}</div>
+        <div class="status" v-else-if="shareInfo.used">{{ t('share.used') }}</div>
 
         <div class="promo-card">
           <div class="promo-text">
-            This key was shared using SteamKeyVault — manage and share your keys securely.
+            {{ t('share.promo') }}
           </div>
-          <Button label="Create an account" class="p-button-sm p-button-primary" @click="goToRegister" />
+          <Button :label="t('share.createAccount')" class="p-button-sm p-button-primary" @click="goToRegister" />
         </div>
 
         <div v-if="revealedKey" class="revealed-key">
-          <div class="key-label">Revealed key</div>
+          <div class="key-label">{{ t('share.revealedKey') }}</div>
           <div class="key-row">
             <span class="key-value">{{ revealedKey }}</span>
             <div class="key-actions">
@@ -51,7 +51,7 @@
                 style="margin-left:0.5rem"
               >
                 <i class="pi pi-external-link"></i>
-                <span style="margin-left:0.5rem">Activate on Steam</span>
+                <span style="margin-left:0.5rem">{{ t('share.activateSteam') }}</span>
               </a>
             </div>
           </div>
@@ -60,21 +60,21 @@
         <div v-else-if="!shareInfo.used" class="reveal-panel">
           <div class="turnstile" id="turnstile-reveal"></div>
           <Button
-            label="Reveal key"
+            :label="t('share.revealKey')"
             icon="pi pi-unlock"
             :disabled="!canReveal || !revealToken"
             :loading="revealing"
             @click="revealKey"
           />
-          <small v-if="!turnstileReady" class="hint">Turnstile captcha is not configured.</small>
+          <small v-if="!turnstileReady" class="hint">{{ t('share.captchaMissing') }}</small>
         </div>
 
         <div v-if="!shareInfo.message_sent && (!shareInfo.used || shareInfo.revealed)" class="message-panel">
-          <h3>Send a message to the donor</h3>
-          <Textarea v-model="message" rows="4" autoResize placeholder="Write a thank-you message..." maxlength="100" />
+          <h3>{{ t('share.sendMessageTitle') }}</h3>
+          <Textarea v-model="message" rows="4" autoResize :placeholder="t('share.messagePlaceholder')" maxlength="100" />
           <small class="hint">{{ message.trim().length }}/100</small>
           <Button
-            label="Send message"
+            :label="t('share.sendMessage')"
             icon="pi pi-send"
             :disabled="!canMessage || !message.trim() || message.trim().length > 100"
             :loading="sending"
@@ -96,6 +96,7 @@ import { useToast } from 'primevue/usetoast'
 import GameInfo from '@/components/GameInfo.vue'
 import { ensureCSRFToken, TURNSTILE_SITE_KEY } from '@/api/apiHelper'
 import { getShareInfo, revealSharedKey, sendShareMessage } from '@/api/keys'
+import { useI18n } from 'vue-i18n'
 
 interface ShareInfo {
   token: string
@@ -134,6 +135,7 @@ const turnstileReady = ref(false)
 const message = ref('')
 const revealing = ref(false)
 const sending = ref(false)
+const { t } = useI18n()
 
 const shareToken = computed(() => String(route.params.token || ''))
 const canReveal = computed(() => {
@@ -183,14 +185,14 @@ onMounted(async () => {
 
 async function loadShareInfo() {
   if (!shareToken.value) {
-    error.value = 'Invalid link.'
+    error.value = t('share.invalidLink')
     return
   }
   try {
     const data = await getShareInfo(shareToken.value)
     shareInfo.value = data
   } catch (err: any) {
-    error.value = err?.response?.data?.error || 'Invalid link.'
+    error.value = err?.response?.data?.error || t('share.invalidLink')
   }
 }
 
@@ -254,7 +256,7 @@ function resetTurnstile() {
 
 async function revealKey() {
   if (!revealToken.value || !shareToken.value) {
-    toast.add({ severity: 'warn', summary: 'Captcha', detail: 'Please complete the captcha.', life: 2000 })
+    toast.add({ severity: 'warn', summary: t('share.captcha'), detail: t('share.captchaRequired'), life: 2000 })
     return
   }
   revealing.value = true
@@ -263,9 +265,9 @@ async function revealKey() {
     revealedKey.value = data.key
     sessionStorage.setItem(storageKey.value, data.key)
     await loadShareInfo()
-    toast.add({ severity: 'success', summary: 'Key revealed', detail: 'The key is now visible.', life: 2000 })
+    toast.add({ severity: 'success', summary: t('share.keyRevealed'), detail: t('share.keyRevealedDetail'), life: 2000 })
   } catch (err: any) {
-    toast.add({ severity: 'error', summary: 'Error', detail: err?.response?.data?.error || 'Unable to reveal the key.', life: 3000 })
+    toast.add({ severity: 'error', summary: t('common.error'), detail: err?.response?.data?.error || t('share.revealFailed'), life: 3000 })
   } finally {
     revealing.value = false
     resetTurnstile()
@@ -274,13 +276,13 @@ async function revealKey() {
 
 async function sendMessage() {
   if (!shareToken.value) {
-    toast.add({ severity: 'warn', summary: 'Error', detail: 'Invalid link.', life: 2000 })
+    toast.add({ severity: 'warn', summary: t('common.error'), detail: t('share.invalidLink'), life: 2000 })
     return
   }
   const text = message.value.trim()
   if (!text) return
   if (text.length > 100) {
-    toast.add({ severity: 'warn', summary: 'Too long', detail: 'Message must be 100 characters or less.', life: 3000 })
+    toast.add({ severity: 'warn', summary: t('common.error'), detail: t('share.messageTooLong'), life: 3000 })
     return
   }
   sending.value = true
@@ -288,9 +290,9 @@ async function sendMessage() {
     await sendShareMessage(shareToken.value, '', message.value.trim())
     message.value = ''
     await loadShareInfo()
-    toast.add({ severity: 'success', summary: 'Sent', detail: 'Message sent to the donor.', life: 2000 })
+    toast.add({ severity: 'success', summary: t('share.sent'), detail: t('share.messageSent'), life: 2000 })
   } catch (err: any) {
-    toast.add({ severity: 'error', summary: 'Error', detail: err?.response?.data?.error || 'Unable to send the message.', life: 3000 })
+    toast.add({ severity: 'error', summary: t('common.error'), detail: err?.response?.data?.error || t('share.sendFailed'), life: 3000 })
   } finally {
     sending.value = false
   }
@@ -299,9 +301,9 @@ async function sendMessage() {
 async function copyRevealedKey() {
   try {
     await navigator.clipboard.writeText(revealedKey.value)
-    toast.add({ severity: 'success', summary: 'Copied', detail: 'Key copied.', life: 2000 })
+    toast.add({ severity: 'success', summary: t('share.copied'), detail: t('share.copiedDetail'), life: 2000 })
   } catch (err) {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'Unable to copy the key.', life: 2000 })
+    toast.add({ severity: 'error', summary: t('common.error'), detail: t('share.copyFailed'), life: 2000 })
   }
 }
 

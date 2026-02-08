@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { showErrorToast } from '../utils/toast'
+import { i18n } from '@/i18n'
 
 // In development (pnpm run dev), Vite loads VITE_API_BASE_URL from .env.local
 // In production (Docker), the placeholder is replaced at container startup by env.sh
@@ -48,8 +49,8 @@ axios.interceptors.response.use(
   (response) => response,
   (error) => {
     // try to extract a useful message
-    const msg = error?.response?.data?.error || error?.response?.data?.detail || error?.message || 'Unknown error'
-    showErrorToast('Error', String(msg))
+    const msg = error?.response?.data?.error || error?.response?.data?.detail || error?.message || i18n.global.t('common.unknownError')
+    showErrorToast(i18n.global.t('common.error'), String(msg))
     return Promise.reject(error)
   }
 )

@@ -1,49 +1,49 @@
 <template>
   <div class="register-container">
     <Card class="register-card">
-      <template #title><h2 class="register-title">Register</h2></template>
+      <template #title><h2 class="register-title">{{ t('auth.register.title') }}</h2></template>
       <template #content>
         <form @submit.prevent="handleRegister" class="register-form">
           <div class="form-group">
-            <label for="email">Email</label>
+            <label for="email">{{ t('auth.register.email') }}</label>
             <InputText id="email" v-model="email" type="email" required class="w-full" />
           </div>
           <div class="form-group">
-            <label for="username">Username</label>
+            <label for="username">{{ t('auth.register.username') }}</label>
             <InputText id="username" v-model="username" type="text" required class="w-full" />
           </div>
           <div class="form-group">
-            <label for="password">Password</label>
+            <label for="password">{{ t('auth.register.password') }}</label>
             <Password id="password" v-model="password" :feedback="false" toggleMask required class="w-full" inputClass="w-full" />
             <small class="password-requirements">
-              Password must: be 12+ characters, contain lowercase, uppercase, digit, and special character (#?!@$%^&*-'+()_[])
+              {{ t('auth.register.passwordRequirements') }}
             </small>
           </div>
           <div class="form-group">
-            <label for="confirmPassword">Confirm Password</label>
+            <label for="confirmPassword">{{ t('auth.register.confirmPassword') }}</label>
             <Password id="confirmPassword" v-model="confirmPassword" :feedback="false" toggleMask required class="w-full" inputClass="w-full" />
           </div>
-          <Button type="submit" label="Register" class="w-full mt-4" />
+          <Button type="submit" :label="t('auth.register.submit')" class="w-full mt-4" />
           <Message v-if="error" severity="error" class="mt-4">{{ error }}</Message>
           <Message v-if="success" severity="success" class="mt-4">{{ success }}</Message>
           
           <div class="login-link mt-4">
-            <span>Already have an account?</span>
-            <Button label="Login" link size="small" @click="goToLogin" />
+            <span>{{ t('auth.register.hasAccount') }}</span>
+            <Button :label="t('auth.register.login')" link size="small" @click="goToLogin" />
           </div>
         </form>
       </template>
     </Card>
 
-    <Dialog v-model:visible="showRecoveryDialog" header="Recovery Key" :modal="true" :style="{ width: 'min(36rem, 92vw)' }">
+    <Dialog v-model:visible="showRecoveryDialog" :header="t('auth.recovery.title')" :modal="true" :style="{ width: 'min(36rem, 92vw)' }">
       <div class="recovery-content">
         <p class="recovery-warning">
-          Save this recovery phrase now. It is the only way to recover your data if you forget your password.
+          {{ t('auth.recovery.warning') }}
         </p>
         <div class="recovery-phrase">{{ recoveryPhrase }}</div>
         <div class="recovery-actions">
-          <Button label="Copy" icon="pi pi-copy" @click="copyRecoveryPhrase" />
-          <Button label="I saved it" icon="pi pi-check" severity="success" @click="confirmRecoverySaved" />
+          <Button :label="t('auth.recovery.copy')" icon="pi pi-copy" @click="copyRecoveryPhrase" />
+          <Button :label="t('auth.recovery.saved')" icon="pi pi-check" severity="success" @click="confirmRecoverySaved" />
         </div>
       </div>
     </Dialog>
@@ -63,6 +63,7 @@ import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import Button from 'primevue/button';
 import Message from 'primevue/message';
+import { useI18n } from 'vue-i18n'
 
 const email = ref('')
 const username = ref('')
@@ -74,12 +75,13 @@ const router = useRouter()
 const toast = useToast()
 const recoveryPhrase = ref('')
 const showRecoveryDialog = ref(false)
+const { t } = useI18n()
 
 const handleRegister = async () => {
   error.value = ''
   success.value = ''
   if (password.value !== confirmPassword.value) {
-    error.value = 'Passwords do not match.'
+    error.value = t('auth.register.errors.passwordMismatch')
     return
   }
   
@@ -116,9 +118,9 @@ const handleRegister = async () => {
 
     recoveryPhrase.value = recovery
     showRecoveryDialog.value = true
-    success.value = 'Registration successful! Please save your recovery phrase.'
+    success.value = t('auth.register.success')
   } catch (err: any) {
-    error.value = err?.response?.data?.error || 'Registration failed.'
+    error.value = err?.response?.data?.error || t('auth.register.errors.registrationFailed')
   }
 }
 
@@ -129,9 +131,9 @@ function goToLogin() {
 async function copyRecoveryPhrase() {
   try {
     await navigator.clipboard.writeText(recoveryPhrase.value)
-    toast.add({ severity: 'success', summary: 'Copied', detail: 'Recovery phrase copied', life: 2000 })
+    toast.add({ severity: 'success', summary: t('auth.recovery.copied'), detail: t('auth.recovery.copiedDetail'), life: 2000 })
   } catch (err) {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to copy recovery phrase', life: 2000 })
+    toast.add({ severity: 'error', summary: t('common.error'), detail: t('auth.recovery.copyFailed'), life: 2000 })
   }
 }
 

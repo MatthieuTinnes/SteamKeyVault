@@ -1,7 +1,7 @@
 <template>
   <div class="my-account-view">
     <div class="header">
-      <h2><i class="pi pi-user"></i> My Account</h2>
+      <h2><i class="pi pi-user"></i> {{ t('account.title') }}</h2>
     </div>
 
     <!-- Stats Grid -->
@@ -9,7 +9,7 @@
       <div class="stat-card">
         <i class="pi pi-box stat-icon"></i>
         <div class="stat-content">
-          <div class="stat-label">Total Games</div>
+          <div class="stat-label">{{ t('account.stats.totalGames') }}</div>
           <div class="stat-value">{{ stats.games_count ?? '-' }}</div>
         </div>
       </div>
@@ -17,7 +17,7 @@
       <div class="stat-card">
         <i class="pi pi-key stat-icon"></i>
         <div class="stat-content">
-          <div class="stat-label">Total Keys</div>
+          <div class="stat-label">{{ t('account.stats.totalKeys') }}</div>
           <div class="stat-value">{{ stats.keys_count ?? '-' }}</div>
         </div>
       </div>
@@ -25,9 +25,9 @@
       <div class="stat-card">
         <i :class="['pi', userStore.user?.email_verified ? 'pi-check-circle' : 'pi-exclamation-circle', 'stat-icon', userStore.user?.email_verified ? 'verified' : 'warning']"></i>
         <div class="stat-content">
-          <div class="stat-label">Account Status</div>
+          <div class="stat-label">{{ t('account.stats.accountStatus') }}</div>
           <div class="stat-value status-text">
-            {{ userStore.user?.email_verified ? 'Verified' : 'Unverified' }}
+            {{ userStore.user?.email_verified ? t('account.stats.verified') : t('account.stats.unverified') }}
           </div>
         </div>
       </div>
@@ -39,16 +39,14 @@
       <!-- Data Management -->
       <section class="settings-card">
         <div class="card-header">
-          <h3><i class="pi pi-database"></i> Data Management</h3>
-          <p class="section-desc">Import or export your game library data.
-            CSV format contains game names and keys separated by semicolons. 
-            JSON format follows the SteamKeyVault schema.</p>
+          <h3><i class="pi pi-database"></i> {{ t('account.data.title') }}</h3>
+          <p class="section-desc">{{ t('account.data.desc') }}</p>
         </div>
         <div class="actions-column">
-          <Button label="Import CSV" icon="pi pi-upload" @click="router.push('/import')" outlined class="w-full" />
-          <Button label="Export CSV" icon="pi pi-download" @click="exportCsv" outlined class="w-full" />
-          <Button label="Import JSON (SteamKeyVault)" icon="pi pi-upload" @click="openJsonPicker" outlined class="w-full" />
-          <Button label="Export JSON (SteamKeyVault)" icon="pi pi-download" @click="exportJson" outlined class="w-full" />
+          <Button :label="t('account.data.importCsv')" icon="pi pi-upload" @click="router.push('/import')" outlined class="w-full" />
+          <Button :label="t('account.data.exportCsv')" icon="pi pi-download" @click="exportCsv" outlined class="w-full" />
+          <Button :label="t('account.data.importJson')" icon="pi pi-upload" @click="openJsonPicker" outlined class="w-full" />
+          <Button :label="t('account.data.exportJson')" icon="pi pi-download" @click="exportJson" outlined class="w-full" />
           <input
             ref="jsonFileInput"
             type="file"
@@ -62,24 +60,24 @@
       <!-- Email Settings -->
       <section class="settings-card">
         <div class="card-header">
-          <h3><i class="pi pi-envelope"></i> Email Settings</h3>
-          <p class="section-desc">Manage your email address and verification.</p>
+          <h3><i class="pi pi-envelope"></i> {{ t('account.email.title') }}</h3>
+          <p class="section-desc">{{ t('account.email.desc') }}</p>
         </div>
         <div class="form-group">
-          <label for="email">Email Address</label>
+          <label for="email">{{ t('account.email.label') }}</label>
           <div class="p-inputgroup">
-            <InputText id="email" v-model="email" type="email" :disabled="pendingEmailChange" placeholder="your@email.com" />
+            <InputText id="email" v-model="email" type="email" :disabled="pendingEmailChange" :placeholder="t('account.email.placeholder')" />
             <Button icon="pi pi-check" @click="saveEmail" :disabled="!email || !isEmailValid || saving || pendingEmailChange" />
           </div>
           
-          <small v-if="email && !isEmailValid" class="p-error">Please enter a valid email address.</small>
+          <small v-if="email && !isEmailValid" class="p-error">{{ t('account.email.invalid') }}</small>
           
           <div v-if="pendingEmailChange">
-            <Message severity="warn" icon="pi pi-clock" :closable="false">Change pending. Check {{ pendingNewEmail }} for confirmation.</Message>
+            <Message severity="warn" icon="pi pi-clock" :closable="false">{{ t('account.email.pending', { email: pendingNewEmail }) }}</Message>
           </div>
           <div v-else-if="!userStore.user?.email_verified" class="unverified-alert">
-             <Message severity="warn" icon="pi pi-clock" :closable="false">Please check your inbox to verify your email.</Message>
-             <Button label="Resend Email" icon="pi pi-send" size="small" text @click="resendVerification" :loading="resending" class="mt-2" />
+             <Message severity="warn" icon="pi pi-clock" :closable="false">{{ t('account.email.unverified') }}</Message>
+             <Button :label="t('account.email.resend')" icon="pi pi-send" size="small" text @click="resendVerification" :loading="resending" class="mt-2" />
           </div>
         </div>
       </section>
@@ -87,28 +85,47 @@
       <!-- Security Settings -->
       <section class="settings-card">
         <div class="card-header">
-          <h3><i class="pi pi-lock"></i> Security</h3>
-          <p class="section-desc">Update your password to keep your account secure.</p>
+          <h3><i class="pi pi-lock"></i> {{ t('account.security.title') }}</h3>
+          <p class="section-desc">{{ t('account.security.desc') }}</p>
         </div>
         <div class="form-grid">
           <div class="form-group">
-            <label for="current">Current Password</label>
+            <label for="current">{{ t('account.security.currentPassword') }}</label>
             <Password id="current" v-model="currentPassword" :feedback="false" toggleMask inputClass="w-full" />
           </div>
           <div class="form-group">
-            <label for="new">New Password</label>
+            <label for="new">{{ t('account.security.newPassword') }}</label>
             <Password id="new" v-model="newPassword" :feedback="false" toggleMask inputClass="w-full" />
             <small class="password-requirements">
-              Password must: be 12+ characters, contain lowercase, uppercase, digit, and special character (#?!@$%^&*-'+()_[])
+              {{ t('account.security.passwordRequirements') }}
             </small>
           </div>
           <div class="form-group">
-            <label for="confirm">Confirm Password</label>
+            <label for="confirm">{{ t('account.security.confirmPassword') }}</label>
             <Password id="confirm" v-model="confirmPassword" :feedback="false" toggleMask inputClass="w-full" :class="{'p-invalid': confirmPassword && newPassword !== confirmPassword}" />
           </div>
         </div>
         <div class="actions-footer">
-          <Button label="Update Password" icon="pi pi-save" @click="changePwd" :disabled="!canChange || saving" :loading="saving" />
+          <Button :label="t('account.security.updatePassword')" icon="pi pi-save" @click="changePwd" :disabled="!canChange || saving" :loading="saving" />
+        </div>
+      </section>
+
+      <section class="settings-card">
+        <div class="card-header">
+          <h3><i class="pi pi-sliders-h"></i> {{ t('account.preferences.title') }}</h3>
+          <p class="section-desc">{{ t('account.preferences.desc') }}</p>
+        </div>
+        <div class="form-group">
+          <label for="language">{{ t('account.preferences.language') }}</label>
+          <Dropdown
+            id="language"
+            v-model="selectedLocale"
+            :options="localeOptions"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full"
+            @change="onLocaleChange"
+          />
         </div>
       </section>
     </div>
@@ -116,10 +133,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
 import Password from 'primevue/password'
+import Dropdown from 'primevue/dropdown'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useCryptoStore } from '@/stores/crypto'
@@ -130,6 +148,8 @@ import Message from 'primevue/message';
 import { deriveKeyFromPassword, wrapMasterKey } from '@/utils/crypto'
 import { validatePasswordStrength } from '@/utils/passwordValidation'
 import { MAX_IMPORT_BYTES } from '@/utils/importLimits'
+import { useI18n } from 'vue-i18n'
+import { setLocale } from '@/i18n'
 
 const userStore = useUserStore()
 const cryptoStore = useCryptoStore()
@@ -145,6 +165,12 @@ const stats = ref<{ games_count?: number; keys_count?: number }>({})
 const statsLoading = ref(false)
 const router = useRouter()
 const jsonFileInput = ref<HTMLInputElement | null>(null)
+const { t, locale } = useI18n()
+const selectedLocale = ref(locale.value)
+const localeOptions = computed(() => [
+  { label: t('locale.en'), value: 'en' },
+  { label: t('locale.fr'), value: 'fr' }
+])
 
 onMounted(async () => {
   if (!userStore.user) {
@@ -152,6 +178,10 @@ onMounted(async () => {
   }
   email.value = userStore.user?.email || ''
   await loadStats()
+})
+
+watch(locale, (value) => {
+  selectedLocale.value = value
 })
 
 const canChange = computed(() => {
@@ -171,22 +201,22 @@ async function saveEmail() {
   saving.value = true
   try {
     const response = await updateEmail({ email: email.value })
-    const message = response.data?.message || 'Email update requested'
+    const message = response.data?.message || t('account.toasts.emailUpdateRequested')
 
     // If the response indicates a confirmation is needed
     if (message.toLowerCase().includes('check your') || message.toLowerCase().includes('confirm')) {
       pendingEmailChange.value = true
       pendingNewEmail.value = email.value
-      showSuccessToast('Confirmation Required', message)
+      showSuccessToast(t('account.toasts.confirmationRequired'), message)
 
       // Reset email to current one
       email.value = userStore.user?.email || ''
     } else {
-      showSuccessToast('Success', message)
+      showSuccessToast(t('account.toasts.success'), message)
       await userStore.fetchUser()
     }
   } catch (e: any) {
-    const errorMsg = e?.response?.data?.error || 'Failed to update email'
+    const errorMsg = e?.response?.data?.error || t('account.toasts.failedUpdateEmail')
     showErrorToast(errorMsg)
   } finally {
     saving.value = false
@@ -194,19 +224,19 @@ async function saveEmail() {
 }
 
 async function changePwd() {
-  if (!canChange.value) return showErrorToast('Invalid data', 'Please check the password fields')
+  if (!canChange.value) return showErrorToast(t('account.toasts.invalidData'), t('account.toasts.checkPasswordFields'))
   
   // Validate password strength
   const validation = validatePasswordStrength(newPassword.value)
   if (!validation.isValid) {
-    showErrorToast('Invalid password', validation.errors.join('. '))
+    showErrorToast(t('account.toasts.invalidPassword'), validation.errors.join('. '))
     return
   }
   
   saving.value = true
   try {
     if (!cryptoStore.masterKeyBytes || !cryptoStore.mkSalt || !cryptoStore.kdfParams) {
-      throw new Error('Missing encryption context. Please log in again.')
+      throw new Error(t('account.toasts.missingEncryptionContext'))
     }
     const newUserKey = await deriveKeyFromPassword(newPassword.value, cryptoStore.mkSalt, cryptoStore.kdfParams)
     const wrappedMkPassword = await wrapMasterKey(cryptoStore.masterKeyBytes, newUserKey)
@@ -215,12 +245,12 @@ async function changePwd() {
       new_password: newPassword.value,
       wrapped_mk_password: wrappedMkPassword
     })
-    showSuccessToast('Success', 'Password changed')
+    showSuccessToast(t('account.toasts.success'), t('account.toasts.passwordChanged'))
     currentPassword.value = ''
     newPassword.value = ''
     confirmPassword.value = ''
   } catch (e) {
-    showErrorToast('Password update failed', e instanceof Error ? e.message : 'Unknown error')
+    showErrorToast(t('account.toasts.passwordUpdateFailed'), e instanceof Error ? e.message : t('common.unknownError'))
   } finally {
     saving.value = false
   }
@@ -232,7 +262,7 @@ async function loadStats() {
     const res = await fetchUserStats()
     stats.value = res.data || {}
   } catch (e) {
-    showErrorToast('Failed to load account stats')
+    showErrorToast(t('account.toasts.failedAccountStats'))
   } finally {
     statsLoading.value = false
   }
@@ -242,9 +272,9 @@ async function resendVerification() {
   resending.value = true
   try {
     await resendVerificationEmail()
-    showSuccessToast('Email Sent', 'Verification email has been resent.')
+    showSuccessToast(t('account.toasts.emailSent'), t('account.toasts.verificationResent'))
   } catch (e: any) {
-    const errorMsg = e?.response?.data?.error || 'Failed to resend email'
+    const errorMsg = e?.response?.data?.error || t('account.toasts.failedResendEmail')
     showErrorToast(errorMsg)
   } finally {
     resending.value = false
@@ -262,7 +292,7 @@ async function exportCsv() {
     a.click()
     a.remove()
     window.URL.revokeObjectURL(url)
-    showSuccessToast('Export', `CSV downloaded: ${filename}`)
+    showSuccessToast(t('account.toasts.export'), t('account.toasts.csvDownloaded', { filename }))
   } catch (e: any) {
     showErrorToast(e?.response?.data?.error || e.message || String(e))
   }
@@ -281,7 +311,7 @@ function onJsonFileChange(e: Event) {
 
 async function importJson(file: File) {
   if (file.size > MAX_IMPORT_BYTES) {
-    showErrorToast('File too large', 'Maximum file size is 10 MB.')
+    showErrorToast(t('account.toasts.fileTooLarge'), t('account.toasts.maxFileSize'))
     return
   }
   try {
@@ -289,9 +319,9 @@ async function importJson(file: File) {
     const data = res.data || {}
     const gamesCreated = data.games_created ?? 0
     const keysCreated = data.keys_created ?? 0
-    showSuccessToast('Import JSON', `Games created: ${gamesCreated}, Keys created: ${keysCreated}`)
+    showSuccessToast(t('account.toasts.importJson'), t('account.toasts.gamesKeysCreated', { games: gamesCreated, keys: keysCreated }))
   } catch (e: any) {
-    showErrorToast(e?.response?.data?.error || 'Failed to import JSON')
+    showErrorToast(e?.response?.data?.error || t('account.toasts.failedImportJson'))
   }
 }
 
@@ -314,10 +344,16 @@ async function exportJson() {
     a.click()
     a.remove()
     window.URL.revokeObjectURL(url)
-    showSuccessToast('Export', `JSON downloaded: ${filename}`)
+    showSuccessToast(t('account.toasts.export'), t('account.toasts.jsonDownloaded', { filename }))
   } catch (e: any) {
     showErrorToast(e?.response?.data?.error || e.message || String(e))
   }
+}
+
+function onLocaleChange(event: { value: string }) {
+  const nextLocale = event.value
+  selectedLocale.value = nextLocale
+  setLocale(nextLocale as 'en' | 'fr')
 }
 </script>
 

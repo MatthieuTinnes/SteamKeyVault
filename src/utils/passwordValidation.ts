@@ -17,27 +17,29 @@ export interface PasswordValidationResult {
  * - At least one digit
  * - At least one special character from: #?!@$%^&*-'+()_[]
  */
+import { i18n } from '@/i18n'
+
 export function validatePasswordStrength(password: string): PasswordValidationResult {
   const errors: string[] = []
 
   if (password.length < 12) {
-    errors.push('Password must be at least 12 characters long')
+    errors.push(i18n.global.t('validation.password.minLength'))
   }
 
   if (!/[a-z]/.test(password)) {
-    errors.push('Password must contain at least one lowercase letter')
+    errors.push(i18n.global.t('validation.password.lowercase'))
   }
 
   if (!/[A-Z]/.test(password)) {
-    errors.push('Password must contain at least one uppercase letter')
+    errors.push(i18n.global.t('validation.password.uppercase'))
   }
 
   if (!/\d/.test(password)) {
-    errors.push('Password must contain at least one digit')
+    errors.push(i18n.global.t('validation.password.digit'))
   }
 
   if (!/[#?!@$%^&*\-'+()_[\]]/.test(password)) {
-    errors.push("Password must contain at least one special character (#?!@$%^&*-'+()_[])")
+    errors.push(i18n.global.t('validation.password.special'))
   }
 
   return {
@@ -50,10 +52,5 @@ export function validatePasswordStrength(password: string): PasswordValidationRe
  * Get a user-friendly password requirements message
  */
 export function getPasswordRequirements(): string {
-  return `Password must:
-• Be at least 12 characters long
-• Contain at least one lowercase letter
-• Contain at least one uppercase letter
-• Contain at least one digit
-• Contain at least one special character (#?!@$%^&*-'+()_[])`
+  return i18n.global.t('account.security.passwordRequirements')
 }

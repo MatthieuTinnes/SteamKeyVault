@@ -1,20 +1,20 @@
 <template>
   <div class="forgot-container">
     <Card class="forgot-card">
-      <template #title><h2 class="forgot-title">Forgot Password</h2></template>
+      <template #title><h2 class="forgot-title">{{ t('auth.forgot.title') }}</h2></template>
       <template #content>
         <form @submit.prevent="handleSubmit" class="forgot-form">
           <div class="form-group">
-            <label for="email">Email</label>
+            <label for="email">{{ t('auth.login.email') }}</label>
             <InputText id="email" v-model="email" type="email" required class="w-full" />
           </div>
-          <Button type="submit" label="Send Reset Link" class="w-full mt-4" :loading="submitting" />
+          <Button type="submit" :label="t('auth.forgot.sendLink')" class="w-full mt-4" :loading="submitting" />
           <Message v-if="success" severity="success" class="mt-4">
-            If an account exists for this email, a reset link has been sent.
+            {{ t('auth.forgot.success') }}
           </Message>
           <Message v-if="error" severity="error" class="mt-4">{{ error }}</Message>
           <div class="login-link mt-4">
-            <Button label="Back to Login" link size="small" @click="goToLogin" />
+            <Button :label="t('common.backToLogin')" link size="small" @click="goToLogin" />
           </div>
         </form>
       </template>
@@ -31,12 +31,14 @@ import Button from 'primevue/button'
 import Message from 'primevue/message'
 import { forgotPassword } from '@/api/auth'
 import { showErrorToast, showSuccessToast } from '@/utils/toast'
+import { useI18n } from 'vue-i18n'
 
 const email = ref('')
 const submitting = ref(false)
 const success = ref(false)
 const error = ref('')
 const router = useRouter()
+const { t } = useI18n()
 
 async function handleSubmit() {
   error.value = ''
@@ -45,10 +47,10 @@ async function handleSubmit() {
   try {
     await forgotPassword(email.value)
     success.value = true
-    showSuccessToast('Email sent', 'If the account exists, a reset link was sent.')
+    showSuccessToast(t('auth.forgot.emailSent'), t('auth.forgot.emailSentDetail'))
   } catch (e: any) {
-    error.value = e?.response?.data?.error || 'Failed to send reset email.'
-    showErrorToast('Reset failed', error.value)
+    error.value = e?.response?.data?.error || t('auth.forgot.failedToSend')
+    showErrorToast(t('auth.forgot.resetFailed'), error.value)
   } finally {
     submitting.value = false
   }

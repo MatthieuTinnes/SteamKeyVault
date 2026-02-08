@@ -3,13 +3,13 @@
     <!-- Sidebar -->
     <aside class="sidebar-card">
       <div class="sidebar-header">
-        <h3><i class="pi pi-list"></i> Your Games</h3>
+        <h3><i class="pi pi-list"></i> {{ t('myKeys.yourGames') }}</h3>
         <div class="header-actions">
-          <Button icon="pi pi-ellipsis-v" class="p-button-text overflow-btn" @click="op && op.toggle($event)" aria-label="More actions" />
+          <Button icon="pi pi-ellipsis-v" class="p-button-text overflow-btn" @click="op && op.toggle($event)" :aria-label="t('myKeys.moreActions')" />
           <OverlayPanel ref="op">
             <div class="overflow-menu">
-              <Button class="p-button-text" icon="pi pi-external-link" label="Export for lestrades.com" @click="exportForLesTrades(); op && op.hide()" />
-              <Button class="p-button-text p-button-danger" icon="pi pi-trash" label="Delete all used keys" @click="confirmDeleteAllUsedKeys(); op && op.hide()" />
+              <Button class="p-button-text" icon="pi pi-external-link" :label="t('myKeys.exportLestrades')" @click="exportForLesTrades(); op && op.hide()" />
+              <Button class="p-button-text p-button-danger" icon="pi pi-trash" :label="t('myKeys.deleteAllUsed')" @click="confirmDeleteAllUsedKeys(); op && op.hide()" />
             </div>
           </OverlayPanel>
         </div>
@@ -40,8 +40,8 @@
       <div v-else class="empty-state">
         <div class="empty-content">
           <i class="pi pi-box empty-icon"></i>
-          <h3>No Game Selected</h3>
-          <p>Select a game from the sidebar to view details and manage keys.</p>
+          <h3>{{ t('myKeys.emptyTitle') }}</h3>
+          <p>{{ t('myKeys.emptyDesc') }}</p>
         </div>
       </div>
     </main>
@@ -64,6 +64,7 @@ import OverlayPanel from 'primevue/overlaypanel'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import { ref as vueRef } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const userStore = useUserStore()
 const user = computed(() => userStore.user)
@@ -81,6 +82,7 @@ onMounted(async () => {
 const toast = useToast()
 const confirm = useConfirm()
 const op = vueRef<InstanceType<typeof OverlayPanel> | null>(null)
+const { t } = useI18n()
 
 function exportForLesTrades() {
   // Format: gameName1/steamAppId1,gameName2/steamAppId2,customGameName,gameName3/steamAppId3
@@ -96,25 +98,25 @@ function exportForLesTrades() {
   const out = parts.join('\n')
   try {
     navigator.clipboard.writeText(out)
-    toast.add({ severity: 'success', summary: 'Copied', detail: 'Export copied to clipboard', life: 3000 })
+    toast.add({ severity: 'success', summary: t('myKeys.clipboardCopied'), detail: t('myKeys.exportCopied'), life: 3000 })
   } catch (err) {
     console.error('Failed to copy export:', err)
-    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to copy export', life: 3000 })
+    toast.add({ severity: 'error', summary: t('common.error'), detail: t('myKeys.exportCopyFailed'), life: 3000 })
   }
 }
 
 function confirmDeleteAllUsedKeys() {
   confirm.require({
-    message: 'Are you sure you want to delete all used keys from all your games? This action cannot be undone.',
-    header: 'Delete All Used Keys',
+    message: t('myKeys.deleteAllMessage'),
+    header: t('myKeys.deleteAllHeader'),
     icon: 'pi pi-exclamation-triangle',
     rejectProps: {
-      label: 'Cancel',
+      label: t('myKeys.deleteAllCancel'),
       severity: 'secondary',
       outlined: true
     },
     acceptProps: {
-      label: 'Delete',
+      label: t('myKeys.deleteAllConfirm'),
       severity: 'danger'
     },
     accept: async () => {
@@ -122,8 +124,8 @@ function confirmDeleteAllUsedKeys() {
         const result = await removeAllUsedKeys()
         toast.add({ 
           severity: 'success', 
-          summary: 'Keys Deleted', 
-          detail: `${result.deleted} key${result.deleted !== 1 ? 's' : ''} deleted`, 
+          summary: t('myKeys.deleteAllSuccess'), 
+          detail: t('myKeys.deleteAllCount', { count: result.deleted, suffix: result.deleted !== 1 ? 's' : '' }), 
           life: 3000 
         })
         // Refresh the current game's keys if one is selected
@@ -134,8 +136,8 @@ function confirmDeleteAllUsedKeys() {
         console.error('Failed to delete used keys:', err)
         toast.add({ 
           severity: 'error', 
-          summary: 'Error', 
-          detail: 'Failed to delete used keys', 
+          summary: t('common.error'), 
+          detail: t('myKeys.deleteAllFailed'), 
           life: 3000 
         })
       }

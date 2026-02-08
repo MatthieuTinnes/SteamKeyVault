@@ -1,14 +1,14 @@
 <template>
   <div>
-    <Button label="Add Game" icon="pi pi-plus" class="w-full" @click="openModal" />
+    <Button :label="t('games.addGame')" icon="pi pi-plus" class="w-full" @click="openModal" />
 
-    <Dialog v-model:visible="visible" header="Add a Game" :style="{ width: 'min(32rem, 95vw)' }" :modal="true"
+    <Dialog v-model:visible="visible" :header="t('games.addGameHeader')" :style="{ width: 'min(32rem, 95vw)' }" :modal="true"
       class="add-game-modal">
       <div class="dialog-content">
         
         <div class="field-checkbox mb-4">
           <Checkbox inputId="nonsteam" v-model="isCustom" :binary="true" @update:modelValue="onToggleNonSteam" />
-          <label for="nonsteam">Add non-Steam / custom game</label>
+          <label for="nonsteam">{{ t('games.addCustomLabel') }}</label>
         </div>
 
         <div class="field mb-4">
@@ -19,7 +19,7 @@
                 :suggestions="results" 
                 @complete="onComplete" 
                 optionLabel="name"
-                placeholder="Search for a Steam game..." 
+                :placeholder="t('games.searchSteamPlaceholder')" 
                 class="w-full" 
                 :loading="loading"
                 @item-select="selectGame"
@@ -35,20 +35,20 @@
             </span>
           </template>
           <template v-else>
-            <InputText v-model="manualName" placeholder="Enter game name" class="w-full" />
+            <InputText v-model="manualName" :placeholder="t('games.manualNamePlaceholder')" class="w-full" />
           </template>
         </div>
 
         <div v-if="selectedGame || isCustom" class="selected-preview">
-          <div class="preview-label">Preview:</div>
+          <div class="preview-label">{{ t('games.preview') }}</div>
           <div class="preview-card">
             <img v-if="selectedGame && !isCustom" :src="getGameImage(selectedGame.appid)" :alt="selectedGame.name" class="preview-image" />
-            <img v-else :src="isCustom ? placeholderCustom : placeholderDefault" alt="Game placeholder" class="preview-image placeholder" />
+            <img v-else :src="isCustom ? placeholderCustom : placeholderDefault" :alt="t('games.placeholderAlt')" class="preview-image placeholder" />
             
             <div class="preview-details">
-              <div class="preview-name">{{ isCustom ? (manualName || 'New Custom Game') : selectedGame.name }}</div>
-              <div class="preview-id" v-if="!isCustom && selectedGame">App ID: {{ selectedGame.appid }}</div>
-              <div class="preview-id" v-else>Custom Game</div>
+              <div class="preview-name">{{ isCustom ? (manualName || t('games.newCustomGame')) : selectedGame.name }}</div>
+              <div class="preview-id" v-if="!isCustom && selectedGame">{{ t('games.appId', { id: selectedGame.appid }) }}</div>
+              <div class="preview-id" v-else>{{ t('games.customGame') }}</div>
             </div>
           </div>
         </div>
@@ -56,8 +56,8 @@
       </div>
 
       <template #footer>
-        <Button label="Cancel" icon="pi pi-times" text @click="closeModal" />
-        <Button label="Add Game" icon="pi pi-check" :disabled="!canAdd" @click="handleAddGame" />
+        <Button :label="t('common.cancel')" icon="pi pi-times" text @click="closeModal" />
+        <Button :label="t('games.addGame')" icon="pi pi-check" :disabled="!canAdd" @click="handleAddGame" />
       </template>
     </Dialog>
   </div>
@@ -73,6 +73,7 @@ import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
 import placeholderDefault from '../assets/placeholder-460x215.svg'
 import placeholderCustom from '../assets/placeholder_custom-game.svg'
+import { useI18n } from 'vue-i18n'
 
 const searchQuery = ref('')
 const results = ref<any[]>([])
@@ -81,6 +82,7 @@ const debounceTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 const selectedGame = ref<any | null>(null)
 const isCustom = ref(false)
 const manualName = ref('')
+const { t } = useI18n()
 
 const canAdd = computed(() => {
   return isCustom.value ? manualName.value.trim().length > 0 : !!selectedGame.value

@@ -1,25 +1,25 @@
 <template>
   <div class="login-container">
     <Card class="login-card">
-      <template #title><h2 class="login-title">Login</h2></template>
+      <template #title><h2 class="login-title">{{ t('auth.login.title') }}</h2></template>
       <template #content>
         <form @submit.prevent="handleLogin" class="login-form">
           <div class="form-group">
-            <label for="email">Email</label>
+            <label for="email">{{ t('auth.login.email') }}</label>
             <InputText id="email" v-model="email" type="text" required class="w-full" />
           </div>
           <div class="form-group">
-            <label for="password">Password</label>
+            <label for="password">{{ t('auth.login.password') }}</label>
             <Password :feedback="false" id="password" v-model="password" toggleMask required class="w-full" inputClass="w-full" />
           </div>
-          <Button type="submit" label="Login" class="w-full mt-4" />
+          <Button type="submit" :label="t('auth.login.submit')" class="w-full mt-4" />
         </form>
         <div class="forgot-link mt-3">
-          <Button label="Forgot password?" link size="small" @click="goToForgot" />
+          <Button :label="t('auth.login.forgot')" link size="small" @click="goToForgot" />
         </div>
         <div class="register-link mt-4">
-          <span>Don't have an account?</span>
-          <Button label="Register" link size="small" @click="goToRegister" />
+          <span>{{ t('auth.login.noAccount') }}</span>
+          <Button :label="t('auth.login.register')" link size="small" @click="goToRegister" />
         </div>
       </template>
     </Card>
@@ -37,10 +37,12 @@ import Card from 'primevue/card';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import Button from 'primevue/button';
+import { useI18n } from 'vue-i18n'
 
 const email = ref('')
 const password = ref('')
 const router = useRouter()
+const { t } = useI18n()
 
 const handleLogin = async () => {
   const loginData = await loginUser(email.value, password.value)

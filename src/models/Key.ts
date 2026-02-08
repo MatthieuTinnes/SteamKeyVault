@@ -8,10 +8,4 @@ export interface Key {
   share_in_progress?: boolean
 }
 
-export const CURRENT_USE_OPTIONS = [
-  { label: 'Keep', value: 'KEEP' },
-  { label: 'Trade', value: 'TRADE' },
-  { label: 'Giveaway', value: 'GIVEAWAY' },
-  { label: 'Sell', value: 'SELL' },
-  { label: 'Other', value: 'OTHER' },
-];
+export const CURRENT_USE_VALUES = ['KEEP', 'TRADE', 'GIVEAWAY', 'SELL', 'OTHER'] as const

@@ -2,8 +2,8 @@
   <nav class="navbar">
     <div class="navbar-left">
       <RouterLink to="/" class="navbar-logo-link">
-        <img src="../assets/logo.png" alt="Logo" class="navbar-logo" />
-        <span class="navbar-title">SteamKeyVault</span>
+        <img src="../assets/logo.png" :alt="t('app.logoAlt')" class="navbar-logo" />
+        <span class="navbar-title">{{ t('app.name') }}</span>
       </RouterLink>
     </div>
 
@@ -11,14 +11,14 @@
       :icon="menuOpen ? 'pi pi-times' : 'pi pi-bars'" 
       text 
       rounded 
-      aria-label="Toggle navigation"
+      :aria-label="t('nav.toggleNav')"
       class="navbar-toggle-btn"
       @click="toggleMenu"
     />
 
     <div class="navbar-links" :class="{ open: menuOpen }">
       <Button
-        label="Documentation"
+        :label="t('nav.documentation')"
         icon="pi pi-book"
         text
         class="nav-item"
@@ -26,7 +26,7 @@
       />
       <Button 
         v-if="isLoggedIn" 
-        label="My Keys" 
+        :label="t('nav.myKeys')" 
         icon="pi pi-key" 
         text
         class="nav-item"
@@ -34,8 +34,8 @@
       />
       
       <template v-if="!isLoggedIn">
-        <Button label="Login" text class="nav-item" @click="goTo('/login')" />
-        <Button label="Register" class="nav-item" @click="goTo('/register')" />
+        <Button :label="t('nav.login')" text class="nav-item" @click="goTo('/login')" />
+        <Button :label="t('nav.register')" class="nav-item" @click="goTo('/register')" />
       </template>
       
       <div v-if="isLoggedIn" class="user-menu-wrapper">
@@ -52,18 +52,18 @@
           <div v-if="userMenuOpen" class="user-menu-dropdown">
             <div class="user-menu-item" @click="goTo('/my-account')">
               <i class="pi pi-user"></i>
-              <span>My Account</span>
+              <span>{{ t('nav.myAccount') }}</span>
             </div>
             <div v-if="isAdmin" class="user-menu-item admin-item" @click="goTo('/admin')">
               <i class="pi pi-shield"></i>
-              <span>Admin</span>
+              <span>{{ t('nav.admin') }}</span>
             </div>
             <div class="user-menu-divider"></div>
             <ThemeToggle />
             <div class="user-menu-divider"></div>
             <div class="user-menu-item logout-item" @click="handleLogout">
               <i class="pi pi-sign-out"></i>
-              <span>Logout</span>
+              <span>{{ t('nav.logout') }}</span>
             </div>
           </div>
         </Transition>
@@ -79,6 +79,7 @@ import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { logoutUser } from '../api/auth'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const route = useRoute()
@@ -87,6 +88,7 @@ const isLoggedIn = computed(() => !!userStore.user && !!userStore.user.username)
 const isAdmin = computed(() => !!userStore.user && !!userStore.user.is_admin)
 const menuOpen = ref(false)
 const userMenuOpen = ref(false)
+const { t } = useI18n()
 
 function goTo(path: string) {
   menuOpen.value = false

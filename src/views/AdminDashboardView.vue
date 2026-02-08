@@ -1,12 +1,12 @@
 <template>
   <div class="admin-dashboard">
-    <h2><i class="pi pi-shield"></i> Admin Dashboard</h2>
+    <h2><i class="pi pi-shield"></i> {{ t('admin.dashboardTitle') }}</h2>
     
     <div class="stats-grid">
       <div class="stat-card">
         <i class="pi pi-users stat-icon"></i>
         <div class="stat-content">
-          <div class="stat-label">Total Users</div>
+          <div class="stat-label">{{ t('admin.stats.totalUsers') }}</div>
           <div class="stat-value">{{ stats.total_users ?? '-' }}</div>
         </div>
       </div>
@@ -14,7 +14,7 @@
       <div class="stat-card">
         <i class="pi pi-check-circle stat-icon verified"></i>
         <div class="stat-content">
-          <div class="stat-label">Verified Users</div>
+          <div class="stat-label">{{ t('admin.stats.verifiedUsers') }}</div>
           <div class="stat-value">{{ stats.verified_users ?? '-' }}</div>
         </div>
       </div>
@@ -22,7 +22,7 @@
       <div class="stat-card">
         <i class="pi pi-shield stat-icon admin"></i>
         <div class="stat-content">
-          <div class="stat-label">Admin Users</div>
+          <div class="stat-label">{{ t('admin.stats.adminUsers') }}</div>
           <div class="stat-value">{{ stats.admin_users ?? '-' }}</div>
         </div>
       </div>
@@ -30,7 +30,7 @@
       <div class="stat-card">
         <i class="pi pi-box stat-icon"></i>
         <div class="stat-content">
-          <div class="stat-label">Total Games</div>
+          <div class="stat-label">{{ t('admin.stats.totalGames') }}</div>
           <div class="stat-value">{{ stats.total_games ?? '-' }}</div>
         </div>
       </div>
@@ -38,7 +38,7 @@
       <div class="stat-card">
         <i class="pi pi-key stat-icon"></i>
         <div class="stat-content">
-          <div class="stat-label">Total Keys</div>
+          <div class="stat-label">{{ t('admin.stats.totalKeys') }}</div>
           <div class="stat-value">{{ stats.total_keys ?? '-' }}</div>
         </div>
       </div>
@@ -47,20 +47,20 @@
     <div class="admin-sections">
       <div class="section-card" @click="router.push('/admin/users')">
         <i class="pi pi-users"></i>
-        <h3>User Management</h3>
-        <p>Manage user accounts, emails, and permissions</p>
+        <h3>{{ t('admin.sections.userManagement') }}</h3>
+        <p>{{ t('admin.sections.userManagementDesc') }}</p>
       </div>
       
       <div class="section-card" @click="router.push('/admin/steam')">
         <i class="pi pi-cloud-download"></i>
-        <h3>Steam Synchronization</h3>
-        <p>Refresh Steam apps database and view sync statistics</p>
+        <h3>{{ t('admin.sections.steamSync') }}</h3>
+        <p>{{ t('admin.sections.steamSyncDesc') }}</p>
       </div>
 
       <div class="section-card" @click="router.push('/admin/logs')">
         <i class="pi pi-book"></i>
-        <h3>Action Logs</h3>
-        <p>Review logins and account changes with filters</p>
+        <h3>{{ t('admin.sections.actionLogs') }}</h3>
+        <p>{{ t('admin.sections.actionLogsDesc') }}</p>
       </div>
     </div>
   </div>
@@ -72,8 +72,10 @@ import { useRouter } from 'vue-router'
 import { getAdminStats } from '@/api/admin'
 import type { AdminStats } from '@/api/admin'
 import { showErrorToast } from '@/utils/toast'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 const stats = ref<AdminStats>({
   total_users: 0,
   verified_users: 0,
@@ -87,7 +89,7 @@ onMounted(async () => {
     const response = await getAdminStats()
     stats.value = response.data
   } catch (error) {
-    showErrorToast('Failed to load admin statistics')
+    showErrorToast(t('admin.statsFailed'))
   }
 })
 </script>

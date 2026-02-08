@@ -3,23 +3,23 @@
     <div class="verify-card">
       <div v-if="loading" class="status-content">
         <i class="pi pi-spin pi-spinner" style="font-size: 3rem; color: #2563eb;"></i>
-        <h2>Verifying your email...</h2>
-        <p>Please wait while we verify your email address.</p>
+        <h2>{{ t('auth.verify.verifyingTitle') }}</h2>
+        <p>{{ t('auth.verify.verifyingDesc') }}</p>
       </div>
 
       <div v-else-if="success" class="status-content success">
         <i class="pi pi-check-circle" style="font-size: 3rem; color: #059669;"></i>
-        <h2>Email Verified!</h2>
+        <h2>{{ t('auth.verify.successTitle') }}</h2>
         <p>{{ message }}</p>
-        <p>You can now log in to your account.</p>
-        <Button label="Go to Login" icon="pi pi-sign-in" @click="router.push('/login')" class="mt-3" />
+        <p>{{ t('auth.verify.successDesc') }}</p>
+        <Button :label="t('auth.verify.goToLogin')" icon="pi pi-sign-in" @click="router.push('/login')" class="mt-3" />
       </div>
 
       <div v-else class="status-content error">
         <i class="pi pi-times-circle" style="font-size: 3rem; color: #dc2626;"></i>
-        <h2>Verification Failed</h2>
+        <h2>{{ t('auth.verify.failedTitle') }}</h2>
         <p>{{ errorMessage }}</p>
-        <Button label="Go to Home" icon="pi pi-home" @click="router.push('/')" class="mt-3" severity="secondary" />
+        <Button :label="t('common.backToHome')" icon="pi pi-home" @click="router.push('/')" class="mt-3" severity="secondary" />
       </div>
     </div>
   </div>
@@ -30,30 +30,32 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import { verifyEmail } from '@/api/auth'
+import { useI18n } from 'vue-i18n'
 
 const route = useRoute()
 const router = useRouter()
 const loading = ref(true)
 const success = ref(false)
 const message = ref('')
-const errorMessage = ref('An error occurred during verification.')
+const { t } = useI18n()
+const errorMessage = ref(t('auth.verify.failedDefault'))
 
 onMounted(async () => {
   const token = route.query.token as string
   
   if (!token) {
     loading.value = false
-    errorMessage.value = 'No verification token provided.'
+    errorMessage.value = t('auth.verify.noToken')
     return
   }
 
   try {
     const response = await verifyEmail(token)
     success.value = true
-    message.value = response.data.message || 'Email verified successfully!'
+    message.value = response.data.message || t('auth.verify.successFallback')
   } catch (error: any) {
     success.value = false
-    errorMessage.value = error?.response?.data?.error || 'Invalid or expired verification link.'
+    errorMessage.value = error?.response?.data?.error || t('auth.verify.invalidLink')
   } finally {
     loading.value = false
   }

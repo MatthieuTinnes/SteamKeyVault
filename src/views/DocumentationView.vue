@@ -2,186 +2,155 @@
   <div class="documentation-view">
     <header class="doc-hero">
       <div class="hero-content">
-        <p class="eyebrow">User guide</p>
-        <h1>SteamKeyVault Documentation</h1>
+        <p class="eyebrow">{{ t('docs.eyebrow') }}</p>
+        <h1>{{ t('docs.title') }}</h1>
         <p class="subtitle">
-          A simple guide to protect your keys, manage your library, and share with confidence.
+          {{ t('docs.subtitle') }}
         </p>
       </div>
     </header>
 
     <main class="doc-content">
       <section class="toc">
-        <h2>Quick access</h2>
+        <h2>{{ t('docs.quickAccess') }}</h2>
         <div class="toc-grid">
-          <a href="#encryption" class="toc-item">Encryption and benefits</a>
-          <a href="#import-export" class="toc-item">Import and export</a>
-          <a href="#sharing" class="toc-item">Share a key by link</a>
-          <a href="#custom-vs-steam" class="toc-item">Custom games vs Steam</a>
-          <a href="#lestrades" class="toc-item">lestrades.com export</a>
-          <a href="#delete-used" class="toc-item">Delete used keys</a>
-          <a href="#qa" class="toc-item">Q&A</a>
+          <a href="#encryption" class="toc-item">{{ t('docs.toc.encryption') }}</a>
+          <a href="#import-export" class="toc-item">{{ t('docs.toc.importExport') }}</a>
+          <a href="#sharing" class="toc-item">{{ t('docs.toc.sharing') }}</a>
+          <a href="#custom-vs-steam" class="toc-item">{{ t('docs.toc.customVsSteam') }}</a>
+          <a href="#lestrades" class="toc-item">{{ t('docs.toc.lestrades') }}</a>
+          <a href="#delete-used" class="toc-item">{{ t('docs.toc.deleteUsed') }}</a>
+          <a href="#qa" class="toc-item">{{ t('docs.toc.qa') }}</a>
         </div>
       </section>
 
       <section id="encryption" class="doc-section">
-        <h2>Encryption and benefits</h2>
-        <p>
-          Your keys are encrypted in your browser before they are sent to the server. This means only you
-          can see the keys in plain text when you are logged in.
-        </p>
+        <h2>{{ t('docs.encryption.title') }}</h2>
+        <p>{{ t('docs.encryption.body') }}</p>
         <div class="doc-card">
-          <h3>Why this protects you</h3>
+          <h3>{{ t('docs.encryption.whyTitle') }}</h3>
           <ul>
-            <li>Your keys are unreadable to anyone who does not have your login session.</li>
-            <li>If a backup or database snapshot leaks, the keys remain protected.</li>
-            <li>Exports are decrypted only on your device, right before download.</li>
+            <li v-for="(item, index) in encryptionWhy" :key="index">{{ item }}</li>
           </ul>
         </div>
         <div class="doc-card">
-          <h3>What to expect as a user</h3>
+          <h3>{{ t('docs.encryption.expectTitle') }}</h3>
           <ul>
-            <li>After logout or clearing the browser, you need to log in again to see keys.</li>
-            <li>Imports are protected locally before upload, so your data stays private.</li>
+            <li v-for="(item, index) in encryptionExpect" :key="index">{{ item }}</li>
           </ul>
         </div>
       </section>
 
       <section id="import-export" class="doc-section">
-        <h2>Import and export</h2>
+        <h2>{{ t('docs.importExport.title') }}</h2>
         <p>
-          You can manage imports and exports from <strong>My Account</strong> and the <strong>Import</strong> page.
+          {{ t('docs.importExport.managePrefix') }}
+          <strong>{{ t('nav.myAccount') }}</strong>
+          {{ t('docs.importExport.manageMiddle') }}
+          <strong>{{ t('import.title') }}</strong>
+          {{ t('docs.importExport.manageSuffix') }}
         </p>
         <div class="doc-card">
-          <h3>CSV or TXT import</h3>
+          <h3>{{ t('docs.importExport.csvImportTitle') }}</h3>
           <ol>
-            <li>Open the Import page.</li>
-            <li>Drop your file or click Select File.</li>
-            <li>Expected format: <code>gameName;key1;key2</code> (one line per game).</li>
-            <li>A progress panel shows results and errors.</li>
+            <li v-for="(item, index) in csvImportSteps" :key="index">{{ item }}</li>
           </ol>
-          <p class="note">Max file size: 10 MB.</p>
+          <p class="note">{{ t('docs.importExport.csvImportNote') }}</p>
         </div>
         <div class="doc-card">
-          <h3>CSV export</h3>
+          <h3>{{ t('docs.importExport.csvExportTitle') }}</h3>
           <ol>
-            <li>In My Account, click Export CSV.</li>
-            <li>Your file is prepared and decrypted locally on your device.</li>
+            <li v-for="(item, index) in csvExportSteps" :key="index">{{ item }}</li>
           </ol>
         </div>
         <div class="doc-card">
-          <h3>JSON import or export (SteamKeyVault)</h3>
+          <h3>{{ t('docs.importExport.jsonTitle') }}</h3>
           <ul>
-            <li>JSON export keeps the SteamKeyVault structure for easy re-import.</li>
-            <li>JSON import encrypts keys locally before upload.</li>
+            <li v-for="(item, index) in jsonItems" :key="index">{{ item }}</li>
           </ul>
         </div>
       </section>
 
       <section id="sharing" class="doc-section">
-        <h2>Share a key by link</h2>
-        <p>
-          You can generate a temporary link for any key and send it to someone. The recipient reveals the
-          key on a public page.
-        </p>
+        <h2>{{ t('docs.sharing.title') }}</h2>
+        <p>{{ t('docs.sharing.body') }}</p>
         <div class="doc-card">
-          <h3>Create a link</h3>
+          <h3>{{ t('docs.sharing.createTitle') }}</h3>
           <ol>
-            <li>Open My Keys.</li>
-            <li>Click the share icon on a key.</li>
-            <li>Copy the link and send it.</li>
+            <li v-for="(item, index) in sharingCreateSteps" :key="index">{{ item }}</li>
           </ol>
         </div>
         <div class="doc-card">
-          <h3>How it behaves</h3>
+          <h3>{{ t('docs.sharing.behaviorTitle') }}</h3>
           <ul>
-            <li>The link has an expiration date.</li>
-            <li>The key can be revealed only once.</li>
-            <li>A captcha protects the key from bots.</li>
-            <li>You can disable the link from the share dialog.</li>
+            <li v-for="(item, index) in sharingBehavior" :key="index">{{ item }}</li>
           </ul>
         </div>
       </section>
 
       <section id="custom-vs-steam" class="doc-section">
-        <h2>Custom games vs Steam games</h2>
-        <p>
-          SteamKeyVault supports Steam-linked games and custom games that are not on Steam.
-        </p>
+        <h2>{{ t('docs.customVsSteam.title') }}</h2>
+        <p>{{ t('docs.customVsSteam.body') }}</p>
         <div class="doc-card">
-          <h3>Steam games</h3>
+          <h3>{{ t('docs.customVsSteam.steamTitle') }}</h3>
           <ul>
-            <li>Linked to a Steam App ID.</li>
-            <li>Title, images, and publisher are filled automatically.</li>
+            <li v-for="(item, index) in steamList" :key="index">{{ item }}</li>
           </ul>
         </div>
         <div class="doc-card">
-          <h3>Custom games</h3>
+          <h3>{{ t('docs.customVsSteam.customTitle') }}</h3>
           <ul>
-            <li>Create a game with any name you want.</li>
-            <li>Later, you can match it to a Steam game.</li>
-            <li>If a Steam App ID becomes invalid, the game stays custom.</li>
+            <li v-for="(item, index) in customList" :key="index">{{ item }}</li>
           </ul>
         </div>
       </section>
 
       <section id="lestrades" class="doc-section">
-        <h2>lestrades.com export</h2>
-        <p>
-          This export creates a text format you can paste directly into lestrades.com.
-        </p>
+        <h2>{{ t('docs.lestrades.title') }}</h2>
+        <p>{{ t('docs.lestrades.body') }}</p>
         <div class="doc-card">
-          <h3>Where to find it</h3>
+          <h3>{{ t('docs.lestrades.whereTitle') }}</h3>
           <ol>
-            <li>Open My Keys.</li>
-            <li>Click the three dots menu at the top of the games column.</li>
-            <li>Select Export for lestrades.com.</li>
+            <li v-for="(item, index) in lestradesWhere" :key="index">{{ item }}</li>
           </ol>
         </div>
         <div class="doc-card">
-          <h3>Format</h3>
+          <h3>{{ t('docs.lestrades.formatTitle') }}</h3>
           <ul>
-            <li>One game per line.</li>
-            <li>Steam game: <code>GameName/steamAppId</code>.</li>
-            <li>Custom game: <code>GameName</code>.</li>
-            <li>The result is copied to your clipboard.</li>
+            <li v-for="(item, index) in lestradesFormat" :key="index">{{ item }}</li>
           </ul>
         </div>
       </section>
 
       <section id="delete-used" class="doc-section">
-        <h2>Delete used keys</h2>
-        <p>
-          You can remove all keys that are marked as used in a single action.
-        </p>
+        <h2>{{ t('docs.deleteUsed.title') }}</h2>
+        <p>{{ t('docs.deleteUsed.body') }}</p>
         <div class="doc-card">
-          <h3>Steps</h3>
+          <h3>{{ t('docs.deleteUsed.stepsTitle') }}</h3>
           <ol>
-            <li>Open My Keys.</li>
-            <li>Open the three dots menu in the games column.</li>
-            <li>Choose Delete all used keys and confirm.</li>
+            <li v-for="(item, index) in deleteSteps" :key="index">{{ item }}</li>
           </ol>
-          <p class="note">This action cannot be undone.</p>
+          <p class="note">{{ t('docs.deleteUsed.note') }}</p>
         </div>
       </section>
 
       <section id="qa" class="doc-section">
-        <h2>Q&A</h2>
+        <h2>{{ t('docs.qa.title') }}</h2>
         <div class="doc-card">
-          <h3>Do you store my keys in plain text?</h3>
-          <p>No. Your keys are encrypted before they leave your device.</p>
+          <h3>{{ qaItems[0].q }}</h3>
+          <p>{{ qaItems[0].a }}</p>
         </div>
         <div class="doc-card">
-          <h3>Can I share a key safely?</h3>
-          <p>Yes. Share links are temporary, can be disabled, and allow a single reveal.</p>
+          <h3>{{ qaItems[1].q }}</h3>
+          <p>{{ qaItems[1].a }}</p>
         </div>
         <div class="doc-card">
-          <h3>What happens if a Steam game is removed?</h3>
-          <p>The game stays in your library as a custom game, so you do not lose your data.</p>
+          <h3>{{ qaItems[2].q }}</h3>
+          <p>{{ qaItems[2].a }}</p>
         </div>
         <div class="doc-card">
-          <h3>Can I move my library to another account?</h3>
-          <p>Yes. Export your data and import it into another account anytime.</p>
+          <h3>{{ qaItems[3].q }}</h3>
+          <p>{{ qaItems[3].a }}</p>
         </div>
       </section>
     </main>
@@ -189,6 +158,23 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t, tm } = useI18n()
+const encryptionWhy = computed(() => tm('docs.encryption.whyList') as string[])
+const encryptionExpect = computed(() => tm('docs.encryption.expectList') as string[])
+const csvImportSteps = computed(() => tm('docs.importExport.csvImportSteps') as string[])
+const csvExportSteps = computed(() => tm('docs.importExport.csvExportSteps') as string[])
+const jsonItems = computed(() => tm('docs.importExport.jsonItems') as string[])
+const sharingCreateSteps = computed(() => tm('docs.sharing.createSteps') as string[])
+const sharingBehavior = computed(() => tm('docs.sharing.behaviorList') as string[])
+const steamList = computed(() => tm('docs.customVsSteam.steamList') as string[])
+const customList = computed(() => tm('docs.customVsSteam.customList') as string[])
+const lestradesWhere = computed(() => tm('docs.lestrades.whereSteps') as string[])
+const lestradesFormat = computed(() => tm('docs.lestrades.formatList') as string[])
+const deleteSteps = computed(() => tm('docs.deleteUsed.steps') as string[])
+const qaItems = computed(() => tm('docs.qa.items') as { q: string; a: string }[])
 </script>
 
 <style scoped>
