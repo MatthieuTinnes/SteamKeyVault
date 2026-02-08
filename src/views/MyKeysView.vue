@@ -4,6 +4,14 @@
     <aside class="sidebar-card">
       <div class="sidebar-header">
         <h3><i class="pi pi-list"></i> Your Games</h3>
+        <div class="header-actions">
+          <Button icon="pi pi-ellipsis-v" class="p-button-text overflow-btn" @click="op && op.toggle($event)" aria-label="More actions" />
+          <OverlayPanel ref="op">
+            <div class="overflow-menu">
+              <Button class="p-button-text" icon="pi pi-external-link" label="Export for lestrades.com" @click="exportForLesTrades(); op.hide()" />
+            </div>
+          </OverlayPanel>
+        </div>
       </div>
       <div class="games-list-container">
         <UserGamesList :games="games" @gameSelected="handleGameSelected" />
@@ -50,6 +58,10 @@ import AddGameModal from '../components/AddGameModal.vue'
 import { getUserGames } from '../api/games'
 import { getKeysForGame } from '../api/keys'
 import type { Game } from '@/models/Game';
+import Button from 'primevue/button'
+import OverlayPanel from 'primevue/overlaypanel'
+import { useToast } from 'primevue/usetoast'
+import { ref as vueRef } from 'vue'
 
 const userStore = useUserStore()
 const user = computed(() => userStore.user)
@@ -63,6 +75,30 @@ onMounted(async () => {
   const apiGames = await getUserGames()
   games.value = apiGames;
 })
+
+const toast = useToast()
+const op = vueRef<InstanceType<typeof OverlayPanel> | null>(null)
+
+function exportForLesTrades() {
+  // Format: gameName1/steamAppId1,gameName2/steamAppId2,customGameName,gameName3/steamAppId3
+  const parts: string[] = []
+  ;(games.value as any[]).forEach((g: any) => {
+    const name = (g.name || '').replace(/[,\/]/g, '')
+    if (g.steamapp_id) {
+      parts.push(`${name}/${g.steamapp_id}`)
+    } else {
+      parts.push(name)
+    }
+  })
+  const out = parts.join('\n')
+  try {
+    navigator.clipboard.writeText(out)
+    toast.add({ severity: 'success', summary: 'Copied', detail: 'Export copied to clipboard', life: 3000 })
+  } catch (err) {
+    console.error('Failed to copy export:', err)
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to copy export', life: 3000 })
+  }
+}
 
 function handleGameSelected(game: Game) {
   selectedGameId.value = game.user_game_id
@@ -148,6 +184,25 @@ async function onGameDeleted() {
 
 .sidebar-header {
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.overflow-btn {
+  color: var(--text-secondary);
+}
+
+.overflow-menu {
+  display: flex;
+  flex-direction: column;
+  padding: 0.1rem;
 }
 
 .sidebar-header h3 {
