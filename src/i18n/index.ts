@@ -289,7 +289,7 @@ const messages = {
         newPassword: 'New Password',
         confirmPassword: 'Confirm Password',
         updatePassword: 'Update Password',
-        passwordRequirements: "Password must: be 12+ characters, contain lowercase, uppercase, digit, and special character (#?!@$%^&*-'+()_[])"
+        passwordRequirements: "Password must: be 12+ characters, contain lowercase, uppercase, digit, and special character"
       },
       preferences: {
         title: 'Preferences',
@@ -340,7 +340,7 @@ const messages = {
         submit: 'Register',
         hasAccount: 'Already have an account?',
         login: 'Login',
-        passwordRequirements: "Password must: be 12+ characters, contain lowercase, uppercase, digit, and special character (#?!@$%^&*-'+()_[])",
+        passwordRequirements: "Password must: be 12+ characters, contain lowercase, uppercase, digit, and special character",
         errors: {
           passwordMismatch: 'Passwords do not match.',
           registrationFailed: 'Registration failed.'
@@ -671,7 +671,7 @@ const messages = {
         lowercase: 'Password must contain at least one lowercase letter',
         uppercase: 'Password must contain at least one uppercase letter',
         digit: 'Password must contain at least one digit',
-        special: "Password must contain at least one special character (#?!@$%^&*-'+()_[])"
+        special: "Password must contain at least one special character"
       }
     },
     errors: {
@@ -962,7 +962,7 @@ const messages = {
         newPassword: 'Nouveau mot de passe',
         confirmPassword: 'Confirmer le mot de passe',
         updatePassword: 'Mettre à jour le mot de passe',
-        passwordRequirements: "Le mot de passe doit : contenir au moins 12 caractères, une minuscule, une majuscule, un chiffre et un caractère spécial (#?!@$%^&*-'+()_[])"
+        passwordRequirements: "Le mot de passe doit : contenir au moins 12 caractères, une minuscule, une majuscule, un chiffre et un caractère spécial"
       },
       preferences: {
         title: 'Préférences',
@@ -1013,7 +1013,7 @@ const messages = {
         submit: 'Inscription',
         hasAccount: 'Vous avez déjà un compte ?',
         login: 'Connexion',
-        passwordRequirements: "Le mot de passe doit : contenir au moins 12 caractères, une minuscule, une majuscule, un chiffre et un caractère spécial (#?!@$%^&*-'+()_[])",
+        passwordRequirements: "Le mot de passe doit : contenir au moins 12 caractères, une minuscule, une majuscule, un chiffre et un caractère spécial",
         errors: {
           passwordMismatch: 'Les mots de passe ne correspondent pas.',
           registrationFailed: "Échec de l'inscription."
@@ -1344,7 +1344,7 @@ const messages = {
         lowercase: 'Le mot de passe doit contenir au moins une minuscule',
         uppercase: 'Le mot de passe doit contenir au moins une majuscule',
         digit: 'Le mot de passe doit contenir au moins un chiffre',
-        special: "Le mot de passe doit contenir au moins un caractère spécial (#?!@$%^&*-'+()_[])"
+        special: "Le mot de passe doit contenir au moins un caractère spécial"
       }
     },
     errors: {
