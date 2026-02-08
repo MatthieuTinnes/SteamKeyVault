@@ -8,6 +8,7 @@ export interface UserInfo {
   email: string
   email_verified: boolean
   is_admin: boolean
+  preferred_language?: string
 }
 
 export interface LoginResponse {
@@ -45,6 +46,7 @@ export async function registerUser(payload: {
   email: string
   username: string
   password: string
+  preferred_language?: string
   wrapped_mk_password: string
   wrapped_mk_recovery: string
   mk_salt: string
@@ -57,6 +59,10 @@ export async function registerUser(payload: {
 
 export async function updateEmail(payload: { email: string }) {
   return axios.put(`${API_BASE_URL}/users/account`, payload, getAxiosConfig())
+}
+
+export async function updatePreferences(payload: { preferred_language: string }) {
+  return axios.put(`${API_BASE_URL}/users/preferences`, payload, getAxiosConfig())
 }
 
 export async function changePassword(payload: { current_password: string; new_password: string; wrapped_mk_password: string }) {

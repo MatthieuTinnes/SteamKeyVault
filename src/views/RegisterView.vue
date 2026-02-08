@@ -75,7 +75,7 @@ const router = useRouter()
 const toast = useToast()
 const recoveryPhrase = ref('')
 const showRecoveryDialog = ref(false)
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const handleRegister = async () => {
   error.value = ''
@@ -108,6 +108,7 @@ const handleRegister = async () => {
       email: email.value,
       username: username.value,
       password: password.value,
+      preferred_language: locale.value,
       wrapped_mk_password: wrappedMkPassword,
       wrapped_mk_recovery: wrappedMkRecovery,
       mk_salt: mkSalt,

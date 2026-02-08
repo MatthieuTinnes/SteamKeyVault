@@ -141,7 +141,7 @@ import Dropdown from 'primevue/dropdown'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useCryptoStore } from '@/stores/crypto'
-import { updateEmail, changePassword, fetchUserStats, resendVerificationEmail } from '@/api/auth'
+import { updateEmail, changePassword, fetchUserStats, resendVerificationEmail, updatePreferences } from '@/api/auth'
 import { exportUserGamesCsv, exportUserGamesJson, importUserGamesJson } from '@/api/games'
 import { showErrorToast, showSuccessToast } from '@/utils/toast'
 import Message from 'primevue/message';
@@ -177,6 +177,10 @@ onMounted(async () => {
     await userStore.fetchUser()
   }
   email.value = userStore.user?.email || ''
+  const storedLocale = userStore.user?.preferred_language
+  if (storedLocale && storedLocale !== locale.value) {
+    setLocale(storedLocale as 'en' | 'fr')
+  }
   await loadStats()
 })
 
@@ -350,10 +354,18 @@ async function exportJson() {
   }
 }
 
-function onLocaleChange(event: { value: string }) {
+async function onLocaleChange(event: { value: string }) {
   const nextLocale = event.value
   selectedLocale.value = nextLocale
   setLocale(nextLocale as 'en' | 'fr')
+  if (!userStore.user) return
+  try {
+    await updatePreferences({ preferred_language: nextLocale })
+    userStore.setUser({ ...userStore.user, preferred_language: nextLocale })
+  } catch (e: any) {
+    const errorMsg = e?.response?.data?.error || t('common.unknownError')
+    showErrorToast(t('common.error'), errorMsg)
+  }
 }
 </script>
 
