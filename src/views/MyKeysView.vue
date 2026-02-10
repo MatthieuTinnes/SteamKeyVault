@@ -9,6 +9,7 @@
           <OverlayPanel ref="op">
             <div class="overflow-menu">
               <Button class="p-button-text" icon="pi pi-external-link" :label="t('myKeys.exportLestrades')" @click="exportForLesTrades(); op && op.hide()" />
+              <Button class="p-button-text" icon="pi pi-file" :label="t('myKeys.exportMarkdown')" @click="exportAsMarkdown(); op && op.hide()" />
               <Button class="p-button-text p-button-danger" icon="pi pi-trash" :label="t('myKeys.deleteAllUsed')" @click="confirmDeleteAllUsedKeys(); op && op.hide()" />
             </div>
           </OverlayPanel>
@@ -68,8 +69,8 @@ import { useI18n } from 'vue-i18n'
 
 const userStore = useUserStore()
 const user = computed(() => userStore.user)
-const games = ref([])
-const keys = ref([])
+const games = ref<Game[]>([])
+const keys = ref<any[]>([])
 const selectedGameId = ref<number | null>(null)
 const selectedSteamAppId = ref<number | null>(null)
 const selectedGameName = ref<string | null>(null)
@@ -101,6 +102,28 @@ function exportForLesTrades() {
     toast.add({ severity: 'success', summary: t('myKeys.clipboardCopied'), detail: t('myKeys.exportCopied'), life: 3000 })
   } catch (err) {
     console.error('Failed to copy export:', err)
+    toast.add({ severity: 'error', summary: t('common.error'), detail: t('myKeys.exportCopyFailed'), life: 3000 })
+  }
+}
+
+function exportAsMarkdown() {
+  // Build a markdown list of games. Steam games are links to the store page.
+  const parts: string[] = []
+  const escapeMd = (s: string) => (s || '').replace(/\[/g, '\\[').replace(/\]/g, '\\]').replace(/\(/g, '\\(').replace(/\)/g, '\\)')
+  ;(games.value as any[]).forEach((g: any) => {
+    const name = escapeMd(g.name || '')
+    if (g.steamapp_id) {
+      parts.push(`- [${name}](https://store.steampowered.com/app/${g.steamapp_id})`)
+    } else {
+      parts.push(`- ${name}`)
+    }
+  })
+  const out = parts.join('\n')
+  try {
+    navigator.clipboard.writeText(out)
+    toast.add({ severity: 'success', summary: t('myKeys.clipboardCopied'), detail: t('myKeys.exportCopied'), life: 3000 })
+  } catch (err) {
+    console.error('Failed to copy markdown export:', err)
     toast.add({ severity: 'error', summary: t('common.error'), detail: t('myKeys.exportCopyFailed'), life: 3000 })
   }
 }
