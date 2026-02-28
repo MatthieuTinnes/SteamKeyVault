@@ -1,33 +1,52 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <style>
-      body { font-family: Inter, Arial, sans-serif; color: #111827; }
-      .container { max-width: 600px; margin: 0 auto; padding: 1.5rem; background: #ffffff; border-radius: 8px; }
-      .header { font-size: 1.25rem; font-weight: 700; color: #0f172a; }
-      .content { margin-top: 1rem; font-size: 1rem; color: #374151; }
-      .footer { margin-top: 1.5rem; font-size: 0.9rem; color: #6b7280; }
-      .button { display:inline-block; padding: 0.6rem 1rem; background:#2563eb; color:white; border-radius:6px; text-decoration:none; margin: 1rem 0; }
-      .token { background: #f3f4f6; padding: 0.5rem 1rem; border-radius: 4px; font-family: monospace; margin: 1rem 0; display: inline-block; }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="header">Verify Your Email</div>
-      <div class="content">
-        <p>Hello {{ username }},</p>
-        <p>Thanks for creating an account on SteamKeyVault! Please verify your email address to complete your registration.</p>
-        <p>
-          <a class="button" href="{{ verification_url }}">Verify Email Address</a>
-        </p>
-        <p>Or copy and paste this link into your browser:</p>
-        <div class="token">{{ verification_url }}</div>
-        <p>This link will expire in 24 hours.</p>
-        <p>If you didn't create this account, please ignore this email.</p>
-      </div>
-      <div class="footer">SteamKeyVault Team</div>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Verify Your Email — SteamKeyVault</title>
+  <style>
+    body { margin:0; padding:0; background-color:#f1f5f9; font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:15px; line-height:1.6; color:#374151; -webkit-font-smoothing:antialiased; }
+    .email-wrapper { padding:2rem 1rem; }
+    .brand { text-align:center; margin-bottom:1.25rem; }
+    .brand a { display:inline-block; font-size:1rem; font-weight:800; color:#3b82f6; text-decoration:none; letter-spacing:-0.025em; }
+    .card { max-width:600px; margin:0 auto; background:#ffffff; border-radius:12px; border:1px solid #e5e7eb; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.07); }
+    .card-header { background:#3b82f6; padding:1.5rem 2rem; }
+    .card-header h1 { margin:0; font-size:1.15rem; font-weight:700; color:#ffffff; letter-spacing:-0.01em; }
+    .card-body { padding:1.75rem 2rem; }
+    .card-body p { margin:0 0 1rem; }
+    .card-body p:last-child { margin-bottom:0; }
+    .card-body strong { color:#111827; font-weight:600; }
+    .btn { display:inline-block; padding:0.7rem 1.6rem; background:#2563eb; color:#ffffff !important; border-radius:8px; text-decoration:none !important; font-weight:600; font-size:0.9rem; margin:0.75rem 0 0.5rem; }
+    .code-block { display:block; background:#f3f4f6; border:1px solid #e5e7eb; border-radius:6px; padding:0.65rem 1rem; font-family:'Courier New',Courier,monospace; font-size:0.8rem; color:#1d4ed8; word-break:break-all; margin:0.75rem 0; }
+    .text-muted { font-size:0.85rem; color:#6b7280; }
+    .card-footer { background:#f9fafb; border-top:1px solid #e5e7eb; padding:1rem 2rem; text-align:center; }
+    .card-footer p { margin:0; font-size:0.75rem; color:#9ca3af; }
+    .card-footer a { color:#9ca3af; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="brand">
+      <a href="{{ site_url }}">🔐 SteamKeyVault</a>
     </div>
-  </body>
+    <div class="card">
+      <div class="card-header">
+        <h1>Verify Your Email Address</h1>
+      </div>
+      <div class="card-body">
+        <p>Hello {{ username }},</p>
+        <p>Thanks for signing up! Please verify your email address to complete your registration.</p>
+        <p>
+          <a class="btn" href="{{ verification_url }}">Verify Email Address</a>
+        </p>
+        <p class="text-muted">Or copy and paste this link into your browser:</p>
+        <span class="code-block">{{ verification_url }}</span>
+        <p class="text-muted">This link will expire in 24 hours. If you didn't create this account, please ignore this email.</p>
+      </div>
+      <div class="card-footer">
+        <p>SteamKeyVault &nbsp;·&nbsp; <a href="{{ site_url }}">steamkeyvault.app</a></p>
+      </div>
+    </div>
+  </div>
+</body>
 </html>
