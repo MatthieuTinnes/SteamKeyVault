@@ -120,6 +120,106 @@ const messages = {
       title: 'About',
       body: 'This is an about page'
     },
+    footer: {
+      terms: 'Terms of Service',
+      privacy: 'Privacy Policy'
+    },
+    terms: {
+      title: 'Terms of Service',
+      effectiveDate: 'Effective Date',
+      s1: {
+        title: 'Platform Information',
+        body: 'SteamKeyVault is an open-source personal project for securely storing, organizing, and sharing Steam game keys. It is self-hosted and independently developed.',
+        disclaimer: 'SteamKeyVault is not affiliated with, endorsed by, sponsored by, or officially connected to Valve Corporation or Steam in any way. Steam and the Steam logo are trademarks of Valve Corporation.'
+      },
+      s2: {
+        title: 'Acceptance of Terms',
+        body: 'By creating an account or using SteamKeyVault, you agree to these Terms of Service. The maintainers reserve the right to update these Terms at any time. Continued use of the service after changes constitutes acceptance of the revised Terms.'
+      },
+      s3: {
+        title: 'User Accounts & Responsibilities',
+        body: 'Users must create an account to access the full features of SteamKeyVault. By registering, you agree to:',
+        i1: 'Provide accurate information and keep your account credentials secure.',
+        i2: 'Be solely responsible for all activities conducted through your account.',
+        i3: 'Notify the administrators immediately of any unauthorized use of your account.'
+      },
+      s4: {
+        title: 'Usage Policies',
+        body: 'You agree not to use SteamKeyVault for any unlawful purpose or in violation of these Terms. Prohibited activities include:',
+        i1: 'Sharing, distributing, or trading keys obtained through unauthorized or illegal means.',
+        i2: 'Attempting to reverse-engineer, disrupt, or abuse the service infrastructure.',
+        i3: 'Impersonating other users or misrepresenting your affiliation with any entity.'
+      },
+      s5: {
+        title: 'Steam Trademark Disclaimer',
+        body: 'SteamKeyVault is an independent project and is in no way affiliated with, authorized, endorsed, or sponsored by Valve Corporation.',
+        trademark: 'Steam®, the Steam logo, and all related marks, emblems and logos are registered trademarks or trademarks of Valve Corporation in the United States and/or other countries. All other trademarks are the property of their respective owners.'
+      },
+      s6: {
+        title: 'Intellectual Property & Open Source',
+        body: 'The SteamKeyVault source code is published under an open-source license and is freely available on GitHub. The infrastructure, configuration, and any non-open-source elements of the hosted instance remain the property of the project maintainers. Users retain full ownership of the data they upload.'
+      },
+      s7: {
+        title: 'Limitation of Liability',
+        body: 'SteamKeyVault is provided "as is" without warranties of any kind, either express or implied. The project maintainers are not liable for any direct, indirect, incidental, or consequential damages resulting from the use of or inability to use the service, including loss of keys or account data.'
+      },
+      s8: {
+        title: 'Account Termination',
+        body: 'You may delete your account at any time from your account settings. The maintainers reserve the right to suspend or terminate accounts that violate these Terms, engage in fraudulent activity, or pose a risk to the security of the service or other users. Upon termination, your data will be permanently deleted within 30 days.'
+      },
+      s9: {
+        title: 'Contact',
+        body: 'For any questions or concerns regarding these Terms, please open an issue or reach out via the project GitHub repository.'
+      }
+    },
+    privacy: {
+      title: 'Privacy Policy',
+      effectiveDate: 'Effective Date',
+      s1: {
+        title: 'Information We Collect',
+        body: 'SteamKeyVault collects only the minimum data required to operate the service:',
+        i1: 'Account information: username, email address, and hashed password.',
+        i2: 'Game keys: stored encrypted — your keys are encrypted client-side before being sent to the server.',
+        i3: 'Session data: a session cookie used for authentication.'
+      },
+      s2: {
+        title: 'Purpose of Data Collection',
+        body: 'We collect data solely to:',
+        i1: 'Provide, operate, and maintain the SteamKeyVault service.',
+        i2: 'Authenticate users and protect accounts.',
+        i3: 'Enable key sharing features between users.'
+      },
+      s3: {
+        title: 'Data Storage & Security',
+        body: 'SteamKeyVault employs several layers of protection to keep your data safe:',
+        i1: 'Client-side encryption: your game keys are encrypted in your browser before being stored — the server never sees plaintext keys.',
+        i2: 'Transit security: all communications are protected via TLS/HTTPS.',
+        i3: 'Access control: only authenticated users can access their own data.'
+      },
+      s4: {
+        title: 'Data Sharing & Third Parties',
+        body: 'SteamKeyVault does not sell, rent, or share your personal data with any third party for marketing or commercial purposes. As a self-hosted application, no analytics trackers or advertising services are embedded. Data sharing is limited to the server infrastructure used to run your instance.'
+      },
+      s5: {
+        title: 'Your Rights (GDPR)',
+        body: 'If you are located in the European Union, you have the following rights regarding your personal data:',
+        i1: 'Right of Access: request a copy of the personal data we hold about you.',
+        i2: 'Right to Rectification: correct inaccurate or incomplete data via your account settings.',
+        i3: 'Right to Erasure: request deletion of your account and all associated data.',
+        i4: 'Right to Data Portability: export your data at any time from your account settings.'
+      },
+      s6: {
+        title: 'Data Retention',
+        body: 'We retain your data only as long as your account is active:',
+        i1: 'Active accounts: data is retained while your account remains active.',
+        i2: 'Deleted accounts: upon account deletion, all user data is permanently removed within 30 days.',
+        i3: 'Backups: backup copies may be retained for up to 90 days after deletion for disaster-recovery purposes.'
+      },
+      s7: {
+        title: 'Changes to This Policy',
+        body: 'We may update this Privacy Policy from time to time. When we do, we will update the effective date at the top of this page. We encourage you to review this policy periodically. Continued use of the service after changes indicates acceptance of the updated policy.'
+      }
+    },
     docs: {
       eyebrow: 'User guide',
       title: 'SteamKeyVault Documentation',
@@ -792,6 +892,106 @@ const messages = {
     about: {
       title: 'À propos',
       body: 'Ceci est une page à propos'
+    },
+    footer: {
+      terms: 'Conditions d\'utilisation',
+      privacy: 'Politique de confidentialité'
+    },
+    terms: {
+      title: 'Conditions d\'utilisation',
+      effectiveDate: 'Date d\'entrée en vigueur',
+      s1: {
+        title: 'Informations sur la plateforme',
+        body: 'SteamKeyVault est un projet open-source personnel permettant de stocker, organiser et partager des clés de jeux Steam de façon sécurisée. Il est auto-hébergé et développé de manière indépendante.',
+        disclaimer: 'SteamKeyVault n\'est en aucun cas affilié, approuvé, sponsorisé ou officiellement lié à Valve Corporation ou à Steam. Steam et le logo Steam sont des marques déposées de Valve Corporation.'
+      },
+      s2: {
+        title: 'Acceptation des conditions',
+        body: 'En créant un compte ou en utilisant SteamKeyVault, vous acceptez les présentes Conditions d\'utilisation. Les responsables du projet se réservent le droit de les modifier à tout moment. L\'utilisation continue du service après une modification vaut acceptation des nouvelles conditions.'
+      },
+      s3: {
+        title: 'Comptes utilisateurs & responsabilités',
+        body: 'La création d\'un compte est nécessaire pour accéder aux fonctionnalités complètes de SteamKeyVault. En vous inscrivant, vous acceptez de :',
+        i1: 'Fournir des informations exactes et protéger vos identifiants de connexion.',
+        i2: 'Être entièrement responsable de toutes les activités effectuées depuis votre compte.',
+        i3: 'Signaler immédiatement aux administrateurs toute utilisation non autorisée de votre compte.'
+      },
+      s4: {
+        title: 'Politique d\'utilisation',
+        body: 'Vous vous engagez à ne pas utiliser SteamKeyVault à des fins illicites. Les activités interdites comprennent notamment :',
+        i1: 'Le partage, la distribution ou l\'échange de clés obtenues par des moyens illégaux ou non autorisés.',
+        i2: 'Toute tentative de rétro-ingénierie, de perturbation ou d\'abus de l\'infrastructure du service.',
+        i3: 'L\'usurpation d\'identité ou la fausse déclaration d\'appartenance à une entité quelconque.'
+      },
+      s5: {
+        title: 'Avertissement — Marque Steam',
+        body: 'SteamKeyVault est un projet indépendant et n\'est en aucun cas affilié, autorisé, approuvé ou sponsorisé par Valve Corporation.',
+        trademark: 'Steam®, le logo Steam et tous les logos et emblèmes associés sont des marques déposées ou des marques commerciales de Valve Corporation aux États-Unis et/ou dans d\'autres pays. Toutes les autres marques sont la propriété de leurs détenteurs respectifs.'
+      },
+      s6: {
+        title: 'Propriété intellectuelle & open source',
+        body: 'Le code source de SteamKeyVault est publié sous licence open-source et disponible librement sur GitHub. L\'infrastructure, la configuration et les éléments non open-source de l\'instance hébergée restent la propriété des responsables du projet. Les utilisateurs conservent la pleine propriété des données qu\'ils importent.'
+      },
+      s7: {
+        title: 'Limitation de responsabilité',
+        body: 'SteamKeyVault est fourni « en l\'état », sans garantie d\'aucune sorte, expresse ou implicite. Les responsables du projet déclinent toute responsabilité pour les dommages directs, indirects, accessoires ou consécutifs résultant de l\'utilisation ou de l\'impossibilité d\'utiliser le service, y compris la perte de clés ou de données de compte.'
+      },
+      s8: {
+        title: 'Résiliation de compte',
+        body: 'Vous pouvez supprimer votre compte à tout moment depuis vos paramètres. Les responsables se réservent le droit de suspendre ou de supprimer les comptes qui enfreignent ces Conditions, se livrent à des activités frauduleuses ou menacent la sécurité du service. Après suppression, vos données seront définitivement effacées sous 30 jours.'
+      },
+      s9: {
+        title: 'Contact',
+        body: 'Pour toute question concernant ces Conditions d\'utilisation, veuillez ouvrir un ticket ou nous contacter via le dépôt GitHub du projet.'
+      }
+    },
+    privacy: {
+      title: 'Politique de confidentialité',
+      effectiveDate: 'Date d\'entrée en vigueur',
+      s1: {
+        title: 'Données collectées',
+        body: 'SteamKeyVault ne collecte que les données strictement nécessaires au fonctionnement du service :',
+        i1: 'Informations de compte : nom d\'utilisateur, adresse e-mail et mot de passe haché.',
+        i2: 'Clés de jeux : stockées chiffrées — vos clés sont chiffrées côté navigateur avant d\'être envoyées au serveur.',
+        i3: 'Données de session : un cookie de session utilisé pour l\'authentification.'
+      },
+      s2: {
+        title: 'Finalités de la collecte',
+        body: 'Nous collectons ces données uniquement pour :',
+        i1: 'Fournir, exploiter et maintenir le service SteamKeyVault.',
+        i2: 'Authentifier les utilisateurs et protéger les comptes.',
+        i3: 'Permettre les fonctionnalités de partage de clés entre utilisateurs.'
+      },
+      s3: {
+        title: 'Stockage & sécurité des données',
+        body: 'SteamKeyVault utilise plusieurs couches de protection pour sécuriser vos données :',
+        i1: 'Chiffrement côté client : vos clés de jeux sont chiffrées dans votre navigateur avant d\'être stockées — le serveur ne reçoit jamais les clés en clair.',
+        i2: 'Sécurité des échanges : toutes les communications sont protégées via TLS/HTTPS.',
+        i3: 'Contrôle d\'accès : seuls les utilisateurs authentifiés peuvent accéder à leurs propres données.'
+      },
+      s4: {
+        title: 'Partage & tiers',
+        body: 'SteamKeyVault ne vend, ne loue et ne partage vos données personnelles avec aucun tiers à des fins commerciales ou publicitaires. En tant qu\'application auto-hébergée, aucun traceur analytique ni service publicitaire n\'est intégré. Le partage de données se limite à l\'infrastructure serveur utilisée pour faire fonctionner l\'instance.'
+      },
+      s5: {
+        title: 'Vos droits (RGPD)',
+        body: 'Si vous résidez dans l\'Union européenne, vous disposez des droits suivants concernant vos données personnelles :',
+        i1: 'Droit d\'accès : demander une copie des données personnelles que nous détenons vous concernant.',
+        i2: 'Droit de rectification : corriger des données inexactes ou incomplètes depuis vos paramètres.',
+        i3: 'Droit à l\'effacement : demander la suppression de votre compte et de toutes les données associées.',
+        i4: 'Droit à la portabilité : exporter vos données à tout moment depuis vos paramètres.'
+      },
+      s6: {
+        title: 'Conservation des données',
+        body: 'Nous conservons vos données uniquement le temps de l\'activité de votre compte :',
+        i1: 'Comptes actifs : les données sont conservées tant que votre compte est actif.',
+        i2: 'Comptes supprimés : lors de la suppression du compte, toutes les données sont définitivement effacées sous 30 jours.',
+        i3: 'Sauvegardes : les copies de sauvegarde peuvent être conservées jusqu\'à 90 jours après la suppression à des fins de reprise après sinistre.'
+      },
+      s7: {
+        title: 'Modifications de cette politique',
+        body: 'Nous pouvons mettre à jour cette Politique de confidentialité ponctuellement. En cas de modification, nous actualiserons la date en haut de cette page. L\'utilisation continue du service après une modification vaut acceptation de la nouvelle politique.'
+      }
     },
     docs: {
       eyebrow: 'Guide utilisateur',

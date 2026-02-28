@@ -17,6 +17,7 @@
     />
 
     <div class="navbar-links" :class="{ open: menuOpen }">
+      <LocaleToggle />
       <Button
         :label="t('nav.documentation')"
         icon="pi pi-book"
@@ -33,7 +34,7 @@
         @click="goTo('/my-keys')" 
       />
       
-      <template v-if="!isLoggedIn">
+      <template v-if="!isLoggedIn">        
         <Button :label="t('nav.login')" text class="nav-item" @click="goTo('/login')" />
         <Button :label="t('nav.register')" class="nav-item" @click="goTo('/register')" />
       </template>
@@ -75,6 +76,7 @@
 <script setup lang="ts">
 import Button from 'primevue/button';
 import ThemeToggle from './ThemeToggle.vue';
+import LocaleToggle from './LocaleToggle.vue';
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '../stores/user'
