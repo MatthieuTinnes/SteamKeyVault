@@ -1,264 +1,1261 @@
 <template>
   <div class="home-view">
-    <div class="hero-section">
-      <div class="hero-content">
-        <h1 class="hero-title">{{ t('home.heroTitle') }}</h1>
-        <p class="hero-subtitle">
-          {{ t('home.heroSubtitle') }}
-        </p>
-        <div class="hero-actions">
-          <Button :label="t('home.getStarted')" class="p-button-lg" @click="goToMyKeys" />
-          <Button :label="t('home.learnMore')" class="p-button-lg" severity="secondary" outlined style="margin-left: 1rem;" @click="goToLearnMore" />
+
+    <!-- ============================
+         HERO
+         ============================ -->
+    <section class="hero-section">
+      <div class="hero-inner">
+        <div class="hero-content">
+          <span class="hero-eyebrow">{{ t('home.eyebrow') }}</span>
+          <h1 class="hero-title">{{ t('home.heroTitle') }}</h1>
+          <p class="hero-subtitle">{{ t('home.heroSubtitle') }}</p>
+          <div class="hero-actions">
+            <Button
+              :label="t('home.getStarted')"
+              class="p-button-lg hero-btn-primary"
+              icon="pi pi-key"
+              @click="goToMyKeys"
+            />
+            <Button
+              :label="t('home.viewDocs')"
+              class="p-button-lg"
+              severity="secondary"
+              outlined
+              icon="pi pi-book"
+              @click="goToDocs"
+            />
+          </div>
+        </div>
+
+        <!-- App preview mock -->
+        <div class="hero-preview" aria-hidden="true">
+          <div class="preview-chrome">
+            <div class="preview-chrome-bar">
+              <span class="chrome-dot dot-red"></span>
+              <span class="chrome-dot dot-yellow"></span>
+              <span class="chrome-dot dot-green"></span>
+              <div class="chrome-address-bar">steamkeyvault.app/my-keys</div>
+            </div>
+            <div class="preview-body">
+              <div class="preview-sidebar">
+                <div class="preview-sidebar-header">
+                  <span class="preview-sidebar-title">Your Games</span>
+                  <span class="preview-sidebar-count">4</span>
+                </div>
+                <div class="preview-game-item active">
+                  <div class="preview-game-thumb thumb-blue">HL</div>
+                  <div class="preview-game-info">
+                    <span class="preview-game-name">Half-Life: Alyx</span>
+                    <span class="preview-game-count">3 keys</span>
+                  </div>
+                </div>
+                <div class="preview-game-item">
+                  <div class="preview-game-thumb thumb-orange">P2</div>
+                  <div class="preview-game-info">
+                    <span class="preview-game-name">Portal 2</span>
+                    <span class="preview-game-count">1 key</span>
+                  </div>
+                </div>
+                <div class="preview-game-item">
+                  <div class="preview-game-thumb thumb-red">DE</div>
+                  <div class="preview-game-info">
+                    <span class="preview-game-name">DOOM Eternal</span>
+                    <span class="preview-game-count">2 keys</span>
+                  </div>
+                </div>
+                <div class="preview-game-item">
+                  <div class="preview-game-thumb thumb-green">CP</div>
+                  <div class="preview-game-info">
+                    <span class="preview-game-name">Cyberpunk 2077</span>
+                    <span class="preview-game-count">4 keys</span>
+                  </div>
+                </div>
+              </div>
+              <div class="preview-main">
+                <div class="preview-main-header">
+                  <span class="preview-game-title">Half-Life: Alyx</span>
+                  <div class="preview-add-btn">
+                    <i class="pi pi-plus"></i> Add Key
+                  </div>
+                </div>
+                <div class="preview-table-head">
+                  <span class="th-label th-key">Key</span>
+                  <span class="th-label">Status</span>
+                  <span class="th-label th-actions">Actions</span>
+                </div>
+                <div class="preview-key-row">
+                  <code class="preview-key-text">A7FX3-K2MP9-QR5LT</code>
+                  <div class="preview-badge badge-available">Available</div>
+                  <div class="preview-row-actions">
+                    <span class="row-action-icon"><i class="pi pi-copy"></i></span>
+                    <span class="row-action-icon"><i class="pi pi-share-alt"></i></span>
+                  </div>
+                </div>
+                <div class="preview-key-row">
+                  <code class="preview-key-text">BHY8N-W3ZQ1-PD6KR</code>
+                  <div class="preview-badge badge-sharing">Sharing</div>
+                  <div class="preview-row-actions">
+                    <span class="row-action-icon"><i class="pi pi-copy"></i></span>
+                    <span class="row-action-icon"><i class="pi pi-share-alt"></i></span>
+                  </div>
+                </div>
+                <div class="preview-key-row row-used">
+                  <code class="preview-key-text key-text-blurred">C4JM2-X9VR7-NW8HT</code>
+                  <div class="preview-badge badge-used">Used</div>
+                  <div class="preview-row-actions">
+                    <span class="row-action-icon muted"><i class="pi pi-copy"></i></span>
+                    <span class="row-action-icon muted"><i class="pi pi-trash"></i></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="preview-glow"></div>
         </div>
       </div>
-      <div class="features-section">
-        <h2 class="features-title">{{ t('home.featuresTitle') }}</h2>
-        <p class="features-desc">
-          {{ t('home.featuresDesc') }}
-        </p>
+    </section>
+
+    <!-- ============================
+         TRUST STRIP
+         ============================ -->
+    <section class="trust-strip">
+      <div class="trust-inner">
+        <div class="trust-item" v-for="item in trustItems" :key="item.icon">
+          <i :class="['pi', item.icon]"></i>
+          <span>{{ item.label }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================
+         FEATURES
+         ============================ -->
+    <section class="features-section">
+      <div class="section-inner">
+        <div class="section-header">
+          <h2 class="section-title">{{ t('home.featuresTitle') }}</h2>
+          <p class="section-desc">{{ t('home.featuresDesc') }}</p>
+        </div>
         <div class="features-grid">
           <div class="feature-card" v-for="feature in features" :key="feature.title">
+            <div class="feature-icon-wrap">
+              <i :class="['pi', feature.icon]"></i>
+            </div>
             <h3 class="feature-title">{{ feature.title }}</h3>
             <p class="feature-desc">{{ feature.desc }}</p>
           </div>
         </div>
       </div>
-      <div class="discover-section">
-        <h2 class="discover-title">{{ t('home.discoverTitle') }}</h2>
-        <p class="discover-desc">
-          {{ t('home.discoverDesc') }}
-        </p>
-        <div class="discover-features-grid">
-          <div class="discover-feature-card" v-for="feature in discoverFeatures" :key="feature.title">
-            <h3 class="discover-feature-title">{{ feature.title }}</h3>
-            <p class="discover-feature-desc">{{ feature.desc }}</p>
+    </section>
+
+    <!-- ============================
+         HOW IT WORKS
+         ============================ -->
+    <section class="howitworks-section">
+      <div class="section-inner">
+        <div class="section-header">
+          <h2 class="section-title">{{ t('home.howItWorksTitle') }}</h2>
+          <p class="section-desc">{{ t('home.howItWorksDesc') }}</p>
+        </div>
+        <div class="steps-grid">
+          <div class="step-card" v-for="(step, index) in steps" :key="step.number">
+            <div class="step-connector" v-if="index < steps.length - 1" aria-hidden="true"></div>
+            <div class="step-number">{{ step.number }}</div>
+            <div class="step-icon-wrap">
+              <i :class="['pi', step.icon]"></i>
+            </div>
+            <h3 class="step-title">{{ step.title }}</h3>
+            <p class="step-desc">{{ step.desc }}</p>
           </div>
         </div>
       </div>
-      <div class="faq-section">
-        <h2 class="faq-title">{{ t('home.faqTitle') }}</h2>
+    </section>
+
+    <!-- ============================
+         SECURITY SPOTLIGHT
+         ============================ -->
+    <section class="security-section">
+      <div class="security-inner">
+        <div class="security-text">
+          <div class="security-eyebrow">
+            <i class="pi pi-shield"></i>
+            <span>Security</span>
+          </div>
+          <h2 class="security-title">{{ t('home.securityTitle') }}</h2>
+          <p class="security-desc">{{ t('home.securityDesc') }}</p>
+          <ul class="security-points">
+            <li v-for="point in securityPoints" :key="point">
+              <i class="pi pi-check-circle"></i>
+              <span>{{ point }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="security-visual" aria-hidden="true">
+          <div class="security-card">
+            <div class="security-card-icon">
+              <i class="pi pi-lock"></i>
+            </div>
+            <div class="security-card-label">Encrypted vault</div>
+            <div class="security-card-flow">
+              <div class="flow-step">
+                <div class="flow-node">
+                  <i class="pi pi-user"></i>
+                </div>
+                <div class="flow-label">Your browser</div>
+              </div>
+              <div class="flow-arrow">
+                <div class="flow-arrow-line"></div>
+                <div class="flow-arrow-badge">
+                  <i class="pi pi-lock"></i>
+                  AES-256
+                </div>
+              </div>
+              <div class="flow-step">
+                <div class="flow-node flow-node-server">
+                  <i class="pi pi-database"></i>
+                </div>
+                <div class="flow-label">Server</div>
+              </div>
+            </div>
+            <div class="security-card-note">
+              <i class="pi pi-info-circle"></i>
+              The server only receives ciphertext
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================
+         FAQ
+         ============================ -->
+    <section class="faq-section">
+      <div class="section-inner">
+        <div class="section-header">
+          <h2 class="section-title">{{ t('home.faqTitle') }}</h2>
+        </div>
         <div class="faq-list">
-          <div class="faq-item" v-for="faq in faqs" :key="faq.q">
-            <h3 class="faq-question">{{ faq.q }}</h3>
-            <p class="faq-answer">{{ faq.a }}</p>
+          <div
+            class="faq-item"
+            v-for="(faq, index) in faqs"
+            :key="faq.q"
+            :class="{ 'faq-open': openFaq === index }"
+            @click="toggleFaq(index)"
+          >
+            <div class="faq-header">
+              <h3 class="faq-question">{{ faq.q }}</h3>
+              <i class="pi faq-chevron" :class="openFaq === index ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+            </div>
+            <div class="faq-body" v-show="openFaq === index">
+              <p class="faq-answer">{{ faq.a }}</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
+
+    <!-- ============================
+         BOTTOM CTA
+         ============================ -->
+    <section class="cta-section">
+      <div class="cta-inner">
+        <h2 class="cta-title">{{ t('home.ctaTitle') }}</h2>
+        <p class="cta-desc">{{ t('home.ctaDesc') }}</p>
+        <Button
+          :label="t('home.ctaButton')"
+          class="p-button-lg cta-btn"
+          icon="pi pi-key"
+          @click="goToRegister"
+        />
+      </div>
+    </section>
+
   </div>
 </template>
 
 <script setup lang="ts">
-import Button from 'primevue/button';
-import { useRouter, useRoute } from 'vue-router'
-import { computed } from 'vue'
-import { useUserStore } from '../stores/user'
-import { logoutUser } from '../api/auth'
+import Button from 'primevue/button'
+import { useRouter } from 'vue-router'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
-const route = useRoute()
-const userStore = useUserStore()
-const isLoggedIn = computed(() => !!userStore.user && !!userStore.user.username)
 const { t, tm } = useI18n()
 
-const features = computed(() => tm('home.features') as { title: string; desc: string }[])
-const discoverFeatures = computed(() => tm('home.discoverFeatures') as { title: string; desc: string }[])
+const features = computed(() => tm('home.features') as { icon: string; title: string; desc: string }[])
+const trustItems = computed(() => tm('home.trustItems') as { icon: string; label: string }[])
+const steps = computed(() => tm('home.steps') as { number: string; icon: string; title: string; desc: string }[])
+const securityPoints = computed(() => tm('home.securityPoints') as string[])
 const faqs = computed(() => tm('home.faqs') as { q: string; a: string }[])
 
-function goTo(path: string) {
-  router.push(path)
+const openFaq = ref<number | null>(null)
+
+function toggleFaq(index: number) {
+  openFaq.value = openFaq.value === index ? null : index
 }
-function isActive(path: string) {
-  return route.path === path
-}
+
 function goToMyKeys() {
   router.push('/my-keys')
 }
-function goToLearnMore() {
-  router.push('/about')
+function goToDocs() {
+  router.push('/documentation')
 }
-async function handleLogout() {
-  await logoutUser()
-  router.push('/login')
+function goToRegister() {
+  router.push('/register')
 }
 </script>
 
 <style scoped>
+/* ===========================
+   Layout base
+   =========================== */
 .home-view {
   width: 100%;
-  min-height: calc(100vh - 5rem);
-  background: var(--bg-secondary);
   color: var(--text-primary);
-  padding: 2rem;
+  background: var(--bg-secondary);
 }
 
+.section-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 5rem 2rem;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+
+.section-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.section-desc {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  max-width: 38rem;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ===========================
+   HERO
+   =========================== */
 .hero-section {
+  background: var(--bg-secondary);
+  padding: 4rem 2rem 0;
+  overflow: hidden;
+}
+
+.hero-inner {
   max-width: 1200px;
   margin: 0 auto;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
   align-items: center;
 }
 
 .hero-content {
-  text-align: center;
-  margin-bottom: 4rem;
-  padding-top: 2rem;
+  padding-bottom: 4rem;
+}
+
+.hero-eyebrow {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  padding: 0.35rem 0.85rem;
+  border-radius: 99px;
+  margin-bottom: 1.5rem;
+  border: 1px solid color-mix(in srgb, var(--primary-color) 25%, transparent);
 }
 
 .hero-title {
-  font-size: 3rem;
-  font-weight: 800;
-  margin-bottom: 1.5rem;
-  letter-spacing: -0.05em;
+  font-size: 3.25rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
   color: var(--text-primary);
-  line-height: 1.2;
+  margin-bottom: 1.5rem;
 }
 
 .hero-subtitle {
-  font-size: 1.25rem;
-  margin-bottom: 2rem;
+  font-size: 1.2rem;
   color: var(--text-secondary);
-  max-width: 40rem;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.6;
+  line-height: 1.65;
+  margin-bottom: 2.5rem;
+  max-width: 32rem;
 }
 
-.hero-image {
-  max-width: 100%;
-  border-radius: 1rem;
-  box-shadow: var(--shadow-lg);
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.hero-btn-primary {
+  box-shadow: 0 4px 14px 0 color-mix(in srgb, var(--primary-color) 40%, transparent);
+}
+
+/* App preview mock */
+.hero-preview {
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+.preview-glow {
+  position: absolute;
+  inset: 10% -10%;
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--primary-color) 20%, transparent) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(30px);
+}
+
+.preview-chrome {
+  position: relative;
+  z-index: 1;
+  background: var(--bg-primary);
+  border-radius: 0.875rem;
   border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-color);
+  overflow: hidden;
 }
 
-.trusted-by {
-  text-align: center;
-  margin: 4rem 0;
+.preview-chrome-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 0.85rem;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.chrome-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot-red    { background: #ff5f57; }
+.dot-yellow { background: #febc2e; }
+.dot-green  { background: #28c840; }
+
+.chrome-address-bar {
+  flex: 1;
+  height: 18px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  margin-left: 0.5rem;
+  font-size: 0.6rem;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  padding: 0 0.5rem;
+  font-family: monospace;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.preview-body {
+  display: flex;
+  height: 260px;
+}
+
+.preview-sidebar {
+  width: 168px;
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  padding: 0.65rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  overflow: hidden;
+}
+
+.preview-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.35rem;
+  margin-bottom: 0.4rem;
+}
+
+.preview-sidebar-title {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--text-tertiary);
 }
 
-.brand-logos {
+.preview-sidebar-count {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  background: var(--bg-tertiary);
+  border-radius: 99px;
+  padding: 0.05rem 0.4rem;
+}
+
+.preview-game-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.4rem;
+  border-radius: 0.4rem;
+  cursor: default;
+}
+
+.preview-game-item.active {
+  background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+}
+
+.preview-game-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 0.3rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.5rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0;
+}
+
+.thumb-blue   { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+.thumb-orange { background: linear-gradient(135deg, #f97316, #c2410c); }
+.thumb-red    { background: linear-gradient(135deg, #ef4444, #991b1b); }
+.thumb-green  { background: linear-gradient(135deg, #22c55e, #15803d); }
+
+.preview-game-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.preview-game-name {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.preview-game-item.active .preview-game-name {
+  color: var(--primary-color);
+}
+
+.preview-game-count {
+  font-size: 0.58rem;
+  color: var(--text-tertiary);
+}
+
+.preview-main {
+  flex: 1;
+  padding: 0.65rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.preview-main-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.preview-game-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.preview-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.58rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--primary-color);
+  border-radius: 0.35rem;
+  padding: 0.2rem 0.5rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.preview-add-btn .pi {
+  font-size: 0.55rem;
+}
+
+.preview-table-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.3rem 0.4rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 0.15rem;
+}
+
+.th-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  flex: 1;
+}
+
+.th-key    { flex: 3; }
+.th-actions { flex: 0; width: 40px; text-align: right; }
+
+.preview-key-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.3rem;
+  border-radius: 0.35rem;
+  border: 1px solid transparent;
+}
+
+.preview-key-row:hover {
+  background: var(--bg-tertiary);
+}
+
+.row-used {
+  opacity: 0.6;
+}
+
+.preview-key-text {
+  flex: 3;
+  font-size: 0.65rem;
+  font-family: 'Courier New', monospace;
+  color: var(--text-primary);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.key-text-blurred {
+  filter: blur(3.5px);
+  user-select: none;
+}
+
+.preview-badge {
+  flex: 1;
+  font-size: 0.58rem;
+  font-weight: 600;
+  padding: 0.15rem 0.45rem;
+  border-radius: 99px;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.badge-available {
+  background: color-mix(in srgb, #22c55e 15%, transparent);
+  color: #16a34a;
+}
+
+.badge-sharing {
+  background: color-mix(in srgb, #3b82f6 15%, transparent);
+  color: #2563eb;
+}
+
+.badge-used {
+  background: color-mix(in srgb, #6b7280 15%, transparent);
+  color: #6b7280;
+}
+
+.preview-row-actions {
+  display: flex;
+  gap: 3px;
+  flex-shrink: 0;
+  width: 40px;
+  justify-content: flex-end;
+}
+
+.row-action-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 0.25rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 0.55rem;
+}
+
+.row-action-icon.muted {
+  color: var(--text-tertiary);
+  opacity: 0.5;
+}
+
+/* ===========================
+   TRUST STRIP
+   =========================== */
+.trust-strip {
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.trust-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.25rem 2rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 2rem;
-  margin-top: 1.5rem;
-  opacity: 0.7;
+  gap: 0.5rem 2.5rem;
 }
 
-.brand-logos img {
-  height: 2rem;
-  filter: grayscale(100%);
-  transition: filter 0.3s;
-}
-
-.brand-logos img:hover {
-  filter: grayscale(0%);
-}
-
-.features-section, .discover-section, .faq-section {
-  margin-top: 6rem;
-  text-align: center;
-  width: 100%;
-}
-
-.features-title, .discover-title, .faq-title {
-  font-size: 2.25rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: var(--text-primary);
-}
-
-.features-desc, .discover-desc {
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   color: var(--text-secondary);
-  margin-bottom: 3rem;
-  font-size: 1.125rem;
-  max-width: 40rem;
-  margin-left: auto;
-  margin-right: auto;
 }
 
-.features-grid, .discover-features-grid {
+.trust-item .pi {
+  color: var(--primary-color);
+  font-size: 1rem;
+}
+
+/* ===========================
+   FEATURES
+   =========================== */
+.features-section {
+  background: var(--bg-secondary);
+}
+
+.features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  text-align: left;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
 }
 
-.feature-card, .discover-feature-card {
+.feature-card {
   background: var(--bg-primary);
-  border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
-  transition: transform 0.2s, box-shadow 0.2s;
+  border-radius: 1rem;
+  padding: 2rem 1.75rem;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 
-.feature-card:hover, .discover-feature-card:hover {
-  transform: translateY(-4px);
+.feature-card:hover {
+  transform: translateY(-3px);
   box-shadow: var(--shadow-md);
+  border-color: color-mix(in srgb, var(--primary-color) 30%, var(--border-color));
 }
 
-.feature-title, .discover-feature-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
+.feature-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.feature-icon-wrap .pi {
+  font-size: 1.2rem;
+  color: var(--primary-color);
+}
+
+.feature-title {
+  font-size: 1.05rem;
+  font-weight: 700;
   color: var(--text-primary);
+  margin-bottom: 0.6rem;
 }
 
-.feature-desc, .discover-feature-desc {
+.feature-desc {
+  font-size: 0.9rem;
   color: var(--text-secondary);
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
-.discover-image {
-  margin-top: 4rem;
-  max-width: 100%;
-  border-radius: 1rem;
-  box-shadow: var(--shadow-lg);
+/* ===========================
+   HOW IT WORKS
+   =========================== */
+.howitworks-section {
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  position: relative;
+}
+
+.step-card {
+  position: relative;
+  text-align: center;
+  padding: 2rem 1.5rem;
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
+  border-radius: 1rem;
+}
+
+.step-connector {
+  position: absolute;
+  top: 3.5rem;
+  right: -1.25rem;
+  width: 2.5rem;
+  height: 2px;
+  background: linear-gradient(to right, var(--border-color), var(--primary-color));
+  z-index: 1;
+}
+
+.step-number {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.step-icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  border: 2px solid color-mix(in srgb, var(--primary-color) 25%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+}
+
+.step-icon-wrap .pi {
+  font-size: 1.35rem;
+  color: var(--primary-color);
+}
+
+.step-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.6rem;
+}
+
+.step-desc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+/* ===========================
+   SECURITY SECTION
+   =========================== */
+.security-section {
+  background: var(--bg-secondary);
+}
+
+.security-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 5rem 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+  align-items: center;
+}
+
+.security-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--primary-color);
+  margin-bottom: 1.25rem;
+}
+
+.security-title {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.security-desc {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin-bottom: 2rem;
+}
+
+.security-points {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.security-points li {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.security-points li .pi {
+  color: #22c55e;
+  font-size: 1rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+/* Security visual */
+.security-visual {
+  display: flex;
+  justify-content: center;
+}
+
+.security-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 1.25rem;
+  padding: 2rem 2rem 1.5rem;
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 340px;
+}
+
+.security-card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.security-card-icon .pi {
+  font-size: 1.6rem;
+  color: var(--primary-color);
+}
+
+.security-card-label {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 1.75rem;
+}
+
+.security-card-flow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.flow-node {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+}
+
+.flow-node-server {
+  background: color-mix(in srgb, var(--primary-color) 10%, var(--bg-tertiary));
+  border-color: color-mix(in srgb, var(--primary-color) 25%, var(--border-color));
+  color: var(--primary-color);
+}
+
+.flow-label {
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.flow-arrow {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.flow-arrow-line {
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, var(--border-color), var(--primary-color), var(--border-color));
+}
+
+.flow-arrow-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+  padding: 0.15rem 0.5rem;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+
+.security-card-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  background: var(--bg-tertiary);
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.75rem;
+}
+
+.security-card-note .pi {
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+
+/* ===========================
+   FAQ
+   =========================== */
+.faq-section {
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
 }
 
 .faq-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2rem;
-  text-align: left;
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .faq-item {
-  background: var(--bg-primary);
-  border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: var(--shadow-sm);
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
+  border-radius: 0.875rem;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.faq-item:hover,
+.faq-item.faq-open {
+  border-color: color-mix(in srgb, var(--primary-color) 35%, var(--border-color));
+}
+
+.faq-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.5rem;
 }
 
 .faq-question {
-  font-size: 1.125rem;
+  font-size: 0.975rem;
   font-weight: 600;
-  margin-bottom: 0.75rem;
   color: var(--text-primary);
+  margin: 0;
+}
+
+.faq-chevron {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  transition: color 0.2s;
+}
+
+.faq-open .faq-chevron {
+  color: var(--primary-color);
+}
+
+.faq-body {
+  padding: 0 1.5rem 1.25rem;
 }
 
 .faq-answer {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ===========================
+   BOTTOM CTA
+   =========================== */
+.cta-section {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+}
+
+.cta-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 5rem 2rem;
+  text-align: center;
+}
+
+.cta-title {
+  font-size: 2.25rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.cta-desc {
+  font-size: 1.1rem;
   color: var(--text-secondary);
   line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.cta-btn {
+  box-shadow: 0 4px 14px 0 color-mix(in srgb, var(--primary-color) 40%, transparent);
+}
+
+/* ===========================
+   RESPONSIVE
+   =========================== */
+@media (max-width: 1024px) {
+  .hero-inner {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .hero-preview {
+    max-width: 560px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .hero-content {
+    padding-bottom: 0;
+    text-align: center;
+  }
+
+  .hero-subtitle {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-actions {
+    justify-content: center;
+  }
+
+  .security-inner {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .security-visual {
+    order: -1;
+  }
 }
 
 @media (max-width: 768px) {
+  .hero-section {
+    padding: 2rem 1rem 0;
+  }
+
   .hero-title {
     font-size: 2.25rem;
   }
-  
-  .features-grid, .discover-features-grid, .faq-list {
+
+  .section-title {
+    font-size: 1.75rem;
+  }
+
+  .features-grid {
     grid-template-columns: 1fr;
   }
-  
-  .home-view {
-    padding: 1rem;
+
+  .steps-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .step-connector {
+    display: none;
+  }
+
+  .section-inner {
+    padding: 3.5rem 1rem;
+  }
+
+  .security-inner {
+    padding: 3.5rem 1rem;
+  }
+
+  .trust-inner {
+    gap: 0.65rem 1.5rem;
+  }
+
+  .cta-title {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .features-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

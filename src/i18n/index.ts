@@ -48,38 +48,86 @@ const messages = {
       unknownError: 'Unknown error'
     },
     home: {
-      heroTitle: 'Your Steam Keys, Simplified',
-      heroSubtitle: 'SteamKeyVault is the easiest way to securely store, organize, and trade your Steam keys.',
-      getStarted: 'Get started',
+      eyebrow: 'Open Source · Self-Hosted · Free to Use',
+      heroTitle: 'Your Steam Keys, Safe and Organized',
+      heroSubtitle: 'SteamKeyVault keeps your entire game key library encrypted, searchable, and shareable — all under your control.',
+      getStarted: 'Get started free',
       learnMore: 'Learn More',
-      featuresTitle: 'Why Choose SteamKeyVault?',
-      featuresDesc: 'Discover the features that make SteamKeyVault the best solution for Steam key collectors, traders, and gamers.',
+      viewDocs: 'Read the Docs',
+      trustItems: [
+        { icon: 'pi-lock', label: 'End-to-end encrypted' },
+        { icon: 'pi-code', label: 'Open source' },
+        { icon: 'pi-server', label: 'Self-hosted' },
+        { icon: 'pi-eye-slash', label: 'Zero trackers' },
+        { icon: 'pi-globe', label: 'Works on any device' }
+      ],
+      featuresTitle: 'Everything you need to manage your keys',
+      featuresDesc: 'Built for collectors, traders, and gamers who care about privacy and control.',
       features: [
         {
+          icon: 'pi-lock',
           title: 'End-to-End Encryption',
-          desc: 'Your Steam keys are encrypted before they leave your device, ensuring only you can access them.'
+          desc: 'Your Steam keys are encrypted in your browser before they reach the server. Only you can read them.'
         },
         {
-          title: 'Easy Trading',
-          desc: 'Share and trade keys with friends or partners in just a few clicks, with full control and privacy.'
+          icon: 'pi-arrow-right-arrow-left',
+          title: 'Easy Key Sharing',
+          desc: 'Generate a one-time, expiring link to share any key with anyone — no account required for the recipient.'
         },
         {
+          icon: 'pi-globe',
           title: 'Access Anywhere',
-          desc: 'Your collection is always available, whether you are on desktop, tablet, or mobile.'
+          desc: 'Your encrypted vault is available on any device, any browser. Log in and your keys are there instantly.'
         },
         {
+          icon: 'pi-tags',
           title: 'Organize & Search',
-          desc: 'Tag, categorize, and search your keys for instant access and better management.'
+          desc: 'Filter by game, mark keys as used or for trade, and find any key instantly in your library.'
         },
         {
+          icon: 'pi-upload',
           title: 'One-Click Import',
-          desc: 'Quickly import keys from bundles, emails, or CSV files.'
+          desc: 'Import keys from CSV or TXT files in seconds. Perfect for Humble Bundle or Fanatical purchases.'
         },
         {
-          title: 'Secure Sharing',
-          desc: 'Generate secure, time-limited links to share keys safely.'
+          icon: 'pi-link',
+          title: 'Steam Integration',
+          desc: 'Games are matched to Steam titles automatically — cover art, publisher info, and store links included.'
         }
       ],
+      howItWorksTitle: 'Up and running in minutes',
+      howItWorksDesc: 'No complicated setup. Add your keys, and SteamKeyVault handles the rest.',
+      steps: [
+        {
+          number: '01',
+          icon: 'pi-user-plus',
+          title: 'Create your account',
+          desc: 'Register in seconds. Your encryption keys are generated locally — we never see them.'
+        },
+        {
+          number: '02',
+          icon: 'pi-upload',
+          title: 'Import your library',
+          desc: 'Paste keys one by one, or bulk-import from a CSV file. Keys are encrypted before they leave your browser.'
+        },
+        {
+          number: '03',
+          icon: 'pi-share-alt',
+          title: 'Organize and share',
+          desc: 'Tag keys by intended use, generate share links, and keep your library clean by deleting used keys.'
+        }
+      ],
+      securityTitle: 'Your keys belong to you',
+      securityDesc: 'Most key managers store your keys in plain text — readable by anyone with database access. SteamKeyVault is different.',
+      securityPoints: [
+        'Keys are encrypted in your browser using your login credentials before being sent to the server.',
+        'The server stores only ciphertext — a database breach exposes nothing readable.',
+        'Exports are decrypted on your device, never server-side.',
+        'No analytics, no third-party SDKs, no trackers. Your data stays yours.'
+      ],
+      ctaTitle: 'Ready to secure your Steam library?',
+      ctaDesc: 'Join SteamKeyVault today — free, open source, and built with privacy first.',
+      ctaButton: 'Create your free vault',
       discoverTitle: 'Trade, Store, and Access Anywhere',
       discoverDesc: 'With SteamKeyVault, your keys are always at your fingertips. Trade securely, store with confidence, and access your collection from any device.',
       discoverFeatures: [
@@ -100,19 +148,23 @@ const messages = {
       faqs: [
         {
           q: 'How secure is SteamKeyVault?',
-          a: 'All keys are encrypted end-to-end. Only you have the decryption key, not even we can see your keys.'
+          a: 'All keys are encrypted end-to-end in your browser. Only you have the decryption key — not even the server admin can read your keys.'
         },
         {
-          q: 'Can I trade keys with others?',
-          a: 'Yes! You can securely trade or share keys with anyone, even if they do not have a SteamKeyVault account.'
+          q: 'Can I share keys with people who don\'t have an account?',
+          a: 'Yes. You generate a one-time link that reveals the key once, protected by a captcha. No account needed for the recipient.'
         },
         {
           q: 'How do I import my existing keys?',
-          a: 'Use our one-click import tool to add keys from bundles, emails, or CSV files.'
+          a: 'Use the CSV/TXT import — one line per game in the format gameName;key1;key2. Keys are encrypted locally before upload.'
         },
         {
-          q: 'Is SteamKeyVault free?',
-          a: 'You can get started for free. Premium features are available for power users and traders.'
+          q: 'Is SteamKeyVault really free?',
+          a: 'Yes. SteamKeyVault is free and open source. You can self-host your own instance or use a hosted one at no cost.'
+        },
+        {
+          q: 'What happens to my keys if I lose my password?',
+          a: 'At registration you receive a 12-word recovery phrase. Keep it safe — it\'s the only way to recover your encrypted data.'
         }
       ]
     },
@@ -223,34 +275,90 @@ const messages = {
     docs: {
       eyebrow: 'User guide',
       title: 'SteamKeyVault Documentation',
-      subtitle: 'A simple guide to protect your keys, manage your library, and share with confidence.',
-      quickAccess: 'Quick access',
+      subtitle: 'Everything you need to protect your keys, manage your library, and share with confidence.',
+      quickAccess: 'On this page',
       toc: {
-        encryption: 'Encryption and benefits',
-        importExport: 'Import and export',
+        gettingStarted: 'Getting started',
+        encryption: 'Encryption & security',
+        managingLibrary: 'Managing your library',
+        importExport: 'Import & export',
         sharing: 'Share a key by link',
-        customVsSteam: 'Custom games vs Steam',
+        customVsSteam: 'Custom vs Steam games',
         lestrades: 'lestrades.com export',
         deleteUsed: 'Delete used keys',
+        accountSettings: 'Account & settings',
         qa: 'Q&A'
       },
+      gettingStarted: {
+        title: 'Getting started',
+        body: 'Create a free account to start adding your Steam keys. The entire setup takes under a minute.',
+        registerTitle: 'Create your account',
+        registerSteps: [
+          'Go to the Register page.',
+          'Enter your email, a username, and a strong password (12+ characters).',
+          'Submit the form — a 12-word recovery phrase appears immediately.',
+          'Copy and save this phrase somewhere safe before closing the dialog.',
+          'Verify your email by clicking the link sent to your inbox.'
+        ],
+        recoveryPhraseTitle: 'Your recovery phrase — keep it safe',
+        recoveryPhraseBody: 'The recovery phrase is the only way to reset your password and recover your encrypted data. Without it, a forgotten password means permanent data loss.',
+        recoveryPhraseList: [
+          'Generated locally in your browser — never transmitted to the server.',
+          'Write it down or store it in a password manager.',
+          'Keep it separate from your account password.',
+          'Never share it with anyone, including support.'
+        ]
+      },
       encryption: {
-        title: 'Encryption and benefits',
-        body: 'Your keys are encrypted in your browser before they are sent to the server. This means only you can see the keys in plain text when you are logged in.',
+        title: 'Encryption & security',
+        body: 'Your keys are encrypted in your browser before they are sent to the server. Only you can see them in plain text when logged in — not even the server administrator can read them.',
         whyTitle: 'Why this protects you',
         whyList: [
-          'Your keys are unreadable to anyone who does not have your login session.',
-          'If a backup or database snapshot leaks, the keys remain protected.',
-          'Exports are decrypted only on your device, right before download.'
+          'Keys are unreadable to anyone without your active login session.',
+          'A leaked database backup or snapshot exposes only ciphertext.',
+          'Exports are decrypted on your device only, right before download.',
+          'Password changes automatically re-encrypt all your data with the new key.'
         ],
         expectTitle: 'What to expect as a user',
         expectList: [
-          'After logout or clearing the browser, you need to log in again to see keys.',
-          'Imports are protected locally before upload, so your data stays private.'
+          'After logout or clearing your browser session, you must log in again to see keys.',
+          'Imports are encrypted locally before upload — your data never travels unprotected.'
+        ]
+      },
+      managingLibrary: {
+        title: 'Managing your library',
+        body: 'All your games and keys live in My Keys. The left column lists your games; the right shows the keys for the selected game.',
+        addGameTitle: 'Adding a game',
+        addGameSteps: [
+          'Open My Keys.',
+          'Click the + button at the top of the games column.',
+          'Search for a Steam title or type a custom name.',
+          'Confirm to add it to your library.'
+        ],
+        addKeyTitle: 'Adding a key',
+        addKeySteps: [
+          'Select a game in the left column.',
+          'Click Add Key in the key table.',
+          'Paste the key value.',
+          'The key is encrypted locally before being saved.'
+        ],
+        statusesTitle: 'Key statuses',
+        statusesBody: 'Each key has one of three states:',
+        statuses: [
+          { name: 'Available', desc: 'The key has not been shared or used yet.' },
+          { name: 'Sharing', desc: 'An active share link exists for this key. It will be marked Used once the recipient reveals it.' },
+          { name: 'Used', desc: 'The key has been revealed via a share link or manually marked as used.' }
+        ],
+        convertTitle: 'Converting a custom game to a Steam game',
+        convertSteps: [
+          'Select the custom game in My Keys.',
+          'Open the game actions menu (three dots).',
+          'Choose Convert to Steam game.',
+          'Search for the matching Steam title and confirm.'
         ]
       },
       importExport: {
-        title: 'Import and export',
+        title: 'Import & export',
         managePrefix: 'You can manage imports and exports from',
         manageMiddle: 'and the',
         manageSuffix: 'page.',
@@ -258,99 +366,150 @@ const messages = {
         csvImportSteps: [
           'Open the Import page.',
           'Drop your file or click Select File.',
-          'Expected format: gameName;key1;key2 (one line per game).',
-          'A progress panel shows results and errors.'
+          'Each line must follow the format: gameName;key1;key2',
+          'A progress panel shows results and any errors per game.'
         ],
-        csvImportNote: 'Max file size: 10 MB.',
+        csvImportNote: 'Max file size: 10 MB. Keys are encrypted locally before upload.',
         csvExportTitle: 'CSV export',
         csvExportSteps: [
-          'In My Account, click Export CSV.',
-          'Your file is prepared and decrypted locally on your device.'
+          'Open My Account.',
+          'Click Export CSV in the Data Management section.',
+          'Your file is decrypted locally on your device before download.'
         ],
-        jsonTitle: 'JSON import or export (SteamKeyVault)',
+        jsonTitle: 'JSON import / export (SteamKeyVault format)',
         jsonItems: [
-          'JSON export keeps the SteamKeyVault structure for easy re-import.',
-          'JSON import encrypts keys locally before upload.'
+          'JSON export preserves the SteamKeyVault structure for easy re-import.',
+          'JSON import encrypts all keys locally before upload.',
+          'Use JSON for full backups when migrating to a new instance.'
         ]
       },
       sharing: {
         title: 'Share a key by link',
-        body: 'You can generate a temporary link for any key and send it to someone. The recipient reveals the key on a public page.',
-        createTitle: 'Create a link',
+        body: 'Generate a temporary, one-time link for any key and send it to someone. The recipient reveals the key on a public page — no account needed.',
+        createTitle: 'Create a share link',
         createSteps: [
           'Open My Keys.',
-          'Click the share icon on a key.',
-          'Copy the link and send it.'
+          'Click the share icon on the key you want to share.',
+          'Set an expiration date if needed.',
+          'Copy the link and send it to the recipient.'
         ],
-        behaviorTitle: 'How it behaves',
+        behaviorTitle: 'How share links work',
         behaviorList: [
-          'The link has an expiration date.',
-          'The key can be revealed only once.',
-          'A captcha protects the key from bots.',
-          'You can disable the link from the share dialog.'
+          'Each link can be used only once — the key is revealed exactly one time.',
+          'A Cloudflare Turnstile captcha protects against automated bots.',
+          'The recipient can send you a short message after revealing the key.',
+          'You can revoke any active link from the share dialog at any time.',
+          'Once revealed, the key is automatically marked as Used in your vault.'
         ]
       },
       customVsSteam: {
         title: 'Custom games vs Steam games',
-        body: 'SteamKeyVault supports Steam-linked games and custom games that are not on Steam.',
+        body: 'SteamKeyVault supports both Steam-linked games (with automatic metadata) and fully custom games for titles not on Steam.',
         steamTitle: 'Steam games',
         steamList: [
           'Linked to a Steam App ID.',
-          'Title, images, and publisher are filled automatically.'
+          'Title, cover art, publisher, and store link are filled automatically.',
+          'If the App ID becomes invalid, the game is kept as a custom game.'
         ],
         customTitle: 'Custom games',
         customList: [
-          'Create a game with any name you want.',
-          'Later, you can match it to a Steam game.',
-          'If a Steam App ID becomes invalid, the game stays custom.'
+          'Create a game with any name — no Steam App ID required.',
+          'You can convert it to a Steam game later once you find the App ID.',
+          'Useful for GOG, Epic, Ubisoft Connect, and other platform keys.'
         ]
       },
       lestrades: {
         title: 'lestrades.com export',
-        body: 'This export creates a text format you can paste directly into lestrades.com.',
+        body: 'Generate a text block you can paste directly into lestrades.com to list your available keys for trading.',
         whereTitle: 'Where to find it',
         whereSteps: [
           'Open My Keys.',
           'Click the three dots menu at the top of the games column.',
           'Select Export for lestrades.com.'
         ],
-        formatTitle: 'Format',
+        formatTitle: 'Format details',
         formatList: [
           'One game per line.',
-          'Steam game: GameName/steamAppId.',
-          'Custom game: GameName.',
-          'The result is copied to your clipboard.'
+          'Steam game format: GameName/steamAppId',
+          'Custom game format: GameName (no App ID appended)',
+          'Only games with at least one Available key are included.',
+          'The result is copied directly to your clipboard.'
         ]
       },
       deleteUsed: {
         title: 'Delete used keys',
-        body: 'You can remove all keys that are marked as used in a single action.',
+        body: 'Remove all keys marked as used across your entire library in a single bulk action.',
         stepsTitle: 'Steps',
         steps: [
           'Open My Keys.',
-          'Open the three dots menu in the games column.',
-          'Choose Delete all used keys and confirm.'
+          'Click the three dots menu at the top of the games column.',
+          'Choose Delete all used keys.',
+          'Confirm the action in the dialog.'
         ],
-        note: 'This action cannot be undone.'
+        note: 'This action is permanent and cannot be undone.'
+      },
+      accountSettings: {
+        title: 'Account & settings',
+        body: 'Manage your profile, security, and preferences from My Account.',
+        passwordTitle: 'Changing your password',
+        passwordBody: 'Changing your password re-derives the encryption key. All your keys are automatically re-encrypted with the new password — you do not need to re-import anything.',
+        passwordSteps: [
+          'Open My Account.',
+          'Scroll to the Security section.',
+          'Enter your current password, then the new password.',
+          'Click Update Password.'
+        ],
+        passwordNote: 'Minimum 12 characters, with at least one lowercase letter, uppercase letter, digit, and special character.',
+        emailTitle: 'Updating your email address',
+        emailSteps: [
+          'Open My Account.',
+          'Enter the new address in the Email Settings section.',
+          'A confirmation link is sent to the new address.',
+          'Click the link in your inbox to complete the change.'
+        ],
+        markdownTitle: 'Markdown export',
+        markdownBody: 'Creates a formatted Markdown list of your Steam games with links to their store pages — useful for posts, forums, or external tracking.',
+        markdownSteps: [
+          'Open My Keys.',
+          'Click the three dots menu at the top of the games column.',
+          'Select Export as Markdown.',
+          'The result is copied to your clipboard.'
+        ]
       },
       qa: {
         title: 'Q&A',
         items: [
           {
             q: 'Do you store my keys in plain text?',
-            a: 'No. Your keys are encrypted before they leave your device.'
+            a: 'No. Keys are encrypted in your browser before being sent to the server. The server stores only ciphertext and cannot read your keys.'
+          },
+          {
+            q: 'What if I lose my recovery phrase?',
+            a: 'Without the recovery phrase, a forgotten password cannot be recovered and your encrypted data will be permanently lost. Store it somewhere safe immediately after registration.'
           },
           {
             q: 'Can I share a key safely?',
-            a: 'Yes. Share links are temporary, can be disabled, and allow a single reveal.'
+            a: 'Yes. Share links are single-use, CAPTCHA-protected, and can be revoked at any time. Once the key is revealed, it is automatically marked as used.'
           },
           {
-            q: 'What happens if a Steam game is removed?',
-            a: 'The game stays in your library as a custom game, so you do not lose your data.'
+            q: 'What happens if a Steam game is removed from the store?',
+            a: 'The game stays in your library as a custom game. You never lose your data — only the automatic metadata (cover art, publisher) is no longer filled.'
           },
           {
-            q: 'Can I move my library to another account?',
-            a: 'Yes. Export your data and import it into another account anytime.'
+            q: 'Can I move my library to another account or instance?',
+            a: 'Yes. Export your data as CSV or JSON from My Account, then import it into any other SteamKeyVault account or self-hosted instance.'
+          },
+          {
+            q: 'How do I add a non-Steam game key?',
+            a: 'Add a custom game (no Steam App ID required) and attach your key to it. You can always convert it to a Steam game later.'
+          },
+          {
+            q: 'Is there a limit on how many keys I can store?',
+            a: 'No artificial limit is imposed by the application. Import and store as many keys as you need.'
+          },
+          {
+            q: 'Can the recipient save or forward a share link?',
+            a: 'The link works only once. After the key is revealed, the link is permanently invalidated and cannot be reused.'
           }
         ]
       }
@@ -822,38 +981,86 @@ const messages = {
       unknownError: 'Erreur inconnue'
     },
     home: {
-      heroTitle: 'Vos clés Steam, simplifiées',
-      heroSubtitle: 'SteamKeyVault est le moyen le plus simple de stocker, organiser et échanger vos clés Steam en toute sécurité.',
-      getStarted: 'Commencer',
+      eyebrow: 'Open Source · Auto-hébergé · Gratuit',
+      heroTitle: 'Vos clés Steam, en sécurité et bien organisées',
+      heroSubtitle: 'SteamKeyVault chiffre, organise et vous permet de partager vos clés de jeux — le tout sous votre contrôle.',
+      getStarted: 'Commencer gratuitement',
       learnMore: 'En savoir plus',
-      featuresTitle: 'Pourquoi choisir SteamKeyVault ?',
-      featuresDesc: 'Découvrez les fonctionnalités qui font de SteamKeyVault la meilleure solution pour les collectionneurs, traders et joueurs de clés Steam.',
+      viewDocs: 'Lire la documentation',
+      trustItems: [
+        { icon: 'pi-lock', label: 'Chiffrement de bout en bout' },
+        { icon: 'pi-code', label: 'Open source' },
+        { icon: 'pi-server', label: 'Auto-hébergé' },
+        { icon: 'pi-eye-slash', label: 'Zéro traceur' },
+        { icon: 'pi-globe', label: 'Disponible partout' }
+      ],
+      featuresTitle: 'Tout ce qu\'il faut pour gérer vos clés',
+      featuresDesc: 'Conçu pour les collectionneurs, traders et joueurs qui tiennent à leur vie privée.',
       features: [
         {
+          icon: 'pi-lock',
           title: 'Chiffrement de bout en bout',
-          desc: 'Vos clés Steam sont chiffrées avant de quitter votre appareil, garantissant que vous seul pouvez y accéder.'
+          desc: 'Vos clés Steam sont chiffrées dans votre navigateur avant d\'atteindre le serveur. Vous seul pouvez les lire.'
         },
         {
-          title: 'Échanges simples',
-          desc: 'Partagez et échangez des clés avec vos amis ou partenaires en quelques clics, avec un contrôle total et de la confidentialité.'
+          icon: 'pi-arrow-right-arrow-left',
+          title: 'Partage de clés simplifié',
+          desc: 'Générez un lien unique et expirant pour partager n\'importe quelle clé — sans compte requis pour le destinataire.'
         },
         {
+          icon: 'pi-globe',
           title: 'Accès partout',
-          desc: 'Votre collection est toujours disponible, que vous soyez sur ordinateur, tablette ou mobile.'
+          desc: 'Votre coffre chiffré est disponible sur n\'importe quel appareil et navigateur. Connectez-vous et vos clés sont là.'
         },
         {
+          icon: 'pi-tags',
           title: 'Organisation et recherche',
-          desc: 'Étiquetez, classez et recherchez vos clés pour un accès instantané et une meilleure gestion.'
+          desc: 'Filtrez par jeu, marquez les clés utilisées ou à échanger, et retrouvez n\'importe quelle clé instantanément.'
         },
         {
+          icon: 'pi-upload',
           title: 'Import en un clic',
-          desc: 'Importez rapidement des clés depuis des bundles, emails ou fichiers CSV.'
+          desc: 'Importez des clés depuis un fichier CSV ou TXT en quelques secondes. Parfait pour Humble Bundle ou Fanatical.'
         },
         {
-          title: 'Partage sécurisé',
-          desc: 'Générez des liens sécurisés et limités dans le temps pour partager vos clés en toute sécurité.'
+          icon: 'pi-link',
+          title: 'Intégration Steam',
+          desc: 'Les jeux sont associés automatiquement aux titres Steam — avec jaquettes, éditeurs et liens vers le store.'
         }
       ],
+      howItWorksTitle: 'Prêt en quelques minutes',
+      howItWorksDesc: 'Aucune configuration complexe. Ajoutez vos clés, SteamKeyVault s\'occupe du reste.',
+      steps: [
+        {
+          number: '01',
+          icon: 'pi-user-plus',
+          title: 'Créez votre compte',
+          desc: 'Inscription en quelques secondes. Vos clés de chiffrement sont générées localement — nous ne les voyons jamais.'
+        },
+        {
+          number: '02',
+          icon: 'pi-upload',
+          title: 'Importez votre bibliothèque',
+          desc: 'Ajoutez des clés une par une ou importez en masse depuis un CSV. Les clés sont chiffrées avant de quitter votre navigateur.'
+        },
+        {
+          number: '03',
+          icon: 'pi-share-alt',
+          title: 'Organisez et partagez',
+          desc: 'Étiquetez vos clés selon leur usage, générez des liens de partage et nettoyez votre bibliothèque des clés utilisées.'
+        }
+      ],
+      securityTitle: 'Vos clés vous appartiennent',
+      securityDesc: 'La plupart des gestionnaires de clés stockent vos clés en clair — lisibles par quiconque accède à la base de données. SteamKeyVault fait différemment.',
+      securityPoints: [
+        'Les clés sont chiffrées dans votre navigateur avec vos identifiants avant d\'être envoyées au serveur.',
+        'Le serveur ne stocke que du texte chiffré — une fuite de base de données n\'expose rien de lisible.',
+        'Les exports sont déchiffrés sur votre appareil, jamais côté serveur.',
+        'Aucun analytique, aucun SDK tiers, aucun traceur. Vos données restent les vôtres.'
+      ],
+      ctaTitle: 'Prêt à sécuriser votre bibliothèque Steam ?',
+      ctaDesc: 'Rejoignez SteamKeyVault aujourd\'hui — gratuit, open source et centré sur la vie privée.',
+      ctaButton: 'Créer votre coffre gratuitement',
       discoverTitle: 'Échanger, stocker et accéder partout',
       discoverDesc: 'Avec SteamKeyVault, vos clés sont toujours à portée de main. Échangez en toute sécurité, stockez en confiance et accédez à votre collection depuis n\'importe quel appareil.',
       discoverFeatures: [
@@ -874,19 +1081,23 @@ const messages = {
       faqs: [
         {
           q: 'Quel est le niveau de sécurité de SteamKeyVault ?',
-          a: 'Toutes les clés sont chiffrées de bout en bout. Vous seul possédez la clé de déchiffrement, même nous ne pouvons pas voir vos clés.'
+          a: 'Toutes les clés sont chiffrées de bout en bout dans votre navigateur. Vous seul possédez la clé de déchiffrement — même l\'admin du serveur ne peut pas lire vos clés.'
         },
         {
-          q: 'Puis-je échanger des clés avec d\'autres personnes ?',
-          a: 'Oui ! Vous pouvez échanger ou partager des clés avec n\'importe qui, même sans compte SteamKeyVault.'
+          q: 'Puis-je partager des clés avec des personnes sans compte ?',
+          a: 'Oui. Vous générez un lien unique qui révèle la clé une seule fois, protégé par un captcha. Aucun compte requis pour le destinataire.'
         },
         {
           q: 'Comment importer mes clés existantes ?',
-          a: 'Utilisez notre outil d\'import en un clic pour ajouter des clés depuis des bundles, emails ou fichiers CSV.'
+          a: 'Utilisez l\'import CSV/TXT — une ligne par jeu au format gameName;key1;key2. Les clés sont chiffrées localement avant l\'envoi.'
         },
         {
-          q: 'SteamKeyVault est-il gratuit ?',
-          a: 'Vous pouvez commencer gratuitement. Des fonctionnalités premium sont disponibles pour les utilisateurs avancés et les traders.'
+          q: 'SteamKeyVault est-il vraiment gratuit ?',
+          a: 'Oui. SteamKeyVault est gratuit et open source. Vous pouvez auto-héberger votre propre instance ou utiliser une instance hébergée sans frais.'
+        },
+        {
+          q: 'Que se passe-t-il si j\'oublie mon mot de passe ?',
+          a: 'À l\'inscription, vous recevez une phrase de récupération de 12 mots. Conservez-la précieusement — c\'est le seul moyen de récupérer vos données chiffrées.'
         }
       ]
     },
@@ -997,34 +1208,90 @@ const messages = {
     docs: {
       eyebrow: 'Guide utilisateur',
       title: 'Documentation SteamKeyVault',
-      subtitle: 'Un guide simple pour protéger vos clés, gérer votre bibliothèque et partager en toute confiance.',
-      quickAccess: 'Accès rapide',
+      subtitle: 'Tout ce qu\'il faut pour protéger vos clés, gérer votre bibliothèque et partager en toute confiance.',
+      quickAccess: 'Sur cette page',
       toc: {
-        encryption: 'Chiffrement et avantages',
-        importExport: 'Import et export',
+        gettingStarted: 'Premiers pas',
+        encryption: 'Chiffrement & sécurité',
+        managingLibrary: 'Gérer votre bibliothèque',
+        importExport: 'Import & export',
         sharing: 'Partager une clé par lien',
         customVsSteam: 'Jeux personnalisés vs Steam',
         lestrades: 'Export lestrades.com',
         deleteUsed: 'Supprimer les clés utilisées',
+        accountSettings: 'Compte & paramètres',
         qa: 'Questions / réponses'
       },
+      gettingStarted: {
+        title: 'Premiers pas',
+        body: 'Créez un compte gratuit pour commencer à ajouter vos clés Steam. La configuration complète prend moins d\'une minute.',
+        registerTitle: 'Créer votre compte',
+        registerSteps: [
+          'Accédez à la page Inscription.',
+          'Saisissez votre adresse e-mail, un nom d\'utilisateur et un mot de passe fort (12 caractères minimum).',
+          'Validez le formulaire — une phrase de récupération de 12 mots s\'affiche immédiatement.',
+          'Copiez et sauvegardez cette phrase en lieu sûr avant de fermer la fenêtre.',
+          'Vérifiez votre adresse e-mail en cliquant sur le lien envoyé dans votre boîte mail.'
+        ],
+        recoveryPhraseTitle: 'Votre phrase de récupération — conservez-la précieusement',
+        recoveryPhraseBody: 'La phrase de récupération est le seul moyen de réinitialiser votre mot de passe et de récupérer vos données chiffrées. Sans elle, un mot de passe oublié entraîne une perte définitive de vos données.',
+        recoveryPhraseList: [
+          'Générée localement dans votre navigateur — jamais transmise au serveur.',
+          'Notez-la ou stockez-la dans un gestionnaire de mots de passe.',
+          'Conservez-la séparément de votre mot de passe.',
+          'Ne la partagez jamais, même avec le support.'
+        ]
+      },
       encryption: {
-        title: 'Chiffrement et avantages',
-        body: 'Vos clés sont chiffrées dans votre navigateur avant d\'être envoyées au serveur. Cela signifie que vous seul pouvez voir les clés en clair lorsque vous êtes connecté.',
+        title: 'Chiffrement & sécurité',
+        body: 'Vos clés sont chiffrées dans votre navigateur avant d\'être envoyées au serveur. Vous seul pouvez les voir en clair quand vous êtes connecté — même l\'administrateur du serveur ne peut pas les lire.',
         whyTitle: 'Pourquoi cela vous protège',
         whyList: [
-          'Vos clés sont illisibles pour toute personne qui ne possède pas votre session.',
-          'Si une sauvegarde ou un snapshot de base fuit, les clés restent protégées.',
-          'Les exports sont déchiffrés uniquement sur votre appareil, juste avant le téléchargement.'
+          'Les clés sont illisibles pour toute personne sans votre session active.',
+          'Une fuite de sauvegarde ou de snapshot n\'expose que du texte chiffré.',
+          'Les exports sont déchiffrés sur votre appareil uniquement, juste avant le téléchargement.',
+          'Un changement de mot de passe re-chiffre automatiquement toutes vos données.'
         ],
-        expectTitle: 'Ce que vous pouvez attendre',
+        expectTitle: 'Ce à quoi vous devez vous attendre',
         expectList: [
-          'Après déconnexion ou nettoyage du navigateur, vous devez vous reconnecter pour voir les clés.',
-          'Les imports sont protégés localement avant l\'envoi, vos données restent privées.'
+          'Après déconnexion ou nettoyage de session, vous devez vous reconnecter pour voir vos clés.',
+          'Les imports sont chiffrés localement avant envoi — vos données ne transitent jamais non protégées.'
+        ]
+      },
+      managingLibrary: {
+        title: 'Gérer votre bibliothèque',
+        body: 'Tous vos jeux et clés sont accessibles dans Mes clés. La colonne de gauche liste vos jeux ; la droite affiche les clés du jeu sélectionné.',
+        addGameTitle: 'Ajouter un jeu',
+        addGameSteps: [
+          'Ouvrez Mes clés.',
+          'Cliquez sur le bouton + en haut de la colonne des jeux.',
+          'Recherchez un titre Steam ou saisissez un nom personnalisé.',
+          'Confirmez pour l\'ajouter à votre bibliothèque.'
+        ],
+        addKeyTitle: 'Ajouter une clé',
+        addKeySteps: [
+          'Sélectionnez un jeu dans la colonne de gauche.',
+          'Cliquez sur Ajouter une clé dans le tableau.',
+          'Collez la valeur de la clé.',
+          'La clé est chiffrée localement avant d\'être enregistrée.'
+        ],
+        statusesTitle: 'Statuts des clés',
+        statusesBody: 'Chaque clé possède l\'un des trois états suivants :',
+        statuses: [
+          { name: 'Available', desc: 'La clé n\'a pas encore été partagée ni utilisée.' },
+          { name: 'Sharing', desc: 'Un lien de partage actif existe pour cette clé. Elle sera marquée Utilisée dès que le destinataire la révèle.' },
+          { name: 'Used', desc: 'La clé a été révélée via un lien de partage ou manuellement marquée comme utilisée.' }
+        ],
+        convertTitle: 'Convertir un jeu personnalisé en jeu Steam',
+        convertSteps: [
+          'Sélectionnez le jeu personnalisé dans Mes clés.',
+          'Ouvrez le menu d\'actions (trois points).',
+          'Choisissez Convertir en jeu Steam.',
+          'Recherchez le titre Steam correspondant et confirmez.'
         ]
       },
       importExport: {
-        title: 'Import et export',
+        title: 'Import & export',
         managePrefix: 'Vous pouvez gérer les imports et exports depuis',
         manageMiddle: 'et la page',
         manageSuffix: '.',
@@ -1032,99 +1299,150 @@ const messages = {
         csvImportSteps: [
           'Ouvrez la page Import.',
           'Déposez votre fichier ou cliquez sur Sélectionner un fichier.',
-          'Format attendu : gameName;key1;key2 (une ligne par jeu).',
-          'Un panneau de progression affiche les résultats et erreurs.'
+          'Chaque ligne doit suivre le format : gameName;key1;key2',
+          'Un panneau de progression affiche les résultats et les éventuelles erreurs par jeu.'
         ],
-        csvImportNote: 'Taille de fichier max : 10 Mo.',
+        csvImportNote: 'Taille de fichier max : 10 Mo. Les clés sont chiffrées localement avant l\'envoi.',
         csvExportTitle: 'Export CSV',
         csvExportSteps: [
-          'Dans Mon compte, cliquez sur Export CSV.',
-          'Votre fichier est préparé et déchiffré localement sur votre appareil.'
+          'Ouvrez Mon compte.',
+          'Cliquez sur Export CSV dans la section Gestion des données.',
+          'Votre fichier est déchiffré localement sur votre appareil avant le téléchargement.'
         ],
-        jsonTitle: 'Import ou export JSON (SteamKeyVault)',
+        jsonTitle: 'Import / export JSON (format SteamKeyVault)',
         jsonItems: [
           'L\'export JSON conserve la structure SteamKeyVault pour un ré-import facile.',
-          'L\'import JSON chiffre les clés localement avant envoi.'
+          'L\'import JSON chiffre toutes les clés localement avant l\'envoi.',
+          'Utilisez JSON pour des sauvegardes complètes lors d\'une migration vers une nouvelle instance.'
         ]
       },
       sharing: {
         title: 'Partager une clé par lien',
-        body: 'Vous pouvez générer un lien temporaire pour n\'importe quelle clé et l\'envoyer. Le destinataire révèle la clé sur une page publique.',
-        createTitle: 'Créer un lien',
+        body: 'Générez un lien temporaire à usage unique pour n\'importe quelle clé et envoyez-le. Le destinataire révèle la clé sur une page publique — aucun compte requis.',
+        createTitle: 'Créer un lien de partage',
         createSteps: [
           'Ouvrez Mes clés.',
-          'Cliquez sur l\'icone de partage d\'une clé.',
-          'Copiez le lien et envoyez-le.'
+          'Cliquez sur l\'icône de partage de la clé souhaitée.',
+          'Définissez une date d\'expiration si besoin.',
+          'Copiez le lien et envoyez-le au destinataire.'
         ],
-        behaviorTitle: 'Fonctionnement',
+        behaviorTitle: 'Fonctionnement des liens de partage',
         behaviorList: [
-          'Le lien a une date d\'expiration.',
-          'La clé ne peut être révélée qu\'une seule fois.',
-          'Un captcha protège la clé des robots.',
-          'Vous pouvez désactiver le lien depuis la fenêtre de partage.'
+          'Chaque lien ne peut être utilisé qu\'une seule fois — la clé est révélée exactement une fois.',
+          'Un captcha Cloudflare Turnstile protège contre les robots automatisés.',
+          'Le destinataire peut vous envoyer un court message après avoir révélé la clé.',
+          'Vous pouvez révoquer tout lien actif depuis la fenêtre de partage à tout moment.',
+          'Une fois révélée, la clé est automatiquement marquée comme Utilisée dans votre coffre.'
         ]
       },
       customVsSteam: {
         title: 'Jeux personnalisés vs jeux Steam',
-        body: 'SteamKeyVault prend en charge les jeux liés à Steam et les jeux personnalisés qui ne sont pas sur Steam.',
+        body: 'SteamKeyVault prend en charge les jeux liés à Steam (avec métadonnées automatiques) et les jeux entièrement personnalisés pour les titres non disponibles sur Steam.',
         steamTitle: 'Jeux Steam',
         steamList: [
           'Liés à un App ID Steam.',
-          'Titre, images et éditeur remplis automatiquement.'
+          'Titre, jaquette, éditeur et lien vers le store remplis automatiquement.',
+          'Si l\'App ID devient invalide, le jeu est conservé comme jeu personnalisé.'
         ],
         customTitle: 'Jeux personnalisés',
         customList: [
-          'Créez un jeu avec le nom que vous voulez.',
-          'Vous pourrez ensuite le lier à un jeu Steam.',
-          'Si un App ID Steam devient invalide, le jeu reste personnalisé.'
+          'Créez un jeu avec n\'importe quel nom — aucun App ID Steam requis.',
+          'Vous pouvez le convertir en jeu Steam plus tard une fois l\'App ID trouvé.',
+          'Idéal pour les clés GOG, Epic, Ubisoft Connect et autres plateformes.'
         ]
       },
       lestrades: {
         title: 'Export lestrades.com',
-        body: 'Cet export crée un format texte que vous pouvez coller directement dans lestrades.com.',
+        body: 'Générez un bloc de texte à coller directement dans lestrades.com pour lister vos clés disponibles à l\'échange.',
         whereTitle: 'Où le trouver',
         whereSteps: [
           'Ouvrez Mes clés.',
           'Cliquez sur le menu à trois points en haut de la colonne des jeux.',
           'Sélectionnez Export pour lestrades.com.'
         ],
-        formatTitle: 'Format',
+        formatTitle: 'Détails du format',
         formatList: [
           'Un jeu par ligne.',
-          'Jeu Steam : GameName/steamAppId.',
-          'Jeu personnalise : GameName.',
-          'Le résultat est copié dans votre presse-papiers.'
+          'Format jeu Steam : GameName/steamAppId',
+          'Format jeu personnalisé : GameName (sans App ID)',
+          'Seuls les jeux avec au moins une clé disponible sont inclus.',
+          'Le résultat est copié directement dans votre presse-papiers.'
         ]
       },
       deleteUsed: {
         title: 'Supprimer les clés utilisées',
-        body: 'Vous pouvez supprimer toutes les clés marquées comme utilisées en une seule action.',
+        body: 'Supprimez en une seule action toutes les clés marquées comme utilisées dans toute votre bibliothèque.',
         stepsTitle: 'Étapes',
         steps: [
           'Ouvrez Mes clés.',
-          'Ouvrez le menu à trois points dans la colonne des jeux.',
-          'Choisissez Supprimer toutes les clés utilisées et confirmez.'
+          'Cliquez sur le menu à trois points en haut de la colonne des jeux.',
+          'Choisissez Supprimer toutes les clés utilisées.',
+          'Confirmez l\'action dans la fenêtre de dialogue.'
         ],
-        note: 'Cette action est irréversible.'
+        note: 'Cette action est définitive et irréversible.'
+      },
+      accountSettings: {
+        title: 'Compte & paramètres',
+        body: 'Gérez votre profil, sécurité et préférences depuis Mon compte.',
+        passwordTitle: 'Changer votre mot de passe',
+        passwordBody: 'Changer votre mot de passe re-dérive la clé de chiffrement. Toutes vos clés sont automatiquement re-chiffrées avec le nouveau mot de passe — aucun ré-import nécessaire.',
+        passwordSteps: [
+          'Ouvrez Mon compte.',
+          'Faites défiler jusqu\'à la section Sécurité.',
+          'Saisissez votre mot de passe actuel, puis le nouveau.',
+          'Cliquez sur Mettre à jour le mot de passe.'
+        ],
+        passwordNote: 'Minimum 12 caractères, avec au moins une minuscule, une majuscule, un chiffre et un caractère spécial.',
+        emailTitle: 'Modifier votre adresse e-mail',
+        emailSteps: [
+          'Ouvrez Mon compte.',
+          'Saisissez la nouvelle adresse dans la section Paramètres e-mail.',
+          'Un lien de confirmation est envoyé à la nouvelle adresse.',
+          'Cliquez sur le lien dans votre boîte mail pour finaliser le changement.'
+        ],
+        markdownTitle: 'Export Markdown',
+        markdownBody: 'Crée une liste Markdown formatée de vos jeux Steam avec des liens vers leurs pages store — utile pour des posts, forums ou suivis externes.',
+        markdownSteps: [
+          'Ouvrez Mes clés.',
+          'Cliquez sur le menu à trois points en haut de la colonne des jeux.',
+          'Sélectionnez Export en Markdown.',
+          'Le résultat est copié dans votre presse-papiers.'
+        ]
       },
       qa: {
         title: 'Questions / réponses',
         items: [
           {
             q: 'Stockez-vous mes clés en clair ?',
-            a: 'Non. Vos clés sont chiffrées avant de quitter votre appareil.'
+            a: 'Non. Les clés sont chiffrées dans votre navigateur avant d\'être envoyées au serveur. Celui-ci ne stocke que du texte chiffré et ne peut pas lire vos clés.'
+          },
+          {
+            q: 'Que se passe-t-il si je perds ma phrase de récupération ?',
+            a: 'Sans la phrase de récupération, un mot de passe oublié ne peut pas être récupéré et vos données chiffrées seront définitivement perdues. Conservez-la en lieu sûr dès l\'inscription.'
           },
           {
             q: 'Puis-je partager une clé en toute sécurité ?',
-            a: 'Oui. Les liens de partage sont temporaires, peuvent être désactivés et ne permettent qu\'une seule révélation.'
+            a: 'Oui. Les liens de partage sont à usage unique, protégés par un captcha et révocables à tout moment. Une fois la clé révélée, elle est automatiquement marquée comme utilisée.'
           },
           {
-            q: 'Que se passe-t-il si un jeu Steam est retiré ?',
-            a: 'Le jeu reste dans votre bibliothèque comme jeu personnalisé, vous ne perdez pas vos données.'
+            q: 'Que se passe-t-il si un jeu Steam est retiré du store ?',
+            a: 'Le jeu reste dans votre bibliothèque comme jeu personnalisé. Vous ne perdez jamais vos données — seules les métadonnées automatiques (jaquette, éditeur) ne sont plus remplies.'
           },
           {
-            q: 'Puis-je déplacer ma bibliothèque vers un autre compte ?',
-            a: 'Oui. Exportez vos données et importez-les dans un autre compte quand vous voulez.'
+            q: 'Puis-je déplacer ma bibliothèque vers un autre compte ou une autre instance ?',
+            a: 'Oui. Exportez vos données en CSV ou JSON depuis Mon compte, puis importez-les dans n\'importe quel autre compte ou instance SteamKeyVault.'
+          },
+          {
+            q: 'Comment ajouter une clé pour un jeu non disponible sur Steam ?',
+            a: 'Ajoutez un jeu personnalisé (aucun App ID requis) et associez-y votre clé. Vous pourrez toujours le convertir en jeu Steam plus tard.'
+          },
+          {
+            q: 'Y a-t-il une limite au nombre de clés stockables ?',
+            a: 'Aucune limite artificielle n\'est imposée par l\'application. Importez et stockez autant de clés que nécessaire.'
+          },
+          {
+            q: 'Le destinataire peut-il sauvegarder ou transférer un lien de partage ?',
+            a: 'Le lien ne fonctionne qu\'une seule fois. Une fois la clé révélée, le lien est définitivement invalidé et ne peut plus être utilisé.'
           }
         ]
       }
