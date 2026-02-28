@@ -2,39 +2,34 @@
   <div class="user-games-list">
     <div class="filter-container">
       <IconField>
-          <InputIcon class="pi pi-search" />
-          <InputText v-model="filter" :placeholder="t('games.filterPlaceholder')"  />
+        <InputIcon class="pi pi-search" />
+        <InputText v-model="filter" :placeholder="t('games.filterPlaceholder')" />
       </IconField>
     </div>
 
     <div class="list-container">
-      <Listbox 
-        v-model="selectedGame" 
-        :options="filteredGames" 
-        optionLabel="name" 
-        class="w-full game-listbox"
-        listStyle="max-height: 100%"
+      <div
+        v-for="game in filteredGames"
+        :key="game.user_game_id"
+        class="game-item"
+        :class="{ active: selectedGame?.user_game_id === game.user_game_id }"
+        @click="selectGame(game)"
       >
-        <template #option="slotProps">
-          <div class="game-item">
-            <span class="game-name">{{ slotProps.option.name }}</span>
-          </div>
-        </template>
-        <template #empty>
-          <div class="empty-message">{{ t('games.noGamesFound') }}</div>
-        </template>
-      </Listbox>
+        <span class="game-name">{{ game.name }}</span>
+      </div>
+      <div v-if="filteredGames.length === 0" class="empty-message">
+        {{ t('games.noGamesFound') }}
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref, watch, defineEmits, computed } from 'vue'
-import Listbox from 'primevue/listbox';
-import InputText from 'primevue/inputtext';
-import type { Game } from '../models/Game';
-import IconField from 'primevue/iconfield';
-import InputIcon from 'primevue/inputicon';
+import { ref, watch, computed } from 'vue'
+import InputText from 'primevue/inputtext'
+import type { Game } from '../models/Game'
+import IconField from 'primevue/iconfield'
+import InputIcon from 'primevue/inputicon'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ games: Game[] }>()
@@ -51,11 +46,14 @@ const filteredGames = computed(() => {
 watch(filteredGames, (newList) => {
   if (newList.length === 1) {
     selectedGame.value = newList[0]
+    emit('gameSelected', newList[0])
   }
 })
-watch(selectedGame, (game) => {
-  if (game) emit('gameSelected', game)
-})
+
+function selectGame(game: Game) {
+  selectedGame.value = game
+  emit('gameSelected', game)
+}
 </script>
 
 <style scoped>
@@ -66,65 +64,46 @@ watch(selectedGame, (game) => {
 }
 
 .filter-container {
-  margin-bottom: 1rem;
-}
-
-.w-full {
-  width: 100%;
+  margin-bottom: 0.75rem;
 }
 
 .list-container {
   flex: 1;
   overflow-y: auto;
-  /* Ensure it takes available space but scrolls */
-  min-height: 0; 
-}
-
-/* Customizing Listbox to match design system */
-:deep(.p-listbox) {
-  border: none;
-  background: transparent;
-  padding: 0;
-}
-
-:deep(.p-listbox-list) {
-  padding: 0;
-}
-
-:deep(.p-listbox-item) {
-  margin-bottom: 0.25rem;
-  border-radius: 0.375rem;
-  padding: 0.75rem 1rem;
-  transition: background-color 0.2s, color 0.2s;
-  color: var(--text-secondary);
-}
-
-:deep(.p-listbox-item:not(.p-highlight):not(.p-disabled):hover) {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-:deep(.p-listbox-item.p-highlight) {
-  background: var(--primary-color);
-  color: #ffffff;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .game-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: background 0.15s, color 0.15s;
+  min-width: 0;
 }
 
-.game-icon {
-  font-size: 1rem;
-  opacity: 0.7;
+.game-item:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.game-item.active {
+  background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+  color: var(--primary-color);
+  font-weight: 600;
 }
 
 .game-name {
-  font-weight: 500;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .empty-message {
@@ -132,5 +111,6 @@ watch(selectedGame, (game) => {
   text-align: center;
   color: var(--text-secondary);
   font-style: italic;
+  font-size: 0.875rem;
 }
 </style>

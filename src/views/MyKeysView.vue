@@ -8,9 +8,19 @@
           <Button icon="pi pi-ellipsis-v" class="p-button-text overflow-btn" @click="op && op.toggle($event)" :aria-label="t('myKeys.moreActions')" />
           <OverlayPanel ref="op">
             <div class="overflow-menu">
-              <Button class="p-button-text" icon="pi pi-external-link" :label="t('myKeys.exportLestrades')" @click="exportForLesTrades(); op && op.hide()" />
-              <Button class="p-button-text" icon="pi pi-file" :label="t('myKeys.exportMarkdown')" @click="exportAsMarkdown(); op && op.hide()" />
-              <Button class="p-button-text p-button-danger" icon="pi pi-trash" :label="t('myKeys.deleteAllUsed')" @click="confirmDeleteAllUsedKeys(); op && op.hide()" />
+              <button class="menu-item" @click="exportForLesTrades(); op && op.hide()">
+                <i class="pi pi-external-link"></i>
+                <span>{{ t('myKeys.exportLestrades') }}</span>
+              </button>
+              <button class="menu-item" @click="exportAsMarkdown(); op && op.hide()">
+                <i class="pi pi-file"></i>
+                <span>{{ t('myKeys.exportMarkdown') }}</span>
+              </button>
+              <div class="menu-separator"></div>
+              <button class="menu-item menu-item-danger" @click="confirmDeleteAllUsedKeys(); op && op.hide()">
+                <i class="pi pi-trash"></i>
+                <span>{{ t('myKeys.deleteAllUsed') }}</span>
+              </button>
             </div>
           </OverlayPanel>
         </div>
@@ -40,7 +50,9 @@
       
       <div v-else class="empty-state">
         <div class="empty-content">
-          <i class="pi pi-box empty-icon"></i>
+          <div class="empty-icon-wrap">
+            <i class="pi pi-box"></i>
+          </div>
           <h3>{{ t('myKeys.emptyTitle') }}</h3>
           <p>{{ t('myKeys.emptyDesc') }}</p>
         </div>
@@ -76,8 +88,9 @@ const selectedSteamAppId = ref<number | null>(null)
 const selectedGameName = ref<string | null>(null)
 
 onMounted(async () => {
+  document.title = 'My Keys — SteamKeyVault'
   const apiGames = await getUserGames()
-  games.value = apiGames;
+  games.value = apiGames
 })
 
 const toast = useToast()
@@ -263,7 +276,79 @@ async function onGameDeleted() {
 .overflow-menu {
   display: flex;
   flex-direction: column;
-  padding: 0.1rem;
+  padding: 0.25rem;
+  min-width: 13rem;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: background 0.12s, color 0.12s;
+}
+
+.menu-item:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.menu-item .pi {
+  font-size: 0.875rem;
+  width: 1rem;
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  transition: color 0.12s;
+}
+
+.menu-item:hover .pi {
+  color: var(--text-secondary);
+}
+
+.menu-separator {
+  height: 1px;
+  background: var(--border-color);
+  margin: 0.25rem 0.5rem;
+}
+
+.menu-item-danger {
+  color: #dc2626;
+}
+
+.menu-item-danger .pi {
+  color: #dc2626;
+}
+
+.menu-item-danger:hover {
+  background: color-mix(in srgb, #dc2626 10%, transparent);
+  color: #dc2626;
+}
+
+.menu-item-danger:hover .pi {
+  color: #dc2626;
+}
+
+.my-app-dark .menu-item-danger,
+.my-app-dark .menu-item-danger .pi {
+  color: #f87171;
+}
+
+.my-app-dark .menu-item-danger:hover {
+  background: color-mix(in srgb, #f87171 10%, transparent);
+  color: #f87171;
+}
+
+.my-app-dark .menu-item-danger:hover .pi {
+  color: #f87171;
 }
 
 .sidebar-header h3 {
@@ -325,10 +410,20 @@ async function onGameDeleted() {
   gap: 1rem;
 }
 
-.empty-icon {
-  font-size: 4rem;
-  color: var(--text-tertiary);
+.empty-icon-wrap {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 0.5rem;
+}
+
+.empty-icon-wrap .pi {
+  font-size: 1.75rem;
+  color: var(--primary-color);
 }
 
 .empty-state h3 {

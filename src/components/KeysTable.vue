@@ -347,18 +347,18 @@ function getUsageClass(value: string | undefined) {
 }
 
 .status-badge.used {
-  background: #fee2e2;
-  color: #991b1b;
+  background: color-mix(in srgb, #6b7280 15%, transparent);
+  color: #6b7280;
 }
 
 .status-badge.available {
-  background: #d1fae5;
-  color: #065f46;
+  background: color-mix(in srgb, #22c55e 15%, transparent);
+  color: #16a34a;
 }
 
 .status-badge.sharing {
-  background: #fef3c7;
-  color: #92400e;
+  background: color-mix(in srgb, #3b82f6 15%, transparent);
+  color: #2563eb;
 }
 
 .action-buttons {
