@@ -4,6 +4,7 @@ from ninja.security import django_auth
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.middleware.csrf import get_token
 import logging
+import requests
 from django.conf import settings
 from datetime import datetime
 import re
@@ -56,6 +57,34 @@ EMAIL_SUBJECTS = {
     },
 }
 
+
+
+def _validate_turnstile(turnstile_token: str, remote_ip: str | None, expected_action: str | None = None) -> bool:
+    """Verify a Cloudflare Turnstile token against the siteverify API."""
+    secret = getattr(settings, 'TURNSTILE_SECRET_KEY', '')
+    verify_url = getattr(settings, 'TURNSTILE_VERIFY_URL', '')
+    if not secret or not verify_url:
+        logger.warning("Turnstile secret or verify URL not configured – skipping captcha check")
+        return True
+    payload = {'secret': secret, 'response': turnstile_token}
+    if remote_ip:
+        payload['remoteip'] = remote_ip
+    try:
+        resp = requests.post(verify_url, data=payload, timeout=5)
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception as exc:
+        logger.exception("Turnstile verification request failed: %s", exc)
+        return False
+    if not data.get('success'):
+        logger.info("Turnstile verification rejected: %s", data)
+        return False
+    if expected_action:
+        action = data.get('action')
+        if action != expected_action:
+            logger.warning("Turnstile action mismatch: expected '%s', got '%s'", expected_action, action)
+            return False
+    return True
 
 
 def normalize_locale(value: str | None, fallback: str = User.LANGUAGE_EN) -> str:
@@ -159,6 +188,17 @@ def register(request, payload: schemas.SignUpSchema):
     # Log headers for debugging CORS issues
     logger.debug("Request headers: %s", {k: v for k, v in request.headers.items() if k.lower().startswith(('origin', 'referer', 'host', 'x-', 'access-', 'sec-'))})
     
+    # Validate Turnstile captcha
+    turnstile_secret = getattr(settings, 'TURNSTILE_SECRET_KEY', '')
+    if turnstile_secret:
+        token = payload.turnstile_token
+        if not token:
+            logger.warning(f"Registration failed: missing captcha token username={payload.username}")
+            return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'captcha_required', locale)}, status=400)
+        if not _validate_turnstile(token, request.META.get("REMOTE_ADDR"), expected_action="register"):
+            logger.warning(f"Registration failed: invalid captcha username={payload.username}")
+            return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'captcha_invalid', locale)}, status=400)
+
     # Validate password strength
     is_valid, error_msg = validate_password_strength(payload.password)
     if not is_valid:

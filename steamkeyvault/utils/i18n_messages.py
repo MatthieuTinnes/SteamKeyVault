@@ -1,4 +1,12 @@
 USER_ERROR_MESSAGES = {
+    'captcha_required': {
+        'en': 'Please complete the captcha.',
+        'fr': 'Veuillez compléter le captcha.',
+    },
+    'captcha_invalid': {
+        'en': 'Captcha verification failed. Please try again.',
+        'fr': 'La vérification du captcha a échoué. Veuillez réessayer.',
+    },
     'encryption_not_initialized': {
         'en': 'Encryption not initialized for this account',
         'fr': 'Chiffrement non initialisé pour ce compte',

@@ -15,6 +15,7 @@ class SignUpSchema(BaseModel):
     rk_salt: str
     kdf_iterations: int
     kdf_hash: str
+    turnstile_token: str | None = None
 class UpdateEmailSchema(BaseModel):
     email: str
 
