@@ -23,7 +23,11 @@
             <label for="confirmPassword">{{ t('auth.register.confirmPassword') }}</label>
             <Password id="confirmPassword" v-model="confirmPassword" :feedback="false" toggleMask required class="w-full" inputClass="w-full" />
           </div>
-          <Button type="submit" :label="t('auth.register.submit')" class="w-full mt-4" />
+          <div v-if="turnstileEnabled" class="form-group">
+            <div id="turnstile-register"></div>
+            <small v-if="!turnstileReady" class="password-requirements">{{ t('auth.register.errors.captchaRequired') }}</small>
+          </div>
+          <Button type="submit" :label="t('auth.register.submit')" class="w-full mt-4" :disabled="turnstileEnabled && !turnstileToken" />
           <Message v-if="error" severity="error" class="mt-4">{{ error }}</Message>
           <Message v-if="success" severity="success" class="mt-4">{{ success }}</Message>
           
@@ -51,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { registerUser } from '../api/auth'
 import { useToast } from 'primevue/usetoast'
@@ -64,6 +68,16 @@ import Password from 'primevue/password';
 import Button from 'primevue/button';
 import Message from 'primevue/message';
 import { useI18n } from 'vue-i18n'
+import { TURNSTILE_SITE_KEY } from '@/api/apiHelper'
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (element: HTMLElement, options: Record<string, any>) => string
+      reset: (widgetId: string) => void
+    }
+  }
+}
 
 const email = ref('')
 const username = ref('')
@@ -77,11 +91,74 @@ const recoveryPhrase = ref('')
 const showRecoveryDialog = ref(false)
 const { t, locale } = useI18n()
 
+const turnstileEnabled = !!TURNSTILE_SITE_KEY
+const turnstileToken = ref('')
+const turnstileReady = ref(false)
+const turnstileWidgetId = ref<string | null>(null)
+
+onMounted(async () => {
+  if (!turnstileEnabled) return
+  await nextTick()
+  try {
+    await loadTurnstile()
+    renderTurnstile()
+  } catch (err) {
+    console.error('Turnstile load error:', err)
+    turnstileReady.value = false
+  }
+})
+
+async function loadTurnstile() {
+  if (window.turnstile) { turnstileReady.value = true; return }
+  await new Promise<void>((resolve, reject) => {
+    const existing = document.getElementById('turnstile-script') as HTMLScriptElement | null
+    if (existing) {
+      existing.addEventListener('load', () => resolve())
+      existing.addEventListener('error', () => reject(new Error('Failed to load Turnstile')))
+      return
+    }
+    const script = document.createElement('script')
+    script.id = 'turnstile-script'
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
+    script.async = true
+    script.defer = true
+    script.onload = () => resolve()
+    script.onerror = () => reject(new Error('Failed to load Turnstile'))
+    document.head.appendChild(script)
+  })
+  turnstileReady.value = true
+}
+
+function renderTurnstile() {
+  if (!turnstileReady.value || !window.turnstile) return
+  const el = document.getElementById('turnstile-register')
+  if (el && !turnstileWidgetId.value) {
+    turnstileWidgetId.value = window.turnstile.render(el, {
+      sitekey: TURNSTILE_SITE_KEY,
+      callback: (token: string) => { turnstileToken.value = token },
+      'expired-callback': () => { turnstileToken.value = '' },
+      'error-callback': () => { turnstileToken.value = '' },
+      action: 'register'
+    })
+  }
+}
+
+function resetTurnstile() {
+  if (!window.turnstile || !turnstileWidgetId.value) return
+  window.turnstile.reset(turnstileWidgetId.value)
+  turnstileToken.value = ''
+}
+
 const handleRegister = async () => {
   error.value = ''
   success.value = ''
   if (password.value !== confirmPassword.value) {
     error.value = t('auth.register.errors.passwordMismatch')
+    return
+  }
+
+  if (turnstileEnabled && !turnstileToken.value) {
+    error.value = t('auth.register.errors.captchaRequired')
     return
   }
   
@@ -114,7 +191,8 @@ const handleRegister = async () => {
       mk_salt: mkSalt,
       rk_salt: rkSalt,
       kdf_iterations: kdfParams.iterations,
-      kdf_hash: kdfParams.hash
+      kdf_hash: kdfParams.hash,
+      turnstile_token: turnstileToken.value || undefined
     })
 
     recoveryPhrase.value = recovery
@@ -122,6 +200,7 @@ const handleRegister = async () => {
     success.value = t('auth.register.success')
   } catch (err: any) {
     error.value = err?.response?.data?.error || t('auth.register.errors.registrationFailed')
+    resetTurnstile()
   }
 }
 

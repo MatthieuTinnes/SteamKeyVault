@@ -602,7 +602,8 @@ const messages = {
         passwordRequirements: "Password must: be 12+ characters, contain lowercase, uppercase, digit, and special character",
         errors: {
           passwordMismatch: 'Passwords do not match.',
-          registrationFailed: 'Registration failed.'
+          registrationFailed: 'Registration failed.',
+          captchaRequired: 'Please complete the captcha.'
         },
         success: 'Registration successful! Please save your recovery phrase.'
       },
@@ -1535,7 +1536,8 @@ const messages = {
         passwordRequirements: "Le mot de passe doit : contenir au moins 12 caractères, une minuscule, une majuscule, un chiffre et un caractère spécial",
         errors: {
           passwordMismatch: 'Les mots de passe ne correspondent pas.',
-          registrationFailed: "Échec de l'inscription."
+          registrationFailed: "Échec de l'inscription.",
+          captchaRequired: 'Veuillez compléter le captcha.'
         },
         success: "Inscription réussie ! Veuillez sauvegarder votre phrase de récupération."
       },

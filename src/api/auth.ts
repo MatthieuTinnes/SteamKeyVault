@@ -53,6 +53,7 @@ export async function registerUser(payload: {
   rk_salt: string
   kdf_iterations: number
   kdf_hash: string
+  turnstile_token?: string
 }) {
   return axios.post(`${API_BASE_URL}/users/register`, payload, getAxiosConfig())
 }
