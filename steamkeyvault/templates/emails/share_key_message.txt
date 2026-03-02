@@ -1,9 +1,0 @@
-New message about your shared key
-
-Hello {{ donor_username }},
-
-You received a message about your shared key for "{{ game_name }}":
-
-{{ message }}
-
-SteamKeyVault Team
