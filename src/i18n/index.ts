@@ -50,7 +50,7 @@ const messages = {
     home: {
       eyebrow: 'Free to Use · Secure by Design · Privacy-Focused',
       heroTitle: 'Your Steam Keys, Safe and Organized',
-      heroSubtitle: 'SteamKeyVault keeps your entire game key library encrypted, searchable, and shareable — all under your control.',
+      heroSubtitle: 'SteamKeyVault keeps your entire game key library encrypted, searchable, and shareable, all under your control.',
       getStarted: 'Get started free',
       learnMore: 'Learn More',
       viewDocs: 'Read the Docs',
@@ -71,7 +71,7 @@ const messages = {
         {
           icon: 'pi-arrow-right-arrow-left',
           title: 'Easy Key Sharing',
-          desc: 'Generate a one-time, expiring link to share any key with anyone — no account required for the recipient.'
+          desc: 'Generate a one-time, expiring link to share any key with anyone (no account required for the recipient).'
         },
         {
           icon: 'pi-file-export',
@@ -91,7 +91,7 @@ const messages = {
         {
           icon: 'pi-link',
           title: 'Steam Integration',
-          desc: 'Games are matched to Steam titles automatically — cover art, publisher info, and store links included.'
+          desc: 'Games are matched to Steam titles automatically (cover art, publisher info, and store links included).'
         }
       ],
       howItWorksTitle: 'Up and running in minutes',
@@ -101,7 +101,7 @@ const messages = {
           number: '01',
           icon: 'pi-user-plus',
           title: 'Create your account',
-          desc: 'Register in seconds. Your encryption keys are generated locally — we never see them.'
+          desc: 'Register in seconds. Your encryption keys are generated locally. We never see them.'
         },
         {
           number: '02',
@@ -120,7 +120,7 @@ const messages = {
       securityDesc: 'With SteamKeyVault, security and privacy are at the core of everything we do. Here\'s how we protect your valuable game keys:',
       securityPoints: [
         'Keys are encrypted in your browser using your login credentials before being sent to the server.',
-        'The server stores only ciphertext — a database breach exposes nothing readable.',
+        'The server stores only ciphertext. A database breach exposes nothing readable.',
         'Exports are decrypted on your device, never server-side.',
         'No analytics, no third-party SDKs, no trackers. Your data stays yours.'
       ],
@@ -133,7 +133,7 @@ const messages = {
         note: 'The server only receives ciphertext'
       },
       ctaTitle: 'Ready to secure your Steam library?',
-      ctaDesc: 'Join SteamKeyVault today — free and built with privacy first.',
+      ctaDesc: 'Join SteamKeyVault today, free and built with privacy first.',
       ctaButton: 'Create your free vault',
       discoverTitle: 'Trade, Store, and Access Anywhere',
       discoverDesc: 'With SteamKeyVault, your keys are always at your fingertips. Trade securely, store with confidence, and access your collection from any device.',
@@ -155,7 +155,7 @@ const messages = {
       faqs: [
         {
           q: 'How secure is SteamKeyVault?',
-          a: 'All keys are encrypted end-to-end in your browser. Only you have the decryption key — not even the server admin can read your keys.'
+          a: 'All keys are encrypted end-to-end in your browser. Only you have the decryption key. Not even the server admin can read your keys.'
         },
         {
           q: 'Can I share keys with people who don\'t have an account?',
@@ -163,7 +163,7 @@ const messages = {
         },
         {
           q: 'How do I import my existing keys?',
-          a: 'Use the CSV/TXT import — one line per game in the format gameName;key1;key2. Keys are encrypted locally before upload.'
+          a: 'Use the CSV/TXT import, one line per game in the format gameName;key1;key2. Keys are encrypted locally before upload.'
         },
         {
           q: 'Is SteamKeyVault really free?',
@@ -171,7 +171,7 @@ const messages = {
         },
         {
           q: 'What happens to my keys if I lose my password?',
-          a: 'At registration you receive a 12-word recovery phrase. Keep it safe — it\'s the only way to recover your encrypted data.'
+          a: 'At registration you receive a 12-word recovery phrase. Keep it safe, it\'s the only way to recover your encrypted data.'
         }
       ]
     },
@@ -265,7 +265,7 @@ const messages = {
         title: 'Information We Collect',
         body: 'SteamKeyVault collects only the minimum data required to operate the service:',
         i1: 'Account information: username, email address, and hashed password.',
-        i2: 'Game keys: stored encrypted — your keys are encrypted client-side before being sent to the server.',
+        i2: 'Game keys: stored encrypted. Your keys are encrypted client-side before being sent to the server.',
         i3: 'Session data: a session cookie used for authentication.'
       },
       s2: {
@@ -278,7 +278,7 @@ const messages = {
       s3: {
         title: 'Data Storage & Security',
         body: 'SteamKeyVault employs several layers of protection to keep your data safe:',
-        i1: 'Client-side encryption: your game keys are encrypted in your browser before being stored — the server never sees plaintext keys.',
+        i1: 'Client-side encryption: your game keys are encrypted in your browser before being stored. The server never sees plaintext keys.',
         i2: 'Transit security: all communications are protected via TLS/HTTPS.',
         i3: 'Access control: only authenticated users can access their own data.'
       },
@@ -330,14 +330,14 @@ const messages = {
         registerSteps: [
           'Go to the Register page.',
           'Enter your email, a username, and a strong password (12+ characters).',
-          'Submit the form — a 12-word recovery phrase appears immediately.',
+          'Submit the form. A 12-word recovery phrase appears immediately.',
           'Copy and save this phrase somewhere safe before closing the dialog.',
           'Verify your email by clicking the link sent to your inbox.'
         ],
-        recoveryPhraseTitle: 'Your recovery phrase — keep it safe',
+        recoveryPhraseTitle: 'Your recovery phrase, keep it safe',
         recoveryPhraseBody: 'The recovery phrase is the only way to reset your password and recover your encrypted data. Without it, a forgotten password means permanent data loss.',
         recoveryPhraseList: [
-          'Generated locally in your browser — never transmitted to the server.',
+          'Generated locally in your browser, never transmitted to the server.',
           'Write it down or store it in a password manager.',
           'Keep it separate from your account password.',
           'Never share it with anyone, including support.'
@@ -345,7 +345,7 @@ const messages = {
       },
       encryption: {
         title: 'Encryption & security',
-        body: 'Your keys are encrypted in your browser before they are sent to the server. Only you can see them in plain text when logged in — not even the server administrator can read them.',
+        body: 'Your keys are encrypted in your browser before they are sent to the server. Only you can see them in plain text when logged in. Not even the server administrator can read them.',
         whyTitle: 'Why this protects you',
         whyList: [
           'Keys are unreadable to anyone without your active login session.',
@@ -356,7 +356,7 @@ const messages = {
         expectTitle: 'What to expect as a user',
         expectList: [
           'After logout or clearing your browser session, you must log in again to see keys.',
-          'Imports are encrypted locally before upload — your data never travels unprotected.'
+          'Imports are encrypted locally before upload. Your data never travels unprotected.'
         ]
       },
       managingLibrary: {
@@ -419,7 +419,7 @@ const messages = {
       },
       sharing: {
         title: 'Share a key by link',
-        body: 'Generate a temporary, one-time link for any key and send it to someone. The recipient reveals the key on a public page — no account needed.',
+        body: 'Generate a temporary, one-time link for any key and send it to someone. The recipient reveals the key on a public page (no account needed).',
         createTitle: 'Create a share link',
         createSteps: [
           'Open My Keys.',
@@ -429,7 +429,7 @@ const messages = {
         ],
         behaviorTitle: 'How share links work',
         behaviorList: [
-          'Each link can be used only once — the key is revealed exactly one time.',
+          'Each link can be used only once. The key is revealed exactly one time.',
           'A captcha protects against automated bots.',
           'The recipient can send you a short message after revealing the key.',
           'You can revoke any active link from the share dialog at any time.',
@@ -447,7 +447,7 @@ const messages = {
         ],
         customTitle: 'Custom games',
         customList: [
-          'Create a game with any name — no Steam App ID required.',
+          'Create a game with any name (no Steam App ID required).',
           'You can convert it to a Steam game later once you find the App ID.',
           'Useful for GOG, Epic, Ubisoft Connect, and other platform keys.'
         ]
@@ -486,7 +486,7 @@ const messages = {
         title: 'Account & settings',
         body: 'Manage your profile, security, and preferences from My Account.',
         passwordTitle: 'Changing your password',
-        passwordBody: 'Changing your password re-derives the encryption key. All your keys are automatically re-encrypted with the new password — you do not need to re-import anything.',
+        passwordBody: 'Changing your password re-derives the encryption key. All your keys are automatically re-encrypted with the new password. You do not need to re-import anything.',
         passwordSteps: [
           'Open My Account.',
           'Scroll to the Security section.',
@@ -502,7 +502,7 @@ const messages = {
           'Click the link in your inbox to complete the change.'
         ],
         markdownTitle: 'Markdown export',
-        markdownBody: 'Creates a formatted Markdown list of your Steam games with links to their store pages — useful for posts, forums, or external tracking.',
+        markdownBody: 'Creates a formatted Markdown list of your Steam games with links to their store pages, useful for posts, forums, or external tracking.',
         markdownSteps: [
           'Open My Keys.',
           'Click the three dots menu at the top of the games column.',
@@ -527,7 +527,7 @@ const messages = {
           },
           {
             q: 'What happens if a Steam game is removed from the store?',
-            a: 'The game stays in your library as a custom game. You never lose your data — only the automatic metadata (cover art, publisher) is no longer filled.'
+            a: 'The game stays in your library as a custom game. You never lose your data. Only the automatic metadata (cover art, publisher) is no longer filled.'
           },
           {
             q: 'Can I move my library to another account or instance?',
@@ -844,7 +844,7 @@ const messages = {
       expired: 'This link has expired.',
       revealed: 'This link has already been used.',
       used: 'This key is already marked as used.',
-      promo: 'This key was shared using SteamKeyVault — manage and share your keys securely.',
+      promo: 'This key was shared using SteamKeyVault. Manage and share your keys securely.',
       createAccount: 'Create an account',
       revealedKey: 'Revealed key',
       activateSteam: 'Activate on Steam',
@@ -1018,7 +1018,7 @@ const messages = {
     home: {
       eyebrow: 'Gratuit · Sécurisé · Centré sur la vie privée',
       heroTitle: 'Vos clés Steam, en sécurité et bien organisées',
-      heroSubtitle: 'SteamKeyVault chiffre, organise et vous permet de partager vos clés de jeux — le tout sous votre contrôle.',
+      heroSubtitle: 'SteamKeyVault chiffre, organise et vous permet de partager vos clés de jeux, le tout sous votre contrôle.',
       getStarted: 'Commencer gratuitement',
       learnMore: 'En savoir plus',
       viewDocs: 'Lire la documentation',
@@ -1101,7 +1101,7 @@ const messages = {
         note: 'Le serveur ne reçoit que du texte chiffré'
       },
       ctaTitle: 'Prêt à sécuriser votre bibliothèque Steam ?',
-      ctaDesc: 'Rejoignez SteamKeyVault aujourd\'hui — gratuit et centré sur la vie privée.',
+      ctaDesc: 'Rejoignez SteamKeyVault aujourd\'hui, gratuit et centré sur la vie privée.',
       ctaButton: 'Créer votre coffre gratuitement',
       discoverTitle: 'Échanger, stocker et accéder partout',
       discoverDesc: 'Avec SteamKeyVault, vos clés sont toujours à portée de main. Échangez en toute sécurité, stockez en confiance et accédez à votre collection depuis n\'importe quel appareil.',
@@ -1123,7 +1123,7 @@ const messages = {
       faqs: [
         {
           q: 'Quel est le niveau de sécurité de SteamKeyVault ?',
-          a: 'Toutes les clés sont chiffrées de bout en bout dans votre navigateur. Vous seul possédez la clé de déchiffrement — même l\'admin du serveur ne peut pas lire vos clés.'
+          a: 'Toutes les clés sont chiffrées de bout en bout dans votre navigateur. Vous seul possédez la clé de déchiffrement. Même l\'admin du serveur ne peut pas lire vos clés.'
         },
         {
           q: 'Puis-je partager des clés avec des personnes sans compte ?',
@@ -1131,7 +1131,7 @@ const messages = {
         },
         {
           q: 'Comment importer mes clés existantes ?',
-          a: 'Utilisez l\'import CSV/TXT — une ligne par jeu au format gameName;key1;key2. Les clés sont chiffrées localement avant l\'envoi.'
+          a: 'Utilisez l\'import CSV/TXT, une ligne par jeu au format gameName;key1;key2. Les clés sont chiffrées localement avant l\'envoi.'
         },
         {
           q: 'SteamKeyVault est-il vraiment gratuit ?',
@@ -1139,7 +1139,7 @@ const messages = {
         },
         {
           q: 'Que se passe-t-il si j\'oublie mon mot de passe ?',
-          a: 'À l\'inscription, vous recevez une phrase de récupération de 12 mots. Conservez-la précieusement — c\'est le seul moyen de récupérer vos données chiffrées.'
+          a: 'À l\'inscription, vous recevez une phrase de récupération de 12 mots. Conservez-la précieusement, c\'est le seul moyen de récupérer vos données chiffrées.'
         }
       ]
     },
@@ -1154,7 +1154,7 @@ const messages = {
     legal: {
       title: 'Mentions légales',
       disclaimer: {
-        title: 'Avertissement — Marque Steam',
+        title: 'Avertissement (Marque Steam)',
         body: 'SteamKeyVault est un projet personnel indépendant et n\'est en aucun cas affilié, autorisé, approuvé ou sponsorisé par Valve Corporation ou Steam.',
         trademark: 'Steam®, le logo Steam et tous les logos et emblèmes associés sont des marques déposées ou des marques commerciales de Valve Corporation aux États-Unis et/ou dans d\'autres pays. Toutes les autres marques sont la propriété de leurs détenteurs respectifs.'
       },
@@ -1205,7 +1205,7 @@ const messages = {
         i3: 'L\'usurpation d\'identité ou la fausse déclaration d\'appartenance à une entité quelconque.'
       },
       s5: {
-        title: 'Avertissement — Marque Steam',
+        title: 'Avertissement (Marque Steam)',
         body: 'SteamKeyVault est un projet indépendant et n\'est en aucun cas affilié, autorisé, approuvé ou sponsorisé par Valve Corporation.',
         trademark: 'Steam®, le logo Steam et tous les logos et emblèmes associés sont des marques déposées ou des marques commerciales de Valve Corporation aux États-Unis et/ou dans d\'autres pays. Toutes les autres marques sont la propriété de leurs détenteurs respectifs.'
       },
@@ -1233,7 +1233,7 @@ const messages = {
         title: 'Données collectées',
         body: 'SteamKeyVault ne collecte que les données strictement nécessaires au fonctionnement du service :',
         i1: 'Informations de compte : nom d\'utilisateur, adresse e-mail et mot de passe haché.',
-        i2: 'Clés de jeux : stockées chiffrées — vos clés sont chiffrées côté navigateur avant d\'être envoyées au serveur.',
+        i2: 'Clés de jeux : stockées chiffrées. Vos clés sont chiffrées côté navigateur avant d\'être envoyées au serveur.',
         i3: 'Données de session : un cookie de session utilisé pour l\'authentification.'
       },
       s2: {
@@ -1246,7 +1246,7 @@ const messages = {
       s3: {
         title: 'Stockage & sécurité des données',
         body: 'SteamKeyVault utilise plusieurs couches de protection pour sécuriser vos données :',
-        i1: 'Chiffrement côté client : vos clés de jeux sont chiffrées dans votre navigateur avant d\'être stockées — le serveur ne reçoit jamais les clés en clair.',
+        i1: 'Chiffrement côté client : vos clés de jeux sont chiffrées dans votre navigateur avant d\'être stockées. Le serveur ne reçoit jamais les clés en clair.',
         i2: 'Sécurité des échanges : toutes les communications sont protégées via TLS/HTTPS.',
         i3: 'Contrôle d\'accès : seuls les utilisateurs authentifiés peuvent accéder à leurs propres données.'
       },
@@ -1298,14 +1298,14 @@ const messages = {
         registerSteps: [
           'Accédez à la page Inscription.',
           'Saisissez votre adresse e-mail, un nom d\'utilisateur et un mot de passe fort (12 caractères minimum).',
-          'Validez le formulaire — une phrase de récupération de 12 mots s\'affiche immédiatement.',
+          'Validez le formulaire. Une phrase de récupération de 12 mots s\'affiche immédiatement.',
           'Copiez et sauvegardez cette phrase en lieu sûr avant de fermer la fenêtre.',
           'Vérifiez votre adresse e-mail en cliquant sur le lien envoyé dans votre boîte mail.'
         ],
-        recoveryPhraseTitle: 'Votre phrase de récupération — conservez-la précieusement',
+        recoveryPhraseTitle: 'Votre phrase de récupération, conservez-la précieusement',
         recoveryPhraseBody: 'La phrase de récupération est le seul moyen de réinitialiser votre mot de passe et de récupérer vos données chiffrées. Sans elle, un mot de passe oublié entraîne une perte définitive de vos données.',
         recoveryPhraseList: [
-          'Générée localement dans votre navigateur — jamais transmise au serveur.',
+          'Générée localement dans votre navigateur, jamais transmise au serveur.',
           'Notez-la ou stockez-la dans un gestionnaire de mots de passe.',
           'Conservez-la séparément de votre mot de passe.',
           'Ne la partagez jamais, même avec le support.'
@@ -1313,7 +1313,7 @@ const messages = {
       },
       encryption: {
         title: 'Chiffrement & sécurité',
-        body: 'Vos clés sont chiffrées dans votre navigateur avant d\'être envoyées au serveur. Vous seul pouvez les voir en clair quand vous êtes connecté — même l\'administrateur du serveur ne peut pas les lire.',
+        body: 'Vos clés sont chiffrées dans votre navigateur avant d\'être envoyées au serveur. Vous seul pouvez les voir en clair quand vous êtes connecté. Même l\'administrateur du serveur ne peut pas les lire.',
         whyTitle: 'Pourquoi cela vous protège',
         whyList: [
           'Les clés sont illisibles pour toute personne sans votre session active.',
@@ -1324,7 +1324,7 @@ const messages = {
         expectTitle: 'Ce à quoi vous devez vous attendre',
         expectList: [
           'Après déconnexion ou nettoyage de session, vous devez vous reconnecter pour voir vos clés.',
-          'Les imports sont chiffrés localement avant envoi — vos données ne transitent jamais non protégées.'
+          'Les imports sont chiffrés localement avant envoi. Vos données ne transitent jamais non protégées.'
         ]
       },
       managingLibrary: {
@@ -1387,7 +1387,7 @@ const messages = {
       },
       sharing: {
         title: 'Partager une clé par lien',
-        body: 'Générez un lien temporaire à usage unique pour n\'importe quelle clé et envoyez-le. Le destinataire révèle la clé sur une page publique — aucun compte requis.',
+        body: 'Générez un lien temporaire à usage unique pour n\'importe quelle clé et envoyez-le. Le destinataire révèle la clé sur une page publique (aucun compte requis).',
         createTitle: 'Créer un lien de partage',
         createSteps: [
           'Ouvrez Mes clés.',
@@ -1397,7 +1397,7 @@ const messages = {
         ],
         behaviorTitle: 'Fonctionnement des liens de partage',
         behaviorList: [
-          'Chaque lien ne peut être utilisé qu\'une seule fois — la clé est révélée exactement une fois.',
+          'Chaque lien ne peut être utilisé qu\'une seule fois. La clé est révélée exactement une fois.',
           'Un captcha protège contre les robots automatisés.',
           'Le destinataire peut vous envoyer un court message après avoir révélé la clé.',
           'Vous pouvez révoquer tout lien actif depuis la fenêtre de partage à tout moment.',
@@ -1415,7 +1415,7 @@ const messages = {
         ],
         customTitle: 'Jeux personnalisés',
         customList: [
-          'Créez un jeu avec n\'importe quel nom — aucun App ID Steam requis.',
+          'Créez un jeu avec n\'importe quel nom (aucun App ID Steam requis).',
           'Vous pouvez le convertir en jeu Steam plus tard une fois l\'App ID trouvé.',
           'Idéal pour les clés GOG, Epic, Ubisoft Connect et autres plateformes.'
         ]
@@ -1454,7 +1454,7 @@ const messages = {
         title: 'Compte & paramètres',
         body: 'Gérez votre profil, sécurité et préférences depuis Mon compte.',
         passwordTitle: 'Changer votre mot de passe',
-        passwordBody: 'Changer votre mot de passe re-dérive la clé de chiffrement. Toutes vos clés sont automatiquement re-chiffrées avec le nouveau mot de passe — aucun ré-import nécessaire.',
+        passwordBody: 'Changer votre mot de passe re-dérive la clé de chiffrement. Toutes vos clés sont automatiquement re-chiffrées avec le nouveau mot de passe. Aucun ré-import nécessaire.',
         passwordSteps: [
           'Ouvrez Mon compte.',
           'Faites défiler jusqu\'à la section Sécurité.',
@@ -1470,7 +1470,7 @@ const messages = {
           'Cliquez sur le lien dans votre boîte mail pour finaliser le changement.'
         ],
         markdownTitle: 'Export Markdown',
-        markdownBody: 'Crée une liste Markdown formatée de vos jeux Steam avec des liens vers leurs pages store — utile pour des posts, forums ou suivis externes.',
+        markdownBody: 'Crée une liste Markdown formatée de vos jeux Steam avec des liens vers leurs pages store, utile pour des posts, forums ou suivis externes.',
         markdownSteps: [
           'Ouvrez Mes clés.',
           'Cliquez sur le menu à trois points en haut de la colonne des jeux.',
@@ -1495,7 +1495,7 @@ const messages = {
           },
           {
             q: 'Que se passe-t-il si un jeu Steam est retiré du store ?',
-            a: 'Le jeu reste dans votre bibliothèque comme jeu personnalisé. Vous ne perdez jamais vos données — seules les métadonnées automatiques (jaquette, éditeur) ne sont plus remplies.'
+            a: 'Le jeu reste dans votre bibliothèque comme jeu personnalisé. Vous ne perdez jamais vos données. Seules les métadonnées automatiques (jaquette, éditeur) ne sont plus remplies.'
           },
           {
             q: 'Puis-je déplacer ma bibliothèque vers un autre compte ou une autre instance ?',
@@ -1812,7 +1812,7 @@ const messages = {
       expired: 'Ce lien a expiré.',
       revealed: 'Ce lien a déjà été utilisé.',
       used: 'Cette clé est déjà marquée comme utilisée.',
-      promo: 'Cette clé a été partagée via SteamKeyVault — gérez et partagez vos clés en toute sécurité.',
+      promo: 'Cette clé a été partagée via SteamKeyVault. Gérez et partagez vos clés en toute sécurité.',
       createAccount: 'Créer un compte',
       revealedKey: 'Clé révélée',
       activateSteam: 'Activer sur Steam',
