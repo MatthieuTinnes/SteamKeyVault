@@ -28,92 +28,16 @@
           </div>
         </div>
 
-        <!-- App preview mock -->
-        <div class="hero-preview" aria-hidden="true">
-          <div class="preview-chrome">
-            <div class="preview-chrome-bar">
-              <span class="chrome-dot dot-red"></span>
-              <span class="chrome-dot dot-yellow"></span>
-              <span class="chrome-dot dot-green"></span>
-              <div class="chrome-address-bar">steamkeyvault.app/my-keys</div>
-            </div>
-            <div class="preview-body">
-              <div class="preview-sidebar">
-                <div class="preview-sidebar-header">
-                  <span class="preview-sidebar-title">Your Games</span>
-                  <span class="preview-sidebar-count">4</span>
-                </div>
-                <div class="preview-game-item active">
-                  <div class="preview-game-thumb thumb-blue">HL</div>
-                  <div class="preview-game-info">
-                    <span class="preview-game-name">Half-Life: Alyx</span>
-                    <span class="preview-game-count">3 keys</span>
-                  </div>
-                </div>
-                <div class="preview-game-item">
-                  <div class="preview-game-thumb thumb-orange">P2</div>
-                  <div class="preview-game-info">
-                    <span class="preview-game-name">Portal 2</span>
-                    <span class="preview-game-count">1 key</span>
-                  </div>
-                </div>
-                <div class="preview-game-item">
-                  <div class="preview-game-thumb thumb-red">DE</div>
-                  <div class="preview-game-info">
-                    <span class="preview-game-name">DOOM Eternal</span>
-                    <span class="preview-game-count">2 keys</span>
-                  </div>
-                </div>
-                <div class="preview-game-item">
-                  <div class="preview-game-thumb thumb-green">CP</div>
-                  <div class="preview-game-info">
-                    <span class="preview-game-name">Cyberpunk 2077</span>
-                    <span class="preview-game-count">4 keys</span>
-                  </div>
-                </div>
-              </div>
-              <div class="preview-main">
-                <div class="preview-main-header">
-                  <span class="preview-game-title">Half-Life: Alyx</span>
-                  <div class="preview-add-btn">
-                    <i class="pi pi-plus"></i> Add Key
-                  </div>
-                </div>
-                <div class="preview-table-head">
-                  <span class="th-label th-key">Key</span>
-                  <span class="th-label">Status</span>
-                  <span class="th-label th-actions">Actions</span>
-                </div>
-                <div class="preview-key-row">
-                  <code class="preview-key-text">A7FX3-K2MP9-QR5LT</code>
-                  <div class="preview-badge badge-available">Available</div>
-                  <div class="preview-row-actions">
-                    <span class="row-action-icon"><i class="pi pi-copy"></i></span>
-                    <span class="row-action-icon"><i class="pi pi-share-alt"></i></span>
-                  </div>
-                </div>
-                <div class="preview-key-row">
-                  <code class="preview-key-text">BHY8N-W3ZQ1-PD6KR</code>
-                  <div class="preview-badge badge-sharing">Sharing</div>
-                  <div class="preview-row-actions">
-                    <span class="row-action-icon"><i class="pi pi-copy"></i></span>
-                    <span class="row-action-icon"><i class="pi pi-share-alt"></i></span>
-                  </div>
-                </div>
-                <div class="preview-key-row row-used">
-                  <code class="preview-key-text key-text-blurred">C4JM2-X9VR7-NW8HT</code>
-                  <div class="preview-badge badge-used">Used</div>
-                  <div class="preview-row-actions">
-                    <span class="row-action-icon muted"><i class="pi pi-copy"></i></span>
-                    <span class="row-action-icon muted"><i class="pi pi-trash"></i></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <!-- App preview mockup -->
+        <div class="hero-preview">
+          <img
+            :src="mockupSrc"
+            :alt="t('home.heroTitle')"
+            class="mockup-img"
+          />
           <div class="preview-glow"></div>
         </div>
-      </div>
+      </div> 
     </section>
 
     <!-- ============================
@@ -279,9 +203,28 @@ import Button from 'primevue/button'
 import { useRouter } from 'vue-router'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useTheme } from '@/composables/useTheme'
+
+import mockupEnDark from '@/assets/mockup/mykeys_en_dark.avif'
+import mockupEnLight from '@/assets/mockup/mykeys_en_light.avif'
+import mockupFrDark from '@/assets/mockup/mykeys_fr_dark.avif'
+import mockupFrLight from '@/assets/mockup/mykeys_fr_light.avif'
 
 const router = useRouter()
-const { t, tm } = useI18n()
+const { t, tm, locale } = useI18n()
+const { currentTheme } = useTheme()
+
+const mockupSrc = computed(() => {
+  const lang = locale.value.startsWith('fr') ? 'fr' : 'en'
+  const theme = currentTheme.value
+  const map: Record<string, string> = {
+    fr_dark: mockupFrDark,
+    fr_light: mockupFrLight,
+    en_dark: mockupEnDark,
+    en_light: mockupEnLight,
+  }
+  return map[`${lang}_${theme}`]
+})
 
 const features = computed(() => tm('home.features') as { icon: string; title: string; desc: string }[])
 const trustItems = computed(() => tm('home.trustItems') as { icon: string; label: string }[])
@@ -407,10 +350,22 @@ function goToRegister() {
   box-shadow: 0 4px 14px 0 color-mix(in srgb, var(--primary-color) 40%, transparent);
 }
 
-/* App preview mock */
+/* App preview mockup */
 .hero-preview {
   position: relative;
   padding-bottom: 1rem;
+}
+
+.mockup-img {
+  position: relative;
+  z-index: 1;
+  width: 150%;
+  height: auto;
+  border-radius: 0.875rem;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-color);
+  display: block;
+  transition: opacity 0.3s ease;
 }
 
 .preview-glow {
@@ -420,299 +375,6 @@ function goToRegister() {
   pointer-events: none;
   z-index: 0;
   filter: blur(30px);
-}
-
-.preview-chrome {
-  position: relative;
-  z-index: 1;
-  background: var(--bg-primary);
-  border-radius: 0.875rem;
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-color);
-  overflow: hidden;
-}
-
-.preview-chrome-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.6rem 0.85rem;
-  background: var(--bg-tertiary);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.chrome-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.dot-red    { background: #ff5f57; }
-.dot-yellow { background: #febc2e; }
-.dot-green  { background: #28c840; }
-
-.chrome-address-bar {
-  flex: 1;
-  height: 18px;
-  background: var(--bg-secondary);
-  border-radius: 4px;
-  margin-left: 0.5rem;
-  font-size: 0.6rem;
-  color: var(--text-tertiary);
-  display: flex;
-  align-items: center;
-  padding: 0 0.5rem;
-  font-family: monospace;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.preview-body {
-  display: flex;
-  height: 260px;
-}
-
-.preview-sidebar {
-  width: 168px;
-  flex-shrink: 0;
-  background: var(--bg-secondary);
-  border-right: 1px solid var(--border-color);
-  padding: 0.65rem 0.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  overflow: hidden;
-}
-
-.preview-sidebar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 0.35rem;
-  margin-bottom: 0.4rem;
-}
-
-.preview-sidebar-title {
-  font-size: 0.6rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-tertiary);
-}
-
-.preview-sidebar-count {
-  font-size: 0.6rem;
-  font-weight: 700;
-  color: var(--text-tertiary);
-  background: var(--bg-tertiary);
-  border-radius: 99px;
-  padding: 0.05rem 0.4rem;
-}
-
-.preview-game-item {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.35rem 0.4rem;
-  border-radius: 0.4rem;
-  cursor: default;
-}
-
-.preview-game-item.active {
-  background: color-mix(in srgb, var(--primary-color) 10%, transparent);
-}
-
-.preview-game-thumb {
-  width: 28px;
-  height: 28px;
-  border-radius: 0.3rem;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.5rem;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: 0;
-}
-
-.thumb-blue   { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-.thumb-orange { background: linear-gradient(135deg, #f97316, #c2410c); }
-.thumb-red    { background: linear-gradient(135deg, #ef4444, #991b1b); }
-.thumb-green  { background: linear-gradient(135deg, #22c55e, #15803d); }
-
-.preview-game-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.preview-game-name {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.preview-game-item.active .preview-game-name {
-  color: var(--primary-color);
-}
-
-.preview-game-count {
-  font-size: 0.58rem;
-  color: var(--text-tertiary);
-}
-
-.preview-main {
-  flex: 1;
-  padding: 0.65rem 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  overflow: hidden;
-  min-width: 0;
-}
-
-.preview-main-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.6rem;
-}
-
-.preview-game-title {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.preview-add-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.2rem;
-  font-size: 0.58rem;
-  font-weight: 600;
-  color: #fff;
-  background: var(--primary-color);
-  border-radius: 0.35rem;
-  padding: 0.2rem 0.5rem;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.preview-add-btn .pi {
-  font-size: 0.55rem;
-}
-
-.preview-table-head {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0 0.3rem 0.4rem;
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 0.15rem;
-}
-
-.th-label {
-  font-size: 0.58rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-tertiary);
-  flex: 1;
-}
-
-.th-key    { flex: 3; }
-.th-actions { flex: 0; width: 40px; text-align: right; }
-
-.preview-key-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.45rem 0.3rem;
-  border-radius: 0.35rem;
-  border: 1px solid transparent;
-}
-
-.preview-key-row:hover {
-  background: var(--bg-tertiary);
-}
-
-.row-used {
-  opacity: 0.6;
-}
-
-.preview-key-text {
-  flex: 3;
-  font-size: 0.65rem;
-  font-family: 'Courier New', monospace;
-  color: var(--text-primary);
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.key-text-blurred {
-  filter: blur(3.5px);
-  user-select: none;
-}
-
-.preview-badge {
-  flex: 1;
-  font-size: 0.58rem;
-  font-weight: 600;
-  padding: 0.15rem 0.45rem;
-  border-radius: 99px;
-  white-space: nowrap;
-  text-align: center;
-}
-
-.badge-available {
-  background: color-mix(in srgb, #22c55e 15%, transparent);
-  color: #16a34a;
-}
-
-.badge-sharing {
-  background: color-mix(in srgb, #3b82f6 15%, transparent);
-  color: #2563eb;
-}
-
-.badge-used {
-  background: color-mix(in srgb, #6b7280 15%, transparent);
-  color: #6b7280;
-}
-
-.preview-row-actions {
-  display: flex;
-  gap: 3px;
-  flex-shrink: 0;
-  width: 40px;
-  justify-content: flex-end;
-}
-
-.row-action-icon {
-  width: 18px;
-  height: 18px;
-  border-radius: 0.25rem;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
-  font-size: 0.55rem;
-}
-
-.row-action-icon.muted {
-  color: var(--text-tertiary);
-  opacity: 0.5;
 }
 
 /* ===========================
