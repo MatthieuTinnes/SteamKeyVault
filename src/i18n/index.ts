@@ -215,7 +215,7 @@ const messages = {
       effectiveDate: 'Effective Date',
       s1: {
         title: 'Platform Information',
-        body: 'SteamKeyVault is a personal project for securely storing, organizing, and sharing Steam game keys. It is independently developed and provided free of charge.',
+        body: 'SteamKeyVault is an independent project for securely storing, organizing, and sharing Steam game keys.',
         disclaimer: 'SteamKeyVault is not affiliated with, endorsed by, sponsored by, or officially connected to Valve Corporation or Steam in any way. Steam and the Steam logo are trademarks of Valve Corporation.'
       },
       s2: {
@@ -1183,7 +1183,7 @@ const messages = {
       effectiveDate: 'Date d\'entrée en vigueur',
       s1: {
         title: 'Informations sur la plateforme',
-        body: 'SteamKeyVault est un projet personnel permettant de stocker, organiser et partager des clés de jeux Steam de façon sécurisée. Il est développé de manière indépendante.',
+        body: 'SteamKeyVault est un projet indépendant permettant de stocker, organiser et partager des clés de jeux Steam de façon sécurisée.',
         disclaimer: 'SteamKeyVault n\'est en aucun cas affilié, approuvé, sponsorisé ou officiellement lié à Valve Corporation ou à Steam. Steam et le logo Steam sont des marques déposées de Valve Corporation.'
       },
       s2: {
