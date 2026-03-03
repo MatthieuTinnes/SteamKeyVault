@@ -396,7 +396,7 @@ const messages = {
         behaviorTitle: 'How share links work',
         behaviorList: [
           'Each link can be used only once — the key is revealed exactly one time.',
-          'A Cloudflare Turnstile captcha protects against automated bots.',
+          'A captcha protects against automated bots.',
           'The recipient can send you a short message after revealing the key.',
           'You can revoke any active link from the share dialog at any time.',
           'Once revealed, the key is automatically marked as Used in your vault.'
@@ -815,7 +815,7 @@ const messages = {
       revealedKey: 'Revealed key',
       activateSteam: 'Activate on Steam',
       revealKey: 'Reveal key',
-      captchaMissing: 'Turnstile captcha is not configured.',
+      captchaMissing: 'Captcha is not configured.',
       sendMessageTitle: 'Send a message to the donor',
       messagePlaceholder: 'Write a thank-you message...',
       sendMessage: 'Send message',
@@ -1330,7 +1330,7 @@ const messages = {
         behaviorTitle: 'Fonctionnement des liens de partage',
         behaviorList: [
           'Chaque lien ne peut être utilisé qu\'une seule fois — la clé est révélée exactement une fois.',
-          'Un captcha Cloudflare Turnstile protège contre les robots automatisés.',
+          'Un captcha protège contre les robots automatisés.',
           'Le destinataire peut vous envoyer un court message après avoir révélé la clé.',
           'Vous pouvez révoquer tout lien actif depuis la fenêtre de partage à tout moment.',
           'Une fois révélée, la clé est automatiquement marquée comme Utilisée dans votre coffre.'
@@ -1749,7 +1749,7 @@ const messages = {
       revealedKey: 'Clé révélée',
       activateSteam: 'Activer sur Steam',
       revealKey: 'Révéler la clé',
-      captchaMissing: "Le captcha Turnstile n'est pas configuré.",
+      captchaMissing: "Le captcha n'est pas configuré.",
       sendMessageTitle: 'Envoyer un message au donateur',
       messagePlaceholder: 'Écrivez un message de remerciement...',
       sendMessage: 'Envoyer le message',
