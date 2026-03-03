@@ -180,7 +180,7 @@
         <div class="security-text">
           <div class="security-eyebrow">
             <i class="pi pi-shield"></i>
-            <span>Security</span>
+            <span>{{ t('home.securityEyebrow') }}</span>
           </div>
           <h2 class="security-title">{{ t('home.securityTitle') }}</h2>
           <p class="security-desc">{{ t('home.securityDesc') }}</p>
@@ -196,32 +196,32 @@
             <div class="security-card-icon">
               <i class="pi pi-lock"></i>
             </div>
-            <div class="security-card-label">Encrypted vault</div>
+             <div class="security-card-label">{{ t('home.securityCard.label') }}</div>
             <div class="security-card-flow">
               <div class="flow-step">
                 <div class="flow-node">
                   <i class="pi pi-user"></i>
                 </div>
-                <div class="flow-label">Your browser</div>
+                 <div class="flow-label">{{ t('home.securityCard.browser') }}</div>
               </div>
               <div class="flow-arrow">
                 <div class="flow-arrow-line"></div>
                 <div class="flow-arrow-badge">
                   <i class="pi pi-lock"></i>
-                  AES-256
+                   {{ t('home.securityCard.aes') }}
                 </div>
               </div>
               <div class="flow-step">
                 <div class="flow-node flow-node-server">
                   <i class="pi pi-database"></i>
                 </div>
-                <div class="flow-label">Server</div>
+                 <div class="flow-label">{{ t('home.securityCard.server') }}</div>
               </div>
             </div>
-            <div class="security-card-note">
-              <i class="pi pi-info-circle"></i>
-              The server only receives ciphertext
-            </div>
+           <div class="security-card-note">
+             <i class="pi pi-info-circle"></i>
+             {{ t('home.securityCard.note') }}
+           </div>
           </div>
         </div>
       </div>

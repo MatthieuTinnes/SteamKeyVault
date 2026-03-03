@@ -17,12 +17,7 @@
             <p>{{ t('legal.publisher.body') }}</p>
             <ul>
               <li><strong>{{ t('legal.publisher.nameLabel') }}:</strong> SteamKeyVault</li>
-              <li>
-                <strong>{{ t('legal.publisher.contactLabel') }}:</strong>
-                <a href="https://github.com/SteamKeyVault" target="_blank" rel="noopener noreferrer">
-                  GitHub
-                </a>
-              </li>
+              <li><strong>{{ t('legal.publisher.contactLabel') }}:</strong> {{ t('legal.publisher.contactValue') }}</li>
             </ul>
           </section>
 

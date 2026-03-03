@@ -48,7 +48,7 @@ const messages = {
       unknownError: 'Unknown error'
     },
     home: {
-      eyebrow: 'Open Source · Self-Hosted · Free to Use',
+      eyebrow: 'Free to Use · Secure by Design · Privacy-Focused',
       heroTitle: 'Your Steam Keys, Safe and Organized',
       heroSubtitle: 'SteamKeyVault keeps your entire game key library encrypted, searchable, and shareable — all under your control.',
       getStarted: 'Get started free',
@@ -56,8 +56,7 @@ const messages = {
       viewDocs: 'Read the Docs',
       trustItems: [
         { icon: 'pi-lock', label: 'End-to-end encrypted' },
-        { icon: 'pi-code', label: 'Open source' },
-        { icon: 'pi-server', label: 'Self-hosted' },
+        { icon: 'pi-file-export', label: 'Full control of your data' },
         { icon: 'pi-eye-slash', label: 'Zero trackers' },
         { icon: 'pi-globe', label: 'Works on any device' }
       ],
@@ -75,9 +74,9 @@ const messages = {
           desc: 'Generate a one-time, expiring link to share any key with anyone — no account required for the recipient.'
         },
         {
-          icon: 'pi-globe',
-          title: 'Access Anywhere',
-          desc: 'Your encrypted vault is available on any device, any browser. Log in and your keys are there instantly.'
+          icon: 'pi-file-export',
+          title: 'Full Control of Your Data',
+          desc: 'You can export your entire game and key library at any time.'
         },
         {
           icon: 'pi-tags',
@@ -118,15 +117,23 @@ const messages = {
         }
       ],
       securityTitle: 'Your keys belong to you',
-      securityDesc: 'Most key managers store your keys in plain text — readable by anyone with database access. SteamKeyVault is different.',
+      securityDesc: 'With SteamKeyVault, security and privacy are at the core of everything we do. Here\'s how we protect your valuable game keys:',
       securityPoints: [
         'Keys are encrypted in your browser using your login credentials before being sent to the server.',
         'The server stores only ciphertext — a database breach exposes nothing readable.',
         'Exports are decrypted on your device, never server-side.',
         'No analytics, no third-party SDKs, no trackers. Your data stays yours.'
       ],
+      securityEyebrow: 'Security',
+      securityCard: {
+        label: 'Encrypted vault',
+        browser: 'Your browser',
+        server: 'Server',
+        aes: 'AES-256',
+        note: 'The server only receives ciphertext'
+      },
       ctaTitle: 'Ready to secure your Steam library?',
-      ctaDesc: 'Join SteamKeyVault today — free, open source, and built with privacy first.',
+      ctaDesc: 'Join SteamKeyVault today — free and built with privacy first.',
       ctaButton: 'Create your free vault',
       discoverTitle: 'Trade, Store, and Access Anywhere',
       discoverDesc: 'With SteamKeyVault, your keys are always at your fingertips. Trade securely, store with confidence, and access your collection from any device.',
@@ -160,7 +167,7 @@ const messages = {
         },
         {
           q: 'Is SteamKeyVault really free?',
-          a: 'Yes. SteamKeyVault is free and open source. You can self-host your own instance or use a hosted one at no cost.'
+          a: 'Yes. SteamKeyVault is completely free to use.'
         },
         {
           q: 'What happens to my keys if I lose my password?',
@@ -176,12 +183,39 @@ const messages = {
       terms: 'Terms of Service',
       privacy: 'Privacy Policy'
     },
+    legal: {
+      title: 'Legal Notice',
+      disclaimer: {
+        title: 'Steam Trademark Disclaimer',
+        body: 'SteamKeyVault is an independent personal project and is in no way affiliated with, authorized, endorsed, or sponsored by Valve Corporation or Steam.',
+        trademark: 'Steam®, the Steam logo, and all related marks, emblems and logos are registered trademarks or trademarks of Valve Corporation in the United States and/or other countries. All other trademarks are the property of their respective owners.'
+      },
+      publisher: {
+        title: 'Publisher',
+        body: 'SteamKeyVault is a personal project developed and maintained independently. It is not a commercial entity.',
+        nameLabel: 'Project name',
+        contactLabel: 'Contact',
+        contactValue: 'contact@steamkeyvault.com'
+      },
+      hosting: {
+        title: 'Hosting',
+        body: 'The SteamKeyVault service is hosted on a private server managed by the project maintainer.'
+      },
+      dataPrivacy: {
+        title: 'Personal Data',
+        body: 'SteamKeyVault collects only the minimum data necessary to operate the service (account credentials and encrypted game keys). No personal data is sold or shared with third parties. For full details, see the Privacy Policy.'
+      },
+      liability: {
+        title: 'Limitation of Liability',
+        body: 'SteamKeyVault is provided "as is", without any warranty. The project maintainer cannot be held responsible for any data loss, service interruption, or damages resulting from the use of this service.'
+      }
+    },
     terms: {
       title: 'Terms of Service',
       effectiveDate: 'Effective Date',
       s1: {
         title: 'Platform Information',
-        body: 'SteamKeyVault is an open-source personal project for securely storing, organizing, and sharing Steam game keys. It is self-hosted and independently developed.',
+        body: 'SteamKeyVault is a personal project for securely storing, organizing, and sharing Steam game keys. It is independently developed and provided free of charge.',
         disclaimer: 'SteamKeyVault is not affiliated with, endorsed by, sponsored by, or officially connected to Valve Corporation or Steam in any way. Steam and the Steam logo are trademarks of Valve Corporation.'
       },
       s2: {
@@ -208,8 +242,8 @@ const messages = {
         trademark: 'Steam®, the Steam logo, and all related marks, emblems and logos are registered trademarks or trademarks of Valve Corporation in the United States and/or other countries. All other trademarks are the property of their respective owners.'
       },
       s6: {
-        title: 'Intellectual Property & Open Source',
-        body: 'The SteamKeyVault source code is published under an open-source license and is freely available on GitHub. The infrastructure, configuration, and any non-open-source elements of the hosted instance remain the property of the project maintainers. Users retain full ownership of the data they upload.'
+        title: 'Intellectual Property',
+        body: 'The SteamKeyVault name, design, and infrastructure remain the property of the project maintainers. Users retain full ownership of the data they upload.'
       },
       s7: {
         title: 'Limitation of Liability',
@@ -221,7 +255,7 @@ const messages = {
       },
       s9: {
         title: 'Contact',
-        body: 'For any questions or concerns regarding these Terms, please open an issue or reach out via the project GitHub repository.'
+        body: 'For any questions or concerns regarding these Terms, please contact the project maintainer directly.'
       }
     },
     privacy: {
@@ -250,7 +284,7 @@ const messages = {
       },
       s4: {
         title: 'Data Sharing & Third Parties',
-        body: 'SteamKeyVault does not sell, rent, or share your personal data with any third party for marketing or commercial purposes. As a self-hosted application, no analytics trackers or advertising services are embedded. Data sharing is limited to the server infrastructure used to run your instance.'
+        body: 'SteamKeyVault does not sell, rent, or share your personal data with any third party for marketing or commercial purposes. No analytics trackers or advertising services are embedded. Data sharing is limited to the server infrastructure used to run the service.'
       },
       s5: {
         title: 'Your Rights (GDPR)',
@@ -497,7 +531,7 @@ const messages = {
           },
           {
             q: 'Can I move my library to another account or instance?',
-            a: 'Yes. Export your data as CSV or JSON from My Account, then import it into any other SteamKeyVault account or self-hosted instance.'
+            a: 'Yes. Export your data as CSV or JSON from My Account, then import it into any other SteamKeyVault account.'
           },
           {
             q: 'How do I add a non-Steam game key?',
@@ -982,7 +1016,7 @@ const messages = {
       unknownError: 'Erreur inconnue'
     },
     home: {
-      eyebrow: 'Open Source · Auto-hébergé · Gratuit',
+      eyebrow: 'Gratuit · Sécurisé · Centré sur la vie privée',
       heroTitle: 'Vos clés Steam, en sécurité et bien organisées',
       heroSubtitle: 'SteamKeyVault chiffre, organise et vous permet de partager vos clés de jeux — le tout sous votre contrôle.',
       getStarted: 'Commencer gratuitement',
@@ -990,10 +1024,9 @@ const messages = {
       viewDocs: 'Lire la documentation',
       trustItems: [
         { icon: 'pi-lock', label: 'Chiffrement de bout en bout' },
-        { icon: 'pi-code', label: 'Open source' },
-        { icon: 'pi-server', label: 'Auto-hébergé' },
+        { icon: 'pi-file-export', label: 'Contrôle total de vos données' },
         { icon: 'pi-eye-slash', label: 'Zéro traceur' },
-        { icon: 'pi-globe', label: 'Disponible partout' }
+        { icon: 'pi-globe', label: 'Disponible sur tous vos appareils' }
       ],
       featuresTitle: 'Tout ce qu\'il faut pour gérer vos clés',
       featuresDesc: 'Conçu pour les collectionneurs, traders et joueurs qui tiennent à leur vie privée.',
@@ -1006,12 +1039,12 @@ const messages = {
         {
           icon: 'pi-arrow-right-arrow-left',
           title: 'Partage de clés simplifié',
-          desc: 'Générez un lien unique et expirant pour partager n\'importe quelle clé — sans compte requis pour le destinataire.'
+          desc: 'Générez un lien unique et expirant pour partager n\'importe quelle clé, sans compte requis pour le destinataire.'
         },
         {
-          icon: 'pi-globe',
-          title: 'Accès partout',
-          desc: 'Votre coffre chiffré est disponible sur n\'importe quel appareil et navigateur. Connectez-vous et vos clés sont là.'
+          icon: 'pi-file-export',
+          title: 'Contrôle total de vos données',
+          desc: 'Vous pouvez exporter votre bibliothèque complète de jeux et clés à tout moment.'
         },
         {
           icon: 'pi-tags',
@@ -1026,7 +1059,7 @@ const messages = {
         {
           icon: 'pi-link',
           title: 'Intégration Steam',
-          desc: 'Les jeux sont associés automatiquement aux titres Steam — avec jaquettes, éditeurs et liens vers le store.'
+          desc: 'Les jeux sont associés automatiquement aux titres Steam avec jaquettes, éditeurs et liens vers le magasin.'
         }
       ],
       howItWorksTitle: 'Prêt en quelques minutes',
@@ -1036,7 +1069,7 @@ const messages = {
           number: '01',
           icon: 'pi-user-plus',
           title: 'Créez votre compte',
-          desc: 'Inscription en quelques secondes. Vos clés de chiffrement sont générées localement — nous ne les voyons jamais.'
+          desc: 'Inscription en quelques secondes. Vos clés de chiffrement sont générées localement, nous ne les voyons jamais.'
         },
         {
           number: '02',
@@ -1052,15 +1085,23 @@ const messages = {
         }
       ],
       securityTitle: 'Vos clés vous appartiennent',
-      securityDesc: 'La plupart des gestionnaires de clés stockent vos clés en clair — lisibles par quiconque accède à la base de données. SteamKeyVault fait différemment.',
+      securityDesc: 'Avec SteamKeyVault, la sécurité et la confidentialité sont au cœur de tout ce que nous faisons. Voici comment nous protégeons vos précieuses clés de jeux :',
       securityPoints: [
         'Les clés sont chiffrées dans votre navigateur avec vos identifiants avant d\'être envoyées au serveur.',
-        'Le serveur ne stocke que du texte chiffré — une fuite de base de données n\'expose rien de lisible.',
+        'Le serveur ne stocke que du texte chiffré, une fuite de base de données n\'expose rien de lisible.',
         'Les exports sont déchiffrés sur votre appareil, jamais côté serveur.',
         'Aucun analytique, aucun SDK tiers, aucun traceur. Vos données restent les vôtres.'
       ],
+      securityEyebrow: 'Sécurité',
+      securityCard: {
+        label: 'Coffre chiffré',
+        browser: 'Votre navigateur',
+        server: 'Serveur',
+        aes: 'AES-256',
+        note: 'Le serveur ne reçoit que du texte chiffré'
+      },
       ctaTitle: 'Prêt à sécuriser votre bibliothèque Steam ?',
-      ctaDesc: 'Rejoignez SteamKeyVault aujourd\'hui — gratuit, open source et centré sur la vie privée.',
+      ctaDesc: 'Rejoignez SteamKeyVault aujourd\'hui — gratuit et centré sur la vie privée.',
       ctaButton: 'Créer votre coffre gratuitement',
       discoverTitle: 'Échanger, stocker et accéder partout',
       discoverDesc: 'Avec SteamKeyVault, vos clés sont toujours à portée de main. Échangez en toute sécurité, stockez en confiance et accédez à votre collection depuis n\'importe quel appareil.',
@@ -1094,7 +1135,7 @@ const messages = {
         },
         {
           q: 'SteamKeyVault est-il vraiment gratuit ?',
-          a: 'Oui. SteamKeyVault est gratuit et open source. Vous pouvez auto-héberger votre propre instance ou utiliser une instance hébergée sans frais.'
+          a: 'Oui. SteamKeyVault est entièrement gratuit.'
         },
         {
           q: 'Que se passe-t-il si j\'oublie mon mot de passe ?',
@@ -1110,12 +1151,39 @@ const messages = {
       terms: 'Conditions d\'utilisation',
       privacy: 'Politique de confidentialité'
     },
+    legal: {
+      title: 'Mentions légales',
+      disclaimer: {
+        title: 'Avertissement — Marque Steam',
+        body: 'SteamKeyVault est un projet personnel indépendant et n\'est en aucun cas affilié, autorisé, approuvé ou sponsorisé par Valve Corporation ou Steam.',
+        trademark: 'Steam®, le logo Steam et tous les logos et emblèmes associés sont des marques déposées ou des marques commerciales de Valve Corporation aux États-Unis et/ou dans d\'autres pays. Toutes les autres marques sont la propriété de leurs détenteurs respectifs.'
+      },
+      publisher: {
+        title: 'Éditeur',
+        body: 'SteamKeyVault est un projet personnel développé et maintenu de manière indépendante. Il ne constitue pas une entité commerciale.',
+        nameLabel: 'Nom du projet',
+        contactLabel: 'Contact',
+        contactValue: 'contact@steamkeyvault.com'
+      },
+      hosting: {
+        title: 'Hébergement',
+        body: 'Le service SteamKeyVault est hébergé sur un serveur privé géré par le responsable du projet.'
+      },
+      dataPrivacy: {
+        title: 'Données personnelles',
+        body: 'SteamKeyVault ne collecte que les données strictement nécessaires au fonctionnement du service (identifiants de compte et clés de jeux chiffrées). Aucune donnée personnelle n\'est vendue ni partagée avec des tiers. Pour plus de détails, consultez la Politique de confidentialité.'
+      },
+      liability: {
+        title: 'Limitation de responsabilité',
+        body: 'SteamKeyVault est fourni « en l\'état », sans garantie d\'aucune sorte. Le responsable du projet ne peut être tenu responsable de toute perte de données, interruption de service ou dommage résultant de l\'utilisation de ce service.'
+      }
+    },
     terms: {
       title: 'Conditions d\'utilisation',
       effectiveDate: 'Date d\'entrée en vigueur',
       s1: {
         title: 'Informations sur la plateforme',
-        body: 'SteamKeyVault est un projet open-source personnel permettant de stocker, organiser et partager des clés de jeux Steam de façon sécurisée. Il est auto-hébergé et développé de manière indépendante.',
+        body: 'SteamKeyVault est un projet personnel permettant de stocker, organiser et partager des clés de jeux Steam de façon sécurisée. Il est développé de manière indépendante.',
         disclaimer: 'SteamKeyVault n\'est en aucun cas affilié, approuvé, sponsorisé ou officiellement lié à Valve Corporation ou à Steam. Steam et le logo Steam sont des marques déposées de Valve Corporation.'
       },
       s2: {
@@ -1142,8 +1210,8 @@ const messages = {
         trademark: 'Steam®, le logo Steam et tous les logos et emblèmes associés sont des marques déposées ou des marques commerciales de Valve Corporation aux États-Unis et/ou dans d\'autres pays. Toutes les autres marques sont la propriété de leurs détenteurs respectifs.'
       },
       s6: {
-        title: 'Propriété intellectuelle & open source',
-        body: 'Le code source de SteamKeyVault est publié sous licence open-source et disponible librement sur GitHub. L\'infrastructure, la configuration et les éléments non open-source de l\'instance hébergée restent la propriété des responsables du projet. Les utilisateurs conservent la pleine propriété des données qu\'ils importent.'
+        title: 'Propriété intellectuelle',
+        body: 'Le nom, le design et l\'infrastructure de SteamKeyVault restent la propriété des responsables du projet. Les utilisateurs conservent la pleine propriété des données qu\'ils importent.'
       },
       s7: {
         title: 'Limitation de responsabilité',
@@ -1155,7 +1223,7 @@ const messages = {
       },
       s9: {
         title: 'Contact',
-        body: 'Pour toute question concernant ces Conditions d\'utilisation, veuillez ouvrir un ticket ou nous contacter via le dépôt GitHub du projet.'
+        body: 'Pour toute question concernant ces Conditions d\'utilisation, veuillez contacter directement le responsable du projet.'
       }
     },
     privacy: {
@@ -1184,7 +1252,7 @@ const messages = {
       },
       s4: {
         title: 'Partage & tiers',
-        body: 'SteamKeyVault ne vend, ne loue et ne partage vos données personnelles avec aucun tiers à des fins commerciales ou publicitaires. En tant qu\'application auto-hébergée, aucun traceur analytique ni service publicitaire n\'est intégré. Le partage de données se limite à l\'infrastructure serveur utilisée pour faire fonctionner l\'instance.'
+        body: 'SteamKeyVault ne vend, ne loue et ne partage vos données personnelles avec aucun tiers à des fins commerciales ou publicitaires. Aucun traceur analytique ni service publicitaire n\'est intégré. Le partage de données se limite à l\'infrastructure serveur utilisée pour faire fonctionner le service.'
       },
       s5: {
         title: 'Vos droits (RGPD)',
