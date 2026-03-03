@@ -1,32 +1,16 @@
 <template>
-  <div class="theme-toggle-wrapper">
-    <div class="theme-toggle-item" @click="handleToggle">
-      <i :class="themeIcon"></i>
-      <span>{{ themeLabel }}</span>
-      <InputSwitch 
-        v-model="isDarkMode"
-        class="theme-switch"
-        @click.stop
-      />
-    </div>
-  </div>
+  <button class="theme-toggle-btn" @click="toggleTheme" :title="themeLabel">
+    <i :class="themeIcon"></i>
+  </button>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import InputSwitch from 'primevue/inputswitch'
 import { useTheme } from '../composables/useTheme'
 import { useI18n } from 'vue-i18n'
 
 const { currentTheme, toggleTheme } = useTheme()
 const { t } = useI18n()
-
-const isDarkMode = computed({
-  get: () => currentTheme.value === 'dark',
-  set: () => {
-    // Le toggle est géré par handleToggle
-  }
-})
 
 const themeIcon = computed(() => {
   return currentTheme.value === 'dark' ? 'pi pi-moon' : 'pi pi-sun'
@@ -35,50 +19,27 @@ const themeIcon = computed(() => {
 const themeLabel = computed(() => {
   return currentTheme.value === 'dark' ? t('theme.dark') : t('theme.light')
 })
-
-const handleToggle = () => {
-  toggleTheme()
-}
 </script>
 
 <style scoped>
-.theme-toggle-wrapper {
-  width: 100%;
-  padding: 0;
-}
-
-.theme-toggle-item {
-  display: flex;
+.theme-toggle-btn {
+  display: inline-flex;
   align-items: center;
-  gap: 0.875rem;
-  padding: 0.875rem 1.25rem;
+  justify-content: center;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: var(--text-secondary);
-  font-weight: 500;
-  font-size: 0.9375rem;
+  line-height: 1;
 }
 
-.theme-toggle-item:hover {
+.theme-toggle-btn:hover {
   background: var(--bg-tertiary);
-  padding-left: 1.5rem;
-}
-
-.theme-toggle-item i {
-  font-size: 1.125rem;
-  width: 1.25rem;
-  text-align: center;
-  color: var(--text-secondary);
-  flex-shrink: 0;
-}
-
-.theme-toggle-item span {
-  flex: 1;
-  color: var(--text-secondary);
-}
-
-.theme-switch {
-  flex-shrink: 0;
-  pointer-events: none;
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
 }
 </style>

@@ -18,6 +18,7 @@
 
     <div class="navbar-links" :class="{ open: menuOpen }">
       <LocaleToggle />
+      <ThemeToggle />
       <Button
         :label="t('nav.documentation')"
         icon="pi pi-book"
@@ -59,8 +60,6 @@
               <i class="pi pi-shield"></i>
               <span>{{ t('nav.admin') }}</span>
             </div>
-            <div class="user-menu-divider"></div>
-            <ThemeToggle />
             <div class="user-menu-divider"></div>
             <div class="user-menu-item logout-item" @click="handleLogout">
               <i class="pi pi-sign-out"></i>
