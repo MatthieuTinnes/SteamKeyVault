@@ -11,13 +11,13 @@ logger = logging.getLogger(__name__)
 
 
 def fetch_and_store_steam_apps(locale: str = 'en'):
-    from django.conf import settings
     """Fetch Steam apps from Steam API and store/update them in the database.
-    
+
     Returns:
         dict: Dictionary with 'stored' count on success
         JsonResponse: Error response on failure
     """
+    from django.conf import settings
     api_key = getattr(settings, "STEAM_API_KEY", None)
     if not api_key:
         logger.error("STEAM_API_KEY not set in Django settings")

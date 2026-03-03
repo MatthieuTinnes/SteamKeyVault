@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'steamkeyvault.games',
     'steamkeyvault.keys',
     'steamkeyvault.jobs',
+    'django_apscheduler',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
