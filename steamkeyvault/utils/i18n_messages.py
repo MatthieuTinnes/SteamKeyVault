@@ -1,4 +1,8 @@
 USER_ERROR_MESSAGES = {
+    'internal_error': {
+        'en': 'An internal error occurred. Please try again.',
+        'fr': 'Une erreur interne est survenue. Veuillez réessayer.',
+    },
     'captcha_required': {
         'en': 'Please complete the captcha.',
         'fr': 'Veuillez compléter le captcha.',
@@ -151,6 +155,10 @@ GAME_ERROR_MESSAGES = {
     'invalid_format_version': {
         'en': 'Invalid SteamKeyVault format or version',
         'fr': 'Format ou version SteamKeyVault invalide',
+    },
+    'import_too_many_games': {
+        'en': 'Import contains too many games (maximum 2000).',
+        'fr': "L'import contient trop de jeux (maximum 2000).",
     },
 }
 

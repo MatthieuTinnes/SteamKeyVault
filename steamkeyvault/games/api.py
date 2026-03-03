@@ -14,6 +14,9 @@ from steamkeyvault.utils.i18n_messages import GAME_ERROR_MESSAGES
 
 router = Router()
 
+MAX_IMPORT_GAMES = 2000
+MAX_IMPORT_KEYS_PER_GAME = 500
+
 
 class GameIn(Schema):
     name: str
@@ -216,6 +219,9 @@ def import_games_json(request):
     if payload.format != "SteamKeyVault" or payload.version != 1:
         return 400, {"error": translate_message(GAME_ERROR_MESSAGES, 'invalid_format_version', locale)}
 
+    if len(payload.games) > MAX_IMPORT_GAMES:
+        return 400, {"error": translate_message(GAME_ERROR_MESSAGES, 'import_too_many_games', locale)}
+
     summary = {
         "games_created": 0,
         "games_existing": 0,
@@ -252,6 +258,8 @@ def import_games_json(request):
             summary["games_existing"] += 1
 
         keys_payload = game.keys or []
+        if len(keys_payload) > MAX_IMPORT_KEYS_PER_GAME:
+            keys_payload = keys_payload[:MAX_IMPORT_KEYS_PER_GAME]
         for k in keys_payload:
             key_value = (k.key or '').strip()
             if not key_value:

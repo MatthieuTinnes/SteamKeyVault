@@ -138,8 +138,8 @@ def get_csrf_token(request):
 
 @users_router.post("/login")
 def login_view(request, payload: schemas.SignInSchema):
-    addr = request.META.get("REMOTE_ADDR")
-    logger.info(f"Login attempt for email={payload.email} from {addr}")
+    locale = get_request_locale(request)
+    logger.info(f"Login attempt for email={payload.email}")
     user = authenticate(request, username=payload.email, password=payload.password)
     if user is not None:
         login(request, user)
@@ -255,7 +255,7 @@ def register(request, payload: schemas.SignUpSchema):
         return Response({"success": True, "message": "Registration successful. Please check your email to verify your account."}, status=201)
     except Exception as e:
         logger.exception(f"Error registering user username={payload.username} email={payload.email}: {e}")
-        return JsonResponse({"error": str(e)}, status=400)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'internal_error', locale)}, status=400)
 
 
 @users_router.put("/account", auth=django_auth)
@@ -312,7 +312,8 @@ def update_account(request, payload: schemas.UpdateEmailSchema):
         return Response({"success": True, "message": "Please check your new email address to confirm the change."})
     except Exception as e:
         logger.exception(f"Error processing email change for user_id={user_obj.pk}: {e}")
-        return JsonResponse({"error": str(e)}, status=400)
+        locale = get_request_locale(request, user_obj)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'internal_error', locale)}, status=400)
 
 
 @users_router.put("/preferences", auth=django_auth)
@@ -374,17 +375,15 @@ def change_password_view(request, payload: schemas.ChangePasswordSchema):
         return Response({"success": True})
     except Exception as e:
         logger.exception(f"Error changing password for user_id={user_obj.pk}: {e}")
-        return JsonResponse({"error": str(e)}, status=400)
+        locale = get_request_locale(request, user_obj)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'internal_error', locale)}, status=400)
 
 
 @users_router.post('/recovery-info')
 def recovery_info(request, payload: schemas.RecoveryInfoSchema):
+    locale = get_request_locale(request)
     user = User.objects.filter(email=payload.email).first()
-    if not user:
-        locale = get_request_locale(request)
-        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'user_not_found', locale)}, status=404)
-    if not user.wrapped_mk_recovery or not user.rk_salt:
-        locale = get_request_locale(request, user)
+    if not user or not user.wrapped_mk_recovery or not user.rk_salt:
         return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'recovery_data_unavailable', locale)}, status=400)
     return Response({
         "wrapped_mk_recovery": user.wrapped_mk_recovery,
@@ -508,10 +507,10 @@ def confirm_email_change(request, token: str):
 @users_router.post("/resend-verification-email", auth=django_auth)
 def resend_verification_email(request):
     user = request.user
+    locale = get_request_locale(request, user)
     if user.email_verified:
-        locale = get_request_locale(request, user)
         return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'email_already_verified', locale)}, status=400)
-    
+
     try:
         # Generate verification token
         token = EmailVerificationToken.generate_token(
@@ -520,7 +519,7 @@ def resend_verification_email(request):
         )
         frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
         verification_url = f"{frontend_url}/verify-email?token={token.token}"
-        
+
         # Send verification email
         locale = get_user_locale(user)
         Mailer.send_template_email(
@@ -537,13 +536,12 @@ def resend_verification_email(request):
         return Response({"success": True, "message": "Verification email sent."})
     except Exception as e:
         logger.exception(f"Error resending verification email for user_id={user.id}: {e}")
-        return JsonResponse({"error": str(e)}, status=500)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'internal_error', locale)}, status=500)
 
 
 @users_router.post('/forgot-password')
 def forgot_password(request, payload: schemas.ForgotPasswordSchema):
-    addr = request.META.get("REMOTE_ADDR")
-    logger.info(f"Forgot password requested email={payload.email} from {addr}")
+    logger.info(f"Forgot password requested email={payload.email}")
     user = User.objects.filter(email=payload.email).first()
     if not user:
         return Response({"success": True})
@@ -620,4 +618,5 @@ def reset_password(request, payload: schemas.ResetPasswordSchema):
         return Response({"success": True})
     except Exception as e:
         logger.exception(f"Error resetting password for user_id={user.id}: {e}")
-        return JsonResponse({"error": str(e)}, status=400)
+        locale = get_request_locale(request)
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'internal_error', locale)}, status=400)

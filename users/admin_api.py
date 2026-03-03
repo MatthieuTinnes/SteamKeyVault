@@ -10,6 +10,7 @@ import logging
 
 from users.admin_decorators import admin_required
 from users.models import UserActionLog
+from users.api import validate_password_strength
 from steamkeyvault.games.models import UserGame
 from steamkeyvault.keys.models import Key
 
@@ -162,8 +163,9 @@ def update_user_password(request, user_id: int, payload: UpdateUserPasswordSchem
     except User.DoesNotExist:
         return JsonResponse({'error': 'User not found'}, status=404)
     
-    if len(payload.password) < 6:
-        return JsonResponse({'error': 'Password must be at least 6 characters'}, status=400)
+    is_valid, _ = validate_password_strength(payload.password)
+    if not is_valid:
+        return JsonResponse({'error': 'Password does not meet security requirements (min 12 chars, uppercase, lowercase, digit, special character)'}, status=400)
     
     user.set_password(payload.password)
     user.save()

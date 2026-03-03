@@ -54,4 +54,22 @@ class RequestLoggingMiddleware:
             ip = x_forwarded_for.split(',')[0]
         else:
             ip = request.META.get('REMOTE_ADDR')
-        return ip
+        return ip  @staticmethod
+    def get_client_ip(request):
+        """Get the client IP address from the request.
+
+        When the application runs behind one or more trusted reverse proxies,
+        set TRUSTED_PROXY_COUNT in settings to the number of proxies so that
+        the correct client IP is extracted from X-Forwarded-For.
+        When TRUSTED_PROXY_COUNT is 0 (default), REMOTE_ADDR is used directly.
+        """
+        from django.conf import settings
+        trusted_proxy_count = getattr(settings, 'TRUSTED_PROXY_COUNT', 0)
+        if trusted_proxy_count > 0:
+            x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '')
+            if x_forwarded_for:
+                ips = [ip.strip() for ip in x_forwarded_for.split(',')]
+                # The real client IP is at position: len(ips) - trusted_proxy_count
+                idx = max(0, len(ips) - trusted_proxy_count)
+                return ips[idx]
+        return request.META.get('REMOTE_ADDR')
