@@ -97,6 +97,7 @@ class ShareInfoOut(Schema):
 
 class ShareRevealIn(Schema):
     turnstile_token: str
+    message: Optional[str] = None
 
 
 class ShareRevealOut(Schema):
@@ -377,12 +378,32 @@ def reveal_share_key(request, token: str, payload: ShareRevealIn):
         return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'captcha_failed', locale)}
 
     share.revealed_at = now
-    share.save(update_fields=["revealed_at"])
+    game = share.key.userGame
+    donor = game.user
+
+    # Optionally send a thank-you message to the donor in the same request
+    msg = (payload.message or '').strip()
+    if 3 <= len(msg) <= 100 and not share.message_sent_at:
+        donor_locale = normalize_locale(getattr(donor, 'preferred_language', None))
+        subject = SHARE_MESSAGE_SUBJECTS.get(donor_locale, SHARE_MESSAGE_SUBJECTS['en'])
+        sent = Mailer.send_template_email(
+            subject=subject,
+            template_name='emails/share_key_message.html',
+            context={
+                'donor_username': donor.username,
+                'game_name': game.name,
+                'message': msg,
+            },
+            to_emails=[donor.email],
+            locale=donor_locale,
+        )
+        if sent:
+            share.message_sent_at = now
+
+    share.save(update_fields=["revealed_at", "message_sent_at"])
     share.key.used = True
     share.key.save(update_fields=["used", "date_used"])
 
-    game = share.key.userGame
-    donor = game.user
     return 200, ShareRevealOut(
         key=share.shared_key,
         game_name=share.game_name or game.name,
