@@ -27,6 +27,10 @@ USER_ERROR_MESSAGES = {
         'en': 'Username already exists',
         'fr': "Le nom d'utilisateur existe déjà",
     },
+    'registration_conflict': {
+        'en': 'An account with this email or username already exists.',
+        'fr': "Un compte avec cet email ou ce nom d'utilisateur existe déjà.",
+    },
     'invalid_email_format': {
         'en': 'Invalid email format',
         'fr': "Format d'email invalide",

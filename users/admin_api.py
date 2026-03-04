@@ -77,17 +77,28 @@ class UpdateUserAdminSchema(Schema):
 
 @admin_router.get('/users', auth=django_auth)
 @admin_required
-def list_users(request):
-    """List all users with their statistics."""
-    logger.info(f"Admin {request.user.email} listing all users")
-    
-    users = User.objects.all().order_by('-date_joined')
-    
+def list_users(request, limit: int = 25, offset: int = 0, search: str | None = None):
+    """List all users with their statistics, with pagination and optional search."""
+    logger.info(f"Admin {request.user.email} listing all users (limit={limit}, offset={offset})")
+
+    limit = min(max(limit, 1), 200)
+    offset = max(offset, 0)
+
+    users_qs = User.objects.all()
+
+    if search:
+        users_qs = users_qs.filter(
+            Q(username__icontains=search) | Q(email__icontains=search)
+        )
+
+    total = users_qs.count()
+    users_page = users_qs.order_by('-date_joined')[offset:offset + limit]
+
     result = []
-    for user in users:
+    for user in users_page:
         games_count = UserGame.objects.filter(user=user).count()
         keys_count = Key.objects.filter(userGame__user=user).count()
-        
+
         result.append({
             'id': user.id,
             'username': user.username,
@@ -98,8 +109,8 @@ def list_users(request):
             'games_count': games_count,
             'keys_count': keys_count,
         })
-    
-    return {'users': result, 'total': len(result)}
+
+    return {'users': result, 'total': total}
 
 
 @admin_router.get('/users/{user_id}', auth=django_auth)

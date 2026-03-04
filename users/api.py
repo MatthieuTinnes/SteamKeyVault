@@ -205,12 +205,14 @@ def register(request, payload: schemas.SignUpSchema):
         logger.warning(f"Registration failed: weak password username={payload.username}")
         return JsonResponse({"error": translate_message(PASSWORD_ERROR_MESSAGES, error_msg, locale)}, status=400)
     
-    if User.objects.filter(email=payload.email).exists():
+    email_taken = User.objects.filter(email=payload.email).exists()
+    username_taken = User.objects.filter(username=payload.username).exists()
+    if email_taken:
         logger.warning(f"Registration failed: email exists email={payload.email}")
-        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'email_exists', locale)}, status=400)
-    if User.objects.filter(username=payload.username).exists():
+    if username_taken:
         logger.warning(f"Registration failed: username exists username={payload.username}")
-        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'username_exists', locale)}, status=400)
+    if email_taken or username_taken:
+        return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'registration_conflict', locale)}, status=400)
     try:
         user = User.objects.create_user(username=payload.username, email=payload.email, password=payload.password)
         preferred_language = normalize_locale(payload.preferred_language, fallback=locale)
