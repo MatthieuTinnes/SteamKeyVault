@@ -58,6 +58,9 @@
         </div>
 
         <div v-else-if="!shareInfo.used" class="reveal-panel">
+          <h3>{{ t('share.sendMessageTitle') }}</h3>
+          <Textarea v-model="message" rows="4" autoResize :placeholder="t('share.messagePlaceholder')" maxlength="100" />
+          <small class="hint">{{ message.trim().length }}/100</small>
           <div class="turnstile" id="turnstile-reveal"></div>
           <Button
             :label="t('share.revealKey')"
@@ -65,21 +68,6 @@
             :disabled="!canReveal || !revealToken"
             :loading="revealing"
             @click="revealKey"
-          />
-          <small v-if="!turnstileReady" class="hint">{{ t('share.captchaMissing') }}</small>
-        </div>
-
-        <div v-if="!shareInfo.message_sent && (!shareInfo.used || shareInfo.revealed)" class="message-panel">
-          <h3>{{ t('share.sendMessageTitle') }}</h3>
-          <Textarea v-model="message" rows="4" autoResize :placeholder="t('share.messagePlaceholder')" maxlength="100" />
-          <small class="hint">{{ message.trim().length }}/100</small>
-          <div class="turnstile" id="turnstile-message"></div>
-          <Button
-            :label="t('share.sendMessage')"
-            icon="pi pi-send"
-            :disabled="!canMessage || !message.trim() || message.trim().length > 100 || !messageToken"
-            :loading="sending"
-            @click="sendMessage"
           />
           <small v-if="!turnstileReady" class="hint">{{ t('share.captchaMissing') }}</small>
         </div>
@@ -97,7 +85,7 @@ import Textarea from 'primevue/textarea'
 import { useToast } from 'primevue/usetoast'
 import GameInfo from '@/components/GameInfo.vue'
 import { ensureCSRFToken, TURNSTILE_SITE_KEY } from '@/api/apiHelper'
-import { getShareInfo, revealSharedKey, sendShareMessage } from '@/api/keys'
+import { getShareInfo, revealSharedKey } from '@/api/keys'
 import { useI18n } from 'vue-i18n'
 
 interface ShareInfo {
@@ -133,22 +121,15 @@ const error = ref('')
 const revealedKey = ref('')
 const revealToken = ref('')
 const revealWidgetId = ref<string | null>(null)
-const messageToken = ref('')
-const messageWidgetId = ref<string | null>(null)
 const turnstileReady = ref(false)
 const message = ref('')
 const revealing = ref(false)
-const sending = ref(false)
 const { t } = useI18n()
 
 const shareToken = computed(() => String(route.params.token || ''))
 const canReveal = computed(() => {
   if (!shareInfo.value) return false
   return !shareInfo.value.expired && !shareInfo.value.revealed && !shareInfo.value.used
-})
-const canMessage = computed(() => {
-  if (!shareInfo.value) return false
-  return !shareInfo.value.expired && !shareInfo.value.message_sent
 })
 
 const publicGameInfo = computed(() => {
@@ -241,29 +222,12 @@ function renderTurnstile() {
       action: 'share_key_reveal'
     })
   }
-
-  const messageEl = document.getElementById('turnstile-message')
-  if (messageEl && !messageWidgetId.value) {
-    messageWidgetId.value = window.turnstile.render(messageEl, {
-      sitekey: TURNSTILE_SITE_KEY,
-      callback: (token: string) => { messageToken.value = token },
-      'expired-callback': () => { messageToken.value = '' },
-      'error-callback': () => { messageToken.value = '' },
-      action: 'share_key_message'
-    })
-  }
 }
 
-function resetTurnstile(widget: 'reveal' | 'message' = 'reveal') {
-  if (!window.turnstile) return
-
-  if (widget === 'reveal' && revealWidgetId.value) {
-    window.turnstile.reset(revealWidgetId.value)
-    revealToken.value = ''
-  } else if (widget === 'message' && messageWidgetId.value) {
-    window.turnstile.reset(messageWidgetId.value)
-    messageToken.value = ''
-  }
+function resetTurnstile() {
+  if (!window.turnstile || !revealWidgetId.value) return
+  window.turnstile.reset(revealWidgetId.value)
+  revealToken.value = ''
 }
 
 async function revealKey() {
@@ -273,8 +237,9 @@ async function revealKey() {
   }
   revealing.value = true
   try {
-    const data = await revealSharedKey(shareToken.value, revealToken.value)
+    const data = await revealSharedKey(shareToken.value, revealToken.value, message.value)
     revealedKey.value = data.key
+    message.value = ''
     sessionStorage.setItem(storageKey.value, data.key)
     await loadShareInfo()
     toast.add({ severity: 'success', summary: t('share.keyRevealed'), detail: t('share.keyRevealedDetail'), life: 2000 })
@@ -282,36 +247,7 @@ async function revealKey() {
     toast.add({ severity: 'error', summary: t('common.error'), detail: err?.response?.data?.error || t('share.revealFailed'), life: 3000 })
   } finally {
     revealing.value = false
-    resetTurnstile('reveal')
-  }
-}
-
-async function sendMessage() {
-  if (!shareToken.value) {
-    toast.add({ severity: 'warn', summary: t('common.error'), detail: t('share.invalidLink'), life: 2000 })
-    return
-  }
-  const text = message.value.trim()
-  if (!text) return
-  if (text.length > 100) {
-    toast.add({ severity: 'warn', summary: t('common.error'), detail: t('share.messageTooLong'), life: 3000 })
-    return
-  }
-  if (!messageToken.value) {
-    toast.add({ severity: 'warn', summary: t('share.captcha'), detail: t('share.captchaRequired'), life: 2000 })
-    return
-  }
-  sending.value = true
-  try {
-    await sendShareMessage(shareToken.value, messageToken.value, message.value.trim())
-    message.value = ''
-    await loadShareInfo()
-    toast.add({ severity: 'success', summary: t('share.sent'), detail: t('share.messageSent'), life: 2000 })
-  } catch (err: any) {
-    toast.add({ severity: 'error', summary: t('common.error'), detail: err?.response?.data?.error || t('share.sendFailed'), life: 3000 })
-  } finally {
-    sending.value = false
-    resetTurnstile('message')
+    resetTurnstile()
   }
 }
 
@@ -395,8 +331,7 @@ function formatDateTime(dateStr: string) {
   color: var(--text-secondary);
 }
 
-.reveal-panel,
-.message-panel {
+.reveal-panel {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;

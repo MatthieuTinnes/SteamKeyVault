@@ -60,8 +60,10 @@ export async function getShareInfo(token: string) {
   return res.data
 }
 
-export async function revealSharedKey(token: string, turnstileToken: string) {
-  const res = await axios.post(`${API_BASE_URL}/keys/share/${token}/reveal`, { turnstile_token: turnstileToken }, getAxiosConfig())
+export async function revealSharedKey(token: string, turnstileToken: string, message?: string) {
+  const payload: Record<string, string> = { turnstile_token: turnstileToken }
+  if (message && message.trim()) payload.message = message.trim()
+  const res = await axios.post(`${API_BASE_URL}/keys/share/${token}/reveal`, payload, getAxiosConfig())
   return res.data
 }
 
