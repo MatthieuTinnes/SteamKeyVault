@@ -5,8 +5,24 @@
       <Button :label="t('admin.users.backToDashboard')" icon="pi pi-arrow-left" @click="router.push('/admin')" severity="secondary" />
     </div>
 
+    <div class="search-bar">
+      <IconField>
+        <InputIcon class="pi pi-search" />
+        <InputText v-model="searchQuery" :placeholder="t('admin.users.searchPlaceholder')" @input="onSearch" />
+      </IconField>
+    </div>
+
     <div ref="tableContainer">
-      <DataTable :value="users" :loading="loading" stripedRows paginator :rows="rowsPerPage">
+      <DataTable
+        :value="users"
+        :loading="loading"
+        stripedRows
+        lazy
+        paginator
+        :rows="rowsPerPage"
+        :totalRecords="totalRecords"
+        @page="onPage"
+      >
         <Column field="id" :header="t('admin.users.id')" sortable style="width: 5rem"></Column>
         <Column field="username" :header="t('admin.users.username')" sortable></Column>
         <Column field="email" :header="t('admin.users.email')" sortable></Column>
@@ -105,6 +121,8 @@ import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Checkbox from 'primevue/checkbox'
+import IconField from 'primevue/iconfield'
+import InputIcon from 'primevue/inputicon'
 import {
   getAllUsers,
   updateUserEmail,
@@ -121,6 +139,10 @@ import { useI18n } from 'vue-i18n'
 const router = useRouter()
 const users = ref<AdminUser[]>([])
 const loading = ref(false)
+const totalRecords = ref(0)
+const currentOffset = ref(0)
+const searchQuery = ref('')
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
 const showEditDialog = ref(false)
 const showDeleteDialog = ref(false)
 const showClearDialog = ref(false)
@@ -147,13 +169,27 @@ onMounted(async () => {
 async function loadUsers() {
   loading.value = true
   try {
-    const response = await getAllUsers()
+    const response = await getAllUsers(rowsPerPage.value, currentOffset.value, searchQuery.value || undefined)
     users.value = response.data.users
+    totalRecords.value = response.data.total
   } catch (error: any) {
     showErrorToast(error?.response?.data?.error || t('admin.users.failedLoadUsers'))
   } finally {
     loading.value = false
   }
+}
+
+function onPage(event: { first: number; rows: number }) {
+  currentOffset.value = event.first
+  loadUsers()
+}
+
+function onSearch() {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    currentOffset.value = 0
+    loadUsers()
+  }, 300)
 }
 
 function editUser(user: AdminUser) {
@@ -255,6 +291,10 @@ function formatDate(dateString: string) {
   max-width: 90rem;
   margin: 2rem auto;
   padding: 0 1rem;
+}
+
+.search-bar {
+  margin-bottom: 1rem;
 }
 
 .header {

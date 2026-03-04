@@ -52,10 +52,13 @@ export async function getAdminStats() {
   return axios.get<AdminStats>(`${API_BASE_URL}/admin/stats`, getAxiosConfig())
 }
 
-export async function getAllUsers() {
+export async function getAllUsers(limit = 25, offset = 0, search?: string) {
   return axios.get<{ users: AdminUser[]; total: number }>(
     `${API_BASE_URL}/admin/users`,
-    getAxiosConfig()
+    {
+      ...getAxiosConfig(),
+      params: { limit, offset, ...(search ? { search } : {}) },
+    }
   )
 }
 
