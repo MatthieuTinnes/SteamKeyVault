@@ -22,14 +22,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', '')
+SECRET_KEY = os.environ.get('SECRET_KEY')
 if not SECRET_KEY:
     raise ImproperlyConfigured("SECRET_KEY environment variable is not set.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-LOG_LEVEL = os.environ.get('LOG_LEVEL', 'DEBUG')
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if os.environ.get('ALLOWED_HOSTS') else []
+DEBUG = os.environ.get('DEBUG')
+LOG_LEVEL = os.environ.get('LOG_LEVEL')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(',') if os.environ.get('ALLOWED_HOSTS') else []
 
 
 # Application definition
@@ -52,8 +52,8 @@ INSTALLED_APPS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',')
-CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:5173').split(',')
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS').split(',')
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS').split(',')
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -91,12 +91,12 @@ WSGI_APPLICATION = 'steamkeyvault.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.postgresql_psycopg2'),
-        'NAME': os.environ.get('DB_NAME', 'steamkeyvault_db'),
-        'USER': os.environ.get('DB_USER', 'steamkeyvault_user'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'yourpassword'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
+        'ENGINE': os.environ.get('DB_ENGINE'),
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
     }
 }
 
@@ -181,22 +181,22 @@ LOGGING = {
 }
 
 # Email settings - development defaults (console backend). In production, override with env vars.
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@steamkeyvault.local')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
 if DEBUG:
-    EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+    EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND')
 else:
     # Production SMTP settings from environment
-    EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
-    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'localhost')
-    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '25'))
-    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'False') == 'True'
-    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
-    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+    EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND')
+    EMAIL_HOST = os.environ.get('EMAIL_HOST')
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT'))
+    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS')
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 # Steam API Key
-STEAM_API_KEY = os.environ.get('STEAM_API_KEY', '')
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+STEAM_API_KEY = os.environ.get('STEAM_API_KEY')
+FRONTEND_URL = os.getenv('FRONTEND_URL')
 
 # Cloudflare Turnstile
-TURNSTILE_SECRET_KEY = os.environ.get('TURNSTILE_SECRET_KEY', '')
-TURNSTILE_VERIFY_URL = os.environ.get('TURNSTILE_VERIFY_URL', 'https://challenges.cloudflare.com/turnstile/v0/siteverify')
+TURNSTILE_SECRET_KEY = os.environ.get('TURNSTILE_SECRET_KEY')
+TURNSTILE_VERIFY_URL = os.environ.get('TURNSTILE_VERIFY_URL')

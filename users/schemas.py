@@ -48,6 +48,7 @@ class UpdatePreferencesSchema(BaseModel):
 
 class RecoveryInfoSchema(BaseModel):
     email: str
+    turnstile_token: str | None = None
 
 
 class ForgotPasswordSchema(BaseModel):

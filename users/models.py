@@ -32,11 +32,13 @@ class User(AbstractUser):
 class UserActionLog(models.Model):
     ACTION_LOGIN = 'login'
     ACTION_PASSWORD_CHANGE = 'password_change'
+    ACTION_PASSWORD_RESET = 'password_reset'
     ACTION_EMAIL_CHANGE = 'email_change'
 
     ACTION_CHOICES = [
         (ACTION_LOGIN, 'Login'),
         (ACTION_PASSWORD_CHANGE, 'Change password'),
+        (ACTION_PASSWORD_RESET, 'Reset password'),
         (ACTION_EMAIL_CHANGE, 'Change email'),
     ]
 

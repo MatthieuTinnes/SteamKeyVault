@@ -61,8 +61,8 @@ EMAIL_SUBJECTS = {
 
 def _validate_turnstile(turnstile_token: str, remote_ip: str | None, expected_action: str | None = None) -> bool:
     """Verify a Cloudflare Turnstile token against the siteverify API."""
-    secret = getattr(settings, 'TURNSTILE_SECRET_KEY', '')
-    verify_url = getattr(settings, 'TURNSTILE_VERIFY_URL', '')
+    secret = getattr(settings, 'TURNSTILE_SECRET_KEY')
+    verify_url = getattr(settings, 'TURNSTILE_VERIFY_URL')
     if not secret or not verify_url:
         logger.warning("Turnstile secret or verify URL not configured – skipping captcha check")
         return True
@@ -189,7 +189,7 @@ def register(request, payload: schemas.SignUpSchema):
     logger.debug("Request headers: %s", {k: v for k, v in request.headers.items() if k.lower().startswith(('origin', 'referer', 'host', 'x-', 'access-', 'sec-'))})
     
     # Validate Turnstile captcha
-    turnstile_secret = getattr(settings, 'TURNSTILE_SECRET_KEY', '')
+    turnstile_secret = getattr(settings, 'TURNSTILE_SECRET_KEY')
     if turnstile_secret:
         token = payload.turnstile_token
         if not token:
@@ -237,7 +237,7 @@ def register(request, payload: schemas.SignUpSchema):
             user=user,
             token_type=EmailVerificationToken.TOKEN_TYPE_REGISTRATION
         )
-        frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
+        frontend_url = getattr(settings, 'FRONTEND_URL')
         verification_url = f"{frontend_url}/verify-email?token={token.token}"
         
         # Send verification email
@@ -292,7 +292,7 @@ def update_account(request, payload: schemas.UpdateEmailSchema):
             token_type=EmailVerificationToken.TOKEN_TYPE_EMAIL_CHANGE,
             new_email=new_email
         )
-        frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
+        frontend_url = getattr(settings, 'FRONTEND_URL')
         confirmation_url = f"{frontend_url}/confirm-email-change?token={token.token}"
         
         # Send confirmation email to NEW email address
@@ -382,6 +382,12 @@ def change_password_view(request, payload: schemas.ChangePasswordSchema):
 @users_router.post('/recovery-info')
 def recovery_info(request, payload: schemas.RecoveryInfoSchema):
     locale = get_request_locale(request)
+    turnstile_secret = getattr(settings, 'TURNSTILE_SECRET_KEY')
+    if turnstile_secret:
+        if not payload.turnstile_token:
+            return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'captcha_required', locale)}, status=400)
+        if not _validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR"), expected_action="recovery"):
+            return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'captcha_invalid', locale)}, status=400)
     user = User.objects.filter(email=payload.email).first()
     if not user or not user.wrapped_mk_recovery or not user.rk_salt:
         return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'recovery_data_unavailable', locale)}, status=400)
@@ -432,7 +438,7 @@ def verify_email(request, token: str):
         
         # Send welcome email after successful verification
         user = verification_token.user
-        frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
+        frontend_url = getattr(settings, 'FRONTEND_URL')
         locale = get_user_locale(user)
         Mailer.send_template_email(
             subject=get_subject('welcome', locale),
@@ -517,7 +523,7 @@ def resend_verification_email(request):
             user=user,
             token_type=EmailVerificationToken.TOKEN_TYPE_REGISTRATION
         )
-        frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
+        frontend_url = getattr(settings, 'FRONTEND_URL')
         verification_url = f"{frontend_url}/verify-email?token={token.token}"
 
         # Send verification email
@@ -546,8 +552,9 @@ def forgot_password(request, payload: schemas.ForgotPasswordSchema):
     if not user:
         return Response({"success": True})
 
+    PasswordResetToken.objects.filter(user=user, used=False).update(used=True)
     token = PasswordResetToken.generate_token(user=user, expiry_hours=1)
-    frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
+    frontend_url = getattr(settings, 'FRONTEND_URL')
     reset_url = f"{frontend_url}/reset-password?token={token.token}"
 
     locale = get_user_locale(user)
@@ -603,6 +610,7 @@ def reset_password(request, payload: schemas.ResetPasswordSchema):
         user.wrapped_mk_password = payload.wrapped_mk_password
         user.save(update_fields=["password", "wrapped_mk_password"])
         reset_token.mark_used()
+        log_user_action(UserActionLog.ACTION_PASSWORD_RESET, user, request)
         locale = get_user_locale(user)
         Mailer.send_template_email(
             subject=get_subject('password_reset_success', locale),
