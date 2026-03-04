@@ -73,13 +73,15 @@
           <h3>{{ t('share.sendMessageTitle') }}</h3>
           <Textarea v-model="message" rows="4" autoResize :placeholder="t('share.messagePlaceholder')" maxlength="100" />
           <small class="hint">{{ message.trim().length }}/100</small>
+          <div class="turnstile" id="turnstile-message"></div>
           <Button
             :label="t('share.sendMessage')"
             icon="pi pi-send"
-            :disabled="!canMessage || !message.trim() || message.trim().length > 100"
+            :disabled="!canMessage || !message.trim() || message.trim().length > 100 || !messageToken"
             :loading="sending"
             @click="sendMessage"
           />
+          <small v-if="!turnstileReady" class="hint">{{ t('share.captchaMissing') }}</small>
         </div>
       </div>
     </div>
@@ -131,6 +133,8 @@ const error = ref('')
 const revealedKey = ref('')
 const revealToken = ref('')
 const revealWidgetId = ref<string | null>(null)
+const messageToken = ref('')
+const messageWidgetId = ref<string | null>(null)
 const turnstileReady = ref(false)
 const message = ref('')
 const revealing = ref(false)
@@ -231,26 +235,34 @@ function renderTurnstile() {
   if (revealEl && !revealWidgetId.value) {
     revealWidgetId.value = window.turnstile.render(revealEl, {
       sitekey: TURNSTILE_SITE_KEY,
-      callback: (token: string) => {
-        revealToken.value = token
-      },
-      'expired-callback': () => {
-        revealToken.value = ''
-      },
-      'error-callback': () => {
-        revealToken.value = ''
-      },
-      action: 'share_key_page'
+      callback: (token: string) => { revealToken.value = token },
+      'expired-callback': () => { revealToken.value = '' },
+      'error-callback': () => { revealToken.value = '' },
+      action: 'share_key_reveal'
+    })
+  }
+
+  const messageEl = document.getElementById('turnstile-message')
+  if (messageEl && !messageWidgetId.value) {
+    messageWidgetId.value = window.turnstile.render(messageEl, {
+      sitekey: TURNSTILE_SITE_KEY,
+      callback: (token: string) => { messageToken.value = token },
+      'expired-callback': () => { messageToken.value = '' },
+      'error-callback': () => { messageToken.value = '' },
+      action: 'share_key_message'
     })
   }
 }
 
-function resetTurnstile() {
+function resetTurnstile(widget: 'reveal' | 'message' = 'reveal') {
   if (!window.turnstile) return
-  
-  if (revealWidgetId.value) {
+
+  if (widget === 'reveal' && revealWidgetId.value) {
     window.turnstile.reset(revealWidgetId.value)
     revealToken.value = ''
+  } else if (widget === 'message' && messageWidgetId.value) {
+    window.turnstile.reset(messageWidgetId.value)
+    messageToken.value = ''
   }
 }
 
@@ -270,7 +282,7 @@ async function revealKey() {
     toast.add({ severity: 'error', summary: t('common.error'), detail: err?.response?.data?.error || t('share.revealFailed'), life: 3000 })
   } finally {
     revealing.value = false
-    resetTurnstile()
+    resetTurnstile('reveal')
   }
 }
 
@@ -285,9 +297,13 @@ async function sendMessage() {
     toast.add({ severity: 'warn', summary: t('common.error'), detail: t('share.messageTooLong'), life: 3000 })
     return
   }
+  if (!messageToken.value) {
+    toast.add({ severity: 'warn', summary: t('share.captcha'), detail: t('share.captchaRequired'), life: 2000 })
+    return
+  }
   sending.value = true
   try {
-    await sendShareMessage(shareToken.value, '', message.value.trim())
+    await sendShareMessage(shareToken.value, messageToken.value, message.value.trim())
     message.value = ''
     await loadShareInfo()
     toast.add({ severity: 'success', summary: t('share.sent'), detail: t('share.messageSent'), life: 2000 })
@@ -295,6 +311,7 @@ async function sendMessage() {
     toast.add({ severity: 'error', summary: t('common.error'), detail: err?.response?.data?.error || t('share.sendFailed'), life: 3000 })
   } finally {
     sending.value = false
+    resetTurnstile('message')
   }
 }
 
