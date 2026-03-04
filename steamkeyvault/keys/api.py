@@ -107,6 +107,7 @@ class ShareRevealOut(Schema):
 
 class ShareMessageIn(Schema):
     message: str
+    turnstile_token: str
 
 
 class ShareMessageOut(Schema):
@@ -372,7 +373,7 @@ def reveal_share_key(request, token: str, payload: ShareRevealIn):
 
     if not payload.turnstile_token:
         return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'captcha_required', locale)}
-    if not _validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR"), expected_action="share_key_page"):
+    if not _validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR"), expected_action="share_key_reveal"):
         return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'captcha_failed', locale)}
 
     share.revealed_at = now
@@ -398,6 +399,11 @@ def send_share_message(request, token: str, payload: ShareMessageIn):
         return 410, {"error": translate_message(KEY_ERROR_MESSAGES, 'share_expired', locale)}
     if share.message_sent_at:
         return 410, {"error": translate_message(KEY_ERROR_MESSAGES, 'message_already_sent', locale)}
+
+    if not payload.turnstile_token:
+        return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'captcha_required', locale)}
+    if not _validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR"), expected_action="share_key_message"):
+        return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'captcha_failed', locale)}
 
     message = (payload.message or '').strip()
     if len(message) < 3:
