@@ -12,7 +12,7 @@
             <div id="turnstile-forgot-password"></div>
             <small v-if="!turnstileToken" class="password-requirements">{{ t('auth.register.errors.captchaRequired') }}</small>
           </div>
-          <Button type="submit" :label="t('auth.forgot.sendLink')" class="w-full mt-4" :loading="submitting" :disabled="turnstileEnabled && !turnstileToken" />
+          <Button type="submit" :label="t('auth.forgot.sendLink')" class="w-full mt-4" :loading="submitting" :disabled="(turnstileEnabled && !turnstileToken) || submitting || success" />
           <Message v-if="success" severity="success" class="mt-4">
             {{ t('auth.forgot.success') }}
           </Message>

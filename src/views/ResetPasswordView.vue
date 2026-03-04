@@ -26,7 +26,7 @@
             <label for="confirmPassword">{{ t('auth.reset.confirmPassword') }}</label>
             <Password id="confirmPassword" v-model="confirmPassword" :feedback="false" toggleMask class="w-full" inputClass="w-full" :class="{ 'p-invalid': confirmPassword && newPassword !== confirmPassword }" />
           </div>
-          <Button type="submit" :label="t('auth.reset.submit')" class="w-full mt-4" :loading="submitting" :disabled="!canSubmit" />
+          <Button type="submit" :label="t('auth.reset.submit')" class="w-full mt-4" :loading="submitting" :disabled="!canSubmit || submitting || success" />
           <Message v-if="error" severity="error" class="mt-4">{{ error }}</Message>
           <Message v-if="success" severity="success" class="mt-4">{{ t('auth.reset.success') }}</Message>
           <div class="login-link mt-4">
@@ -125,6 +125,7 @@ async function handleReset() {
     showErrorToast(t('auth.forgot.resetFailed'), error.value)
   } finally {
     submitting.value = false
+    goToLogin()
   }
 }
 
