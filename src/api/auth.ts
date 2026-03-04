@@ -86,8 +86,8 @@ export async function confirmEmailChange(token: string) {
   return axios.get(`${API_BASE_URL}/users/confirm-email-change?token=${token}`)
 }
 
-export async function forgotPassword(email: string) {
-  return axios.post(`${API_BASE_URL}/users/forgot-password`, { email }, getAxiosConfig())
+export async function forgotPassword(email: string, turnstileToken?: string) {
+  return axios.post(`${API_BASE_URL}/users/forgot-password`, { email, turnstile_token: turnstileToken }, getAxiosConfig())
 }
 
 export async function fetchResetPasswordInfo(token: string): Promise<ResetPasswordInfoResponse> {
