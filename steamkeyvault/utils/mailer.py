@@ -47,6 +47,7 @@ class Mailer:
             msg = EmailMultiAlternatives(subject=subject, body=text_content, from_email=from_email, to=list(to_emails))
             msg.attach_alternative(html_content, 'text/html')
             msg.send()
+            logger.info('Email server configuration: %s:%s (TLS: %s), backend: %s', settings.EMAIL_HOST, settings.EMAIL_PORT, settings.EMAIL_USE_TLS, settings.EMAIL_BACKEND)
             logger.info('Sent email "%s" to %s', subject, to_emails)
             return True
         except Exception as e:

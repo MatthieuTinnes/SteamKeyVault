@@ -180,18 +180,14 @@ LOGGING = {
     },
 }
 
-# Email settings - development defaults (console backend). In production, override with env vars.
+# Email settings
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
-if DEBUG:
-    EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND')
-else:
-    # Production SMTP settings from environment
-    EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND')
-    EMAIL_HOST = os.environ.get('EMAIL_HOST')
-    EMAIL_PORT = int(os.environ.get('EMAIL_PORT'))
-    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS')
-    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND')
+EMAIL_HOST = os.environ.get('EMAIL_HOST')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT'))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 # Steam API Key
 STEAM_API_KEY = os.environ.get('STEAM_API_KEY')
