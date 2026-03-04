@@ -547,6 +547,13 @@ def resend_verification_email(request):
 
 @users_router.post('/forgot-password')
 def forgot_password(request, payload: schemas.ForgotPasswordSchema):
+    locale = get_request_locale(request)
+    turnstile_secret = getattr(settings, 'TURNSTILE_SECRET_KEY')
+    if turnstile_secret:
+        if not payload.turnstile_token:
+            return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'captcha_required', locale)}, status=400)
+        if not _validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR"), expected_action="forgot_password"):
+            return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'captcha_invalid', locale)}, status=400)
     logger.info(f"Forgot password requested email={payload.email}")
     user = User.objects.filter(email=payload.email).first()
     if not user:

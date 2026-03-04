@@ -53,6 +53,7 @@ class RecoveryInfoSchema(BaseModel):
 
 class ForgotPasswordSchema(BaseModel):
     email: str
+    turnstile_token: str | None = None
 
 
 class ResetPasswordSchema(BaseModel):
