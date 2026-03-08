@@ -155,7 +155,7 @@ def login_view(request, payload: schemas.SignInSchema):
             "kdf_hash": user.kdf_hash,
         })
         return response
-    logger.warning(f"Failed login for email={payload.email} from {addr}")
+    logger.warning(f"Failed login for email={payload.email}")
     locale = get_request_locale(request)
     raise HttpError(403, translate_message(USER_ERROR_MESSAGES, 'invalid_credentials', locale))
 
