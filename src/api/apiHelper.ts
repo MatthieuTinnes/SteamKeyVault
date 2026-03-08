@@ -7,8 +7,8 @@ axios.defaults.xsrfHeaderName = 'X-CSRFToken'
 axios.defaults.withCredentials = true
 axios.defaults.withXSRFToken = true
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
-export const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || ''
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "__API_BASE_URL__";
+export const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || "__TURNSTILE_SITE_KEY__";
 
 export function getCookie(name: string): string | null {
   const value = `; ${document.cookie}`
