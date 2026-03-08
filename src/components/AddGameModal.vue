@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineEmits, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { searchSteamGames, addUserGame } from '../api/games'
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
