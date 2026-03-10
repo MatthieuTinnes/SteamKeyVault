@@ -368,6 +368,7 @@ def get_action_log_stats(
     return {
         'total_actions': total_actions,
         'logins': action_counts.get(UserActionLog.ACTION_LOGIN, 0),
+        'registrations': action_counts.get(UserActionLog.ACTION_REGISTER, 0),
         'password_changes': action_counts.get(UserActionLog.ACTION_PASSWORD_CHANGE, 0),
         'email_changes': action_counts.get(UserActionLog.ACTION_EMAIL_CHANGE, 0),
         'unique_users': unique_users,

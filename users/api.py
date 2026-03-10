@@ -154,6 +154,7 @@ def login_view(request, payload: schemas.SignInSchema):
             "kdf_iterations": user.kdf_iterations,
             "kdf_hash": user.kdf_hash,
         })
+        log_user_action(UserActionLog.ACTION_LOGIN, user, request)
         return response
     logger.warning(f"Failed login for email={payload.email}")
     locale = get_request_locale(request)
@@ -233,6 +234,7 @@ def register(request, payload: schemas.SignUpSchema):
             "preferred_language",
         ])
         logger.info(f"User registered username={payload.username} email={payload.email} user_id={user.id}")
+        log_user_action(UserActionLog.ACTION_REGISTER, user, request)
         
         # Generate verification token
         token = EmailVerificationToken.generate_token(
