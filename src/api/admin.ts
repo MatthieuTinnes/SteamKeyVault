@@ -41,6 +41,7 @@ export interface ActionLogEntry {
 export interface ActionLogStats {
   total_actions: number
   logins: number
+  registrations: number
   password_changes: number
   email_changes: number
   unique_users: number

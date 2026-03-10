@@ -929,6 +929,7 @@ const messages = {
         showingRange: 'Showing data from {start} to {end}',
         totalActions: 'Total Actions',
         logins: 'Logins',
+        registrations: 'Registrations',
         passwordChanges: 'Password Changes',
         emailChanges: 'Email Changes',
         uniqueUsers: 'Unique Users',
@@ -941,6 +942,7 @@ const messages = {
         metadata: 'Metadata',
         allActionsOption: 'All actions',
         loginOption: 'Login',
+        registerOption: 'Register',
         passwordChangeOption: 'Change password',
         emailChangeOption: 'Change email',
         failedLoad: 'Failed to load action logs'
@@ -1898,6 +1900,7 @@ const messages = {
         showingRange: 'Données du {start} au {end}',
         totalActions: 'Actions totales',
         logins: 'Connexions',
+        registrations: 'Inscriptions',
         passwordChanges: 'Changements de mot de passe',
         emailChanges: 'Changements d\'email',
         uniqueUsers: 'Utilisateurs uniques',
@@ -1910,6 +1913,7 @@ const messages = {
         metadata: 'Métadonnées',
         allActionsOption: 'Toutes les actions',
         loginOption: 'Connexion',
+        registerOption: 'Inscription',
         passwordChangeOption: 'Changer le mot de passe',
         emailChangeOption: "Changer l\'email",
         failedLoad: 'Échec du chargement des journaux'

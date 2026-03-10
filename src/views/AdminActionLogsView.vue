@@ -64,6 +64,13 @@
         </div>
       </div>
       <div class="stat-card">
+        <i class="pi pi-user-plus stat-icon register"></i>
+        <div class="stat-content">
+          <div class="stat-label">{{ t('admin.logs.registrations') }}</div>
+          <div class="stat-value">{{ stats.registrations ?? '-' }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
         <i class="pi pi-lock stat-icon password"></i>
         <div class="stat-content">
           <div class="stat-label">{{ t('admin.logs.passwordChanges') }}</div>
@@ -147,6 +154,7 @@ const logs = ref<ActionLogEntry[]>([])
 const stats = ref<ActionLogStats>({
   total_actions: 0,
   logins: 0,
+  registrations: 0,
   password_changes: 0,
   email_changes: 0,
   unique_users: 0,
@@ -165,6 +173,7 @@ const { t } = useI18n()
 const actionOptions = computed(() => [
   { label: t('admin.logs.allActionsOption'), value: '' },
   { label: t('admin.logs.loginOption'), value: 'login' },
+  { label: t('admin.logs.registerOption'), value: 'register' },
   { label: t('admin.logs.passwordChangeOption'), value: 'password_change' },
   { label: t('admin.logs.emailChangeOption'), value: 'email_change' },
 ])
@@ -347,6 +356,10 @@ function formatMetadata(value: ActionLogEntry['metadata']) {
   color: #7c3aed;
 }
 
+.stat-icon.register {
+  color: #0891b2;
+}
+
 .stat-icon.users {
   color: #059669;
 }
@@ -425,6 +438,11 @@ function formatMetadata(value: ActionLogEntry['metadata']) {
 .action-pill.email-change {
   background: #ede9fe;
   color: #7c3aed;
+}
+
+.action-pill.register {
+  background: #cffafe;
+  color: #0891b2;
 }
 
 .muted {
