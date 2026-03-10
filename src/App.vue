@@ -21,7 +21,6 @@ import { ref, computed, onMounted } from 'vue'
 import { setGlobalToast } from './utils/toast'
 import { useTheme } from './composables/useTheme'
 import { useUserStore } from './stores/user'
-import { getCookie } from './api/apiHelper'
 import { useI18n } from 'vue-i18n'
 import { setLocale, SUPPORTED_LOCALES } from './i18n'
 
@@ -45,10 +44,8 @@ onMounted(async () => {
     setLocale(langParam as 'en' | 'fr')
   }
 
-  const hasSession = getCookie('sessionid') !== null
-
   // Si l'utilisateur n'est pas déjà chargé (par exemple par le router guard), on tente de le récupérer
-  if (!userStore.user && hasSession) {
+  if (!userStore.user) {
     try {
       await userStore.fetchUser()
     } catch (error) {

@@ -1,12 +1,10 @@
 import { useUserStore } from '../stores/user'
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
-import { getCookie } from '../api/apiHelper'
 
 async function ensureUserLoaded() {
   const userStore = useUserStore()
-  const isLoggedIn = getCookie('csrftoken') !== null
 
-  if (!userStore.user && isLoggedIn) {
+  if (!userStore.user) {
     try {
       await userStore.fetchUser()
     } catch (e) {

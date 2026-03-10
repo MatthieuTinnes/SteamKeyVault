@@ -27,7 +27,11 @@ export interface ResetPasswordInfoResponse {
 }
 
 export async function fetchUser(): Promise<UserInfo | null> {
-  const response = await axios.get<UserInfo>(`${API_BASE_URL}/users/user`, { withCredentials: true })
+  const response = await axios.get<UserInfo>(`${API_BASE_URL}/users/user`, {
+    withCredentials: true,
+    validateStatus: (status) => status === 200 || status === 401,
+  })
+  if (response.status === 401) return null
   return response.data
 }
 

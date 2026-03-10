@@ -1,8 +1,30 @@
 import axios from 'axios'
+import { z } from 'zod'
 import { API_BASE_URL, getAxiosConfig } from './apiHelper'
 import { useCryptoStore } from '@/stores/crypto'
 import { decryptValue, encryptValue } from '@/utils/crypto'
 import { handleMissingMasterKey } from '@/utils/missingMasterKey'
+import { MAX_IMPORT_BYTES } from '@/utils/importLimits'
+
+const ALLOWED_JSON_MIME_TYPES = ['application/json', 'text/plain', '']
+
+const importKeySchema = z.object({
+  key: z.string().max(500),
+  used: z.boolean().optional().nullable(),
+  current_use: z.string().max(50).optional().nullable(),
+})
+
+const importGameSchema = z.object({
+  name: z.string().min(1).max(200),
+  steamapp_id: z.number().int().positive().optional().nullable(),
+  keys: z.array(importKeySchema).max(500).optional().default([]),
+})
+
+const importPayloadSchema = z.object({
+  format: z.literal('SteamKeyVault'),
+  version: z.literal(1),
+  games: z.array(importGameSchema).max(2000),
+})
 
 export async function searchSteamGames(query: string) {
   if (!query.trim()) return []
@@ -125,22 +147,38 @@ export async function importUserGamesJson(file: File) {
     throw new Error('Missing master key. Please log in again.')
   }
 
+  if (file.size > MAX_IMPORT_BYTES) {
+    throw new Error('File too large. Maximum size is 10 MB.')
+  }
+
+  const mimeType = file.type ?? ''
+  const isJsonExtension = file.name.toLowerCase().endsWith('.json')
+  if (!ALLOWED_JSON_MIME_TYPES.includes(mimeType) && !isJsonExtension) {
+    throw new Error('Invalid file type. Only JSON files are accepted.')
+  }
+
   const rawText = await file.text()
-  let payload: any
+  let parsed: unknown
   try {
-    payload = JSON.parse(rawText)
+    parsed = JSON.parse(rawText)
   } catch (e) {
     throw new Error('Invalid JSON file')
   }
 
-  const games = Array.isArray(payload?.games) ? payload.games : []
+  const result = importPayloadSchema.safeParse(parsed)
+  if (!result.success) {
+    throw new Error('Invalid JSON structure: ' + result.error.issues[0]?.message)
+  }
+
+  const payload = result.data
+  const games = payload.games
   const encryptedGames = await Promise.all(
-    games.map(async (game: any) => {
-      const keys = Array.isArray(game?.keys) ? game.keys : []
+    games.map(async (game) => {
+      const keys = game.keys ?? []
       const encryptedKeys = await Promise.all(
-        keys.map(async (keyEntry: any) => {
-          const keyValue = String(keyEntry?.key ?? '')
-          if (!keyValue.trim()) return keyEntry
+        keys.map(async (keyEntry) => {
+          const keyValue = keyEntry.key.trim()
+          if (!keyValue) return keyEntry
           return {
             ...keyEntry,
             key: await encryptValue(keyValue, store.masterKeyBytes as Uint8Array)
