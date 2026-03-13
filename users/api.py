@@ -22,6 +22,7 @@ from steamkeyvault.games.models import UserGame
 from steamkeyvault.keys.models import Key
 from steamkeyvault.utils.i18n import get_request_locale, translate_message
 from steamkeyvault.utils.i18n_messages import PASSWORD_ERROR_MESSAGES, USER_ERROR_MESSAGES
+from steamkeyvault.utils.rate_limit import rate_limit
 
 # Module logger
 logger = logging.getLogger(__name__)
@@ -137,6 +138,7 @@ def get_csrf_token(request):
     return {"csrftoken": get_token(request)}
 
 @users_router.post("/login")
+@rate_limit(limit=10, window=60)
 def login_view(request, payload: schemas.SignInSchema):
     locale = get_request_locale(request)
     logger.info(f"Login attempt for email={payload.email}")
@@ -182,6 +184,7 @@ def user(request):
     }
 
 @users_router.post("/register")
+@rate_limit(limit=5, window=300)
 def register(request, payload: schemas.SignUpSchema):
     locale = get_request_locale(request)
     addr = request.META.get("REMOTE_ADDR")
@@ -335,6 +338,7 @@ def update_preferences(request, payload: schemas.UpdatePreferencesSchema):
 
 
 @users_router.post("/change-password", auth=django_auth)
+@rate_limit(limit=5, window=60)
 def change_password_view(request, payload: schemas.ChangePasswordSchema):
     """
     Change password for the authenticated user. Requires current password verification.
@@ -384,6 +388,7 @@ def change_password_view(request, payload: schemas.ChangePasswordSchema):
 
 
 @users_router.post('/recovery-info')
+@rate_limit(limit=5, window=60)
 def recovery_info(request, payload: schemas.RecoveryInfoSchema):
     locale = get_request_locale(request)
     turnstile_secret = getattr(settings, 'TURNSTILE_SECRET_KEY')
@@ -515,6 +520,7 @@ def confirm_email_change(request, token: str):
 
 
 @users_router.post("/resend-verification-email", auth=django_auth)
+@rate_limit(limit=3, window=300)
 def resend_verification_email(request):
     user = request.user
     locale = get_request_locale(request, user)
@@ -550,6 +556,7 @@ def resend_verification_email(request):
 
 
 @users_router.post('/forgot-password')
+@rate_limit(limit=5, window=300)
 def forgot_password(request, payload: schemas.ForgotPasswordSchema):
     locale = get_request_locale(request)
     turnstile_secret = getattr(settings, 'TURNSTILE_SECRET_KEY')
@@ -603,6 +610,7 @@ def reset_password_info(request, token: str):
 
 
 @users_router.post('/reset-password')
+@rate_limit(limit=5, window=60)
 def reset_password(request, payload: schemas.ResetPasswordSchema):
     reset_token = PasswordResetToken.objects.filter(token=payload.token).first()
     if not reset_token or not reset_token.is_valid():
