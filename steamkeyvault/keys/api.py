@@ -14,25 +14,20 @@ from ninja.security import django_auth
 
 from steamkeyvault.games.models import UserGame
 from steamkeyvault.utils.mailer import Mailer
-from steamkeyvault.utils.i18n import get_request_locale, translate_message
+from steamkeyvault.utils.i18n import get_request_locale, translate_message, normalize_locale
+from steamkeyvault.utils.turnstile import validate_turnstile
 from steamkeyvault.utils.i18n_messages import KEY_ERROR_MESSAGES
 from .models import Key, ShareKeyToken
 logger = logging.getLogger(__name__)
 
 router = Router()
 
-SUPPORTED_LOCALES = {'en', 'fr'}
 SHARE_MESSAGE_SUBJECTS = {
     'en': 'New message about your shared key - SteamKeyVault',
     'fr': 'Nouveau message concernant votre clé partagée - SteamKeyVault',
 }
 
 
-
-def normalize_locale(value: str | None, fallback: str = 'en') -> str:
-    if value in SUPPORTED_LOCALES:
-        return value
-    return fallback
 
 class CurrentUseValidatorMixin:
     @classmethod
@@ -125,38 +120,6 @@ class DeleteUsedKeysOut(Schema):
     deleted: int
 
 
-def _validate_turnstile(turnstile_token: str, remote_ip: Optional[str], expected_action: Optional[str] = None) -> bool:
-    secret = getattr(settings, 'TURNSTILE_SECRET_KEY', '')
-    verify_url = getattr(settings, 'TURNSTILE_VERIFY_URL', '')
-    if not secret or not verify_url:
-        logger.error("Turnstile secret or verify URL not configured")
-        return False
-    payload = {
-        'secret': secret,
-        'response': turnstile_token,
-    }
-    if remote_ip:
-        payload['remoteip'] = remote_ip
-    try:
-        resp = requests.post(verify_url, data=payload, timeout=5)
-        resp.raise_for_status()
-        data = resp.json()
-    except Exception as exc:
-        logger.exception("Turnstile verification failed: %s", exc)
-        return False
-    if not data.get('success'):
-        logger.info("Turnstile verification rejected: %s", data)
-        return False
-    
-    if expected_action:
-        action = data.get('action')
-        if action != expected_action:
-            logger.warning("Turnstile action mismatch: expected '%s', got '%s'", expected_action, action)
-            return False
-            
-    return True
-
-
 def _fetch_steam_app_preview(steamapp_id: int) -> dict:
     url = f"https://store.steampowered.com/api/appdetails?appids={steamapp_id}"
     try:
@@ -225,7 +188,7 @@ def remove_key(request, user_game_id: int, key_id: int):
     try:
         key_obj = Key.objects.get(userGame=user_game, id=key_id)
         key_obj.delete()
-        return 200, {"success": True}
+        return 200, None
     except Key.DoesNotExist:
         return 404, {"error": translate_message(KEY_ERROR_MESSAGES, 'key_not_found', locale)}
 
@@ -374,7 +337,7 @@ def reveal_share_key(request, token: str, payload: ShareRevealIn):
 
     if not payload.turnstile_token:
         return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'captcha_required', locale)}
-    if not _validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR"), expected_action="share_key_reveal"):
+    if not validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR"), expected_action="share_key_reveal"):
         return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'captcha_failed', locale)}
 
     share.revealed_at = now
@@ -423,7 +386,7 @@ def send_share_message(request, token: str, payload: ShareMessageIn):
 
     if not payload.turnstile_token:
         return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'captcha_required', locale)}
-    if not _validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR"), expected_action="share_key_message"):
+    if not validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR"), expected_action="share_key_message"):
         return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'captcha_failed', locale)}
 
     message = (payload.message or '').strip()

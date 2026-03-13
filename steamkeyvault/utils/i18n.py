@@ -24,3 +24,10 @@ def get_request_locale(request, user=None, fallback: str = "en") -> str:
 
 def translate_message(messages: Mapping[str, Mapping[str, str]], key: str, locale: str, fallback: str = "en") -> str:
     return messages.get(key, {}).get(locale) or messages.get(key, {}).get(fallback) or key
+
+
+def normalize_locale(value: str | None, fallback: str = "en") -> str:
+    """Return *value* if it is a supported locale, otherwise *fallback*."""
+    if value in SUPPORTED_LOCALES:
+        return value
+    return fallback
