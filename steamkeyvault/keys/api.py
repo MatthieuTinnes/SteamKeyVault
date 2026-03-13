@@ -39,7 +39,7 @@ class KeyIn(Schema):
     @field_validator('current_use')
     @classmethod
     def validate_current_use(cls, v: Optional[str]) -> Optional[str]:
-        if v is not None and v not in _CURRENT_USE_ALLOWED:
+        if v and v not in _CURRENT_USE_ALLOWED:
             raise ValueError(f"current_use must be one of {_CURRENT_USE_ALLOWED} or null.")
         return v
 
@@ -60,7 +60,7 @@ class KeyUpdateIn(Schema):
     @field_validator('current_use')
     @classmethod
     def validate_current_use(cls, v: Optional[str]) -> Optional[str]:
-        if v is not None and v not in _CURRENT_USE_ALLOWED:
+        if v and v not in _CURRENT_USE_ALLOWED:
             raise ValueError(f"current_use must be one of {_CURRENT_USE_ALLOWED} or null.")
         return v
 
