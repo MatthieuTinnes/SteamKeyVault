@@ -28,7 +28,6 @@ if not SECRET_KEY:
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-LOG_LEVEL = os.environ.get('LOG_LEVEL')
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(',') if os.environ.get('ALLOWED_HOSTS') else []
 
 

@@ -52,17 +52,6 @@ def _resolve_period(start: str | None, end: str | None, period_hours: int) -> tu
     return start_dt, end_dt, None
 
 
-class AdminUserSchema(Schema):
-    id: int
-    username: str
-    email: str
-    email_verified: bool
-    is_admin: bool
-    date_joined: str
-    games_count: int
-    keys_count: int
-
-
 class UpdateUserEmailSchema(Schema):
     email: str
 

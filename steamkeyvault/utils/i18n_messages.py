@@ -23,10 +23,6 @@ USER_ERROR_MESSAGES = {
         'en': 'Email already exists',
         'fr': "L'email existe déjà",
     },
-    'username_exists': {
-        'en': 'Username already exists',
-        'fr': "Le nom d'utilisateur existe déjà",
-    },
     'registration_conflict': {
         'en': 'An account with this email or username already exists.',
         'fr': "Un compte avec cet email ou ce nom d'utilisateur existe déjà.",
@@ -264,5 +260,32 @@ STEAM_ERROR_MESSAGES = {
     'invalid_json': {
         'en': 'Invalid JSON response from Steam API',
         'fr': "Réponse JSON invalide de l'API Steam",
+    },
+}
+
+EMAIL_SUBJECTS = {
+    'verify_email': {
+        'en': 'Verify Your Email - SteamKeyVault',
+        'fr': 'Vérifiez votre adresse email - SteamKeyVault',
+    },
+    'email_change_confirmation': {
+        'en': 'Confirm Your Email Change - SteamKeyVault',
+        'fr': "Confirmez le changement d'adresse email - SteamKeyVault",
+    },
+    'password_changed': {
+        'en': 'Password Changed - SteamKeyVault',
+        'fr': 'Mot de passe modifié - SteamKeyVault',
+    },
+    'welcome': {
+        'en': 'Welcome to SteamKeyVault',
+        'fr': 'Bienvenue sur SteamKeyVault',
+    },
+    'password_reset_request': {
+        'en': 'Reset Your Password - SteamKeyVault',
+        'fr': 'Réinitialiser votre mot de passe - SteamKeyVault',
+    },
+    'password_reset_success': {
+        'en': 'Password Reset - SteamKeyVault',
+        'fr': 'Mot de passe réinitialisé - SteamKeyVault',
     },
 }

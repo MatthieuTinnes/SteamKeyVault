@@ -22,7 +22,7 @@ from steamkeyvault.games.models import UserGame
 from steamkeyvault.keys.models import Key
 from steamkeyvault.utils.i18n import get_request_locale, translate_message, normalize_locale
 from steamkeyvault.utils.turnstile import require_turnstile
-from steamkeyvault.utils.i18n_messages import PASSWORD_ERROR_MESSAGES, USER_ERROR_MESSAGES
+from steamkeyvault.utils.i18n_messages import PASSWORD_ERROR_MESSAGES, USER_ERROR_MESSAGES, EMAIL_SUBJECTS
 from steamkeyvault.utils.rate_limit import rate_limit
 
 # Module logger
@@ -30,37 +30,10 @@ logger = logging.getLogger(__name__)
 
 users_router = Router()
 
-EMAIL_SUBJECTS = {
-    'verify_email': {
-        'en': 'Verify Your Email - SteamKeyVault',
-        'fr': 'Vérifiez votre adresse email - SteamKeyVault',
-    },
-    'email_change_confirmation': {
-        'en': 'Confirm Your Email Change - SteamKeyVault',
-        'fr': "Confirmez le changement d'adresse email - SteamKeyVault",
-    },
-    'password_changed': {
-        'en': 'Password Changed - SteamKeyVault',
-        'fr': 'Mot de passe modifié - SteamKeyVault',
-    },
-    'welcome': {
-        'en': 'Welcome to SteamKeyVault',
-        'fr': 'Bienvenue sur SteamKeyVault',
-    },
-    'password_reset_request': {
-        'en': 'Reset Your Password - SteamKeyVault',
-        'fr': 'Réinitialiser votre mot de passe - SteamKeyVault',
-    },
-    'password_reset_success': {
-        'en': 'Password Reset - SteamKeyVault',
-        'fr': 'Mot de passe réinitialisé - SteamKeyVault',
-    },
-}
-
 
 
 def get_subject(key: str, locale: str) -> str:
-    return EMAIL_SUBJECTS.get(key, {}).get(locale, EMAIL_SUBJECTS.get(key, {}).get('en', 'SteamKeyVault'))
+    return translate_message(EMAIL_SUBJECTS, key, locale, fallback='en')
 
 
 def validate_password_strength(password: str) -> tuple[bool, str]:
@@ -395,7 +368,6 @@ def verify_email(request, token: str):
         verification_token.mark_used()
         
         # Send welcome email after successful verification
-        user = verification_token.user
         frontend_url = getattr(settings, 'FRONTEND_URL')
         locale = normalize_locale(user.preferred_language)
         Mailer.send_template_email(
