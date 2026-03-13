@@ -91,14 +91,15 @@ def list_users(request, limit: int = 25, offset: int = 0, search: str | None = N
             Q(username__icontains=search) | Q(email__icontains=search)
         )
 
+    users_qs = users_qs.annotate(
+        games_count=Count('user_games', distinct=True),
+        keys_count=Count('user_games__keys', distinct=True),
+    )
     total = users_qs.count()
     users_page = users_qs.order_by('-date_joined')[offset:offset + limit]
 
     result = []
     for user in users_page:
-        games_count = UserGame.objects.filter(user=user).count()
-        keys_count = Key.objects.filter(userGame__user=user).count()
-
         result.append({
             'id': user.id,
             'username': user.username,
@@ -106,8 +107,8 @@ def list_users(request, limit: int = 25, offset: int = 0, search: str | None = N
             'email_verified': user.email_verified,
             'is_admin': user.is_admin,
             'date_joined': user.date_joined.isoformat(),
-            'games_count': games_count,
-            'keys_count': keys_count,
+            'games_count': user.games_count,
+            'keys_count': user.keys_count,
         })
 
     return {'users': result, 'total': total}

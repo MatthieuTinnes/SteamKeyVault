@@ -36,3 +36,29 @@ def validate_turnstile(turnstile_token: str, remote_ip: str | None, expected_act
             logger.warning("Turnstile action mismatch: expected '%s', got '%s'", expected_action, action)
             return False
     return True
+
+
+def require_turnstile(
+    request,
+    token: str | None,
+    action: str,
+    locale: str,
+    error_messages,
+    missing_key: str = 'captcha_required',
+    invalid_key: str = 'captcha_invalid',
+):
+    """Gate a view on a valid Turnstile token.
+
+    Returns None if the check passes (or Turnstile is not configured).
+    Returns a 400 JsonResponse if the token is missing or invalid.
+    Callers: ``if err := require_turnstile(...): return err``
+    """
+    from django.http import JsonResponse
+    from steamkeyvault.utils.i18n import translate_message
+    if not getattr(settings, 'TURNSTILE_SECRET_KEY', None):
+        return None
+    if not token:
+        return JsonResponse({"error": translate_message(error_messages, missing_key, locale)}, status=400)
+    if not validate_turnstile(token, request.META.get("REMOTE_ADDR"), expected_action=action):
+        return JsonResponse({"error": translate_message(error_messages, invalid_key, locale)}, status=400)
+    return None

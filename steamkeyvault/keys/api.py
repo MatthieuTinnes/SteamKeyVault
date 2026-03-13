@@ -3,19 +3,18 @@ import secrets
 from datetime import timedelta
 from typing import List, Optional
 
-import requests
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.db.models import Exists, OuterRef
 from ninja import Router, Schema
-from ninja.errors import ValidationError
 from ninja.security import django_auth
+from pydantic import field_validator
 
 from steamkeyvault.games.models import UserGame
 from steamkeyvault.utils.mailer import Mailer
 from steamkeyvault.utils.i18n import get_request_locale, translate_message, normalize_locale
-from steamkeyvault.utils.turnstile import validate_turnstile
+from steamkeyvault.utils.turnstile import require_turnstile
 from steamkeyvault.utils.i18n_messages import KEY_ERROR_MESSAGES
 from .models import Key, ShareKeyToken
 logger = logging.getLogger(__name__)
@@ -29,22 +28,20 @@ SHARE_MESSAGE_SUBJECTS = {
 
 
 
-class CurrentUseValidatorMixin:
-    @classmethod
-    def validate_current_use(cls, value):
-        allowed = {None, "KEEP", "TRADE", "GIVEAWAY", "SELL", "OTHER"}
-        if value.get("current_use") not in allowed:
-            raise ValidationError(f"current_use must be one of {allowed - {None}} or null.")
-        return value
+_CURRENT_USE_ALLOWED = {"KEEP", "TRADE", "GIVEAWAY", "SELL", "OTHER"}
 
-class KeyIn(Schema, CurrentUseValidatorMixin):
+
+class KeyIn(Schema):
     key: str
     user_game_id: int
     current_use: Optional[str] = None
 
+    @field_validator('current_use')
     @classmethod
-    def validate(cls, value):
-        return cls.validate_current_use(value)
+    def validate_current_use(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and v not in _CURRENT_USE_ALLOWED:
+            raise ValueError(f"current_use must be one of {_CURRENT_USE_ALLOWED} or null.")
+        return v
 
 class KeyOut(Schema):
     id: int
@@ -55,14 +52,17 @@ class KeyOut(Schema):
     current_use: Optional[str] = None
     share_in_progress: bool
 
-class KeyUpdateIn(Schema, CurrentUseValidatorMixin):
+class KeyUpdateIn(Schema):
     key: Optional[str] = None
     used: Optional[bool] = None
     current_use: Optional[str] = None
 
+    @field_validator('current_use')
     @classmethod
-    def validate(cls, value):
-        return cls.validate_current_use(value)
+    def validate_current_use(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and v not in _CURRENT_USE_ALLOWED:
+            raise ValueError(f"current_use must be one of {_CURRENT_USE_ALLOWED} or null.")
+        return v
 
 
 class ShareCreateIn(Schema):
@@ -121,24 +121,10 @@ class DeleteUsedKeysOut(Schema):
 
 
 def _fetch_steam_app_preview(steamapp_id: int) -> dict:
-    url = f"https://store.steampowered.com/api/appdetails?appids={steamapp_id}"
-    try:
-        resp = requests.get(url, timeout=8)
-        resp.raise_for_status()
-        payload = resp.json()
-    except Exception as exc:
-        logger.warning("Failed to fetch Steam app preview for appid=%s: %s", steamapp_id, exc)
-        return {}
-
-    app_entry = payload.get(str(steamapp_id))
-    if not app_entry or not app_entry.get('success'):
-        return {}
-
-    data = app_entry.get('data', {})
-    publisher = None
+    from steamkeyvault.steam.helpers import fetch_steam_app_data
+    data = fetch_steam_app_data(steamapp_id)
     publishers = data.get('publishers') or []
-    if publishers:
-        publisher = publishers[0]
+    publisher = publishers[0] if publishers else None
     return {
         'publisher': publisher,
         'header_image': data.get('header_image'),
@@ -181,7 +167,7 @@ def list_keys(request, user_game_id: int):
         ) for k in keys
     ]
 
-@router.delete('/{user_game_id}/remove/{key_id}', response={200: dict, 404: dict}, auth=django_auth)
+@router.delete('/{user_game_id}/remove/{key_id}', response={200: None, 404: dict}, auth=django_auth)
 def remove_key(request, user_game_id: int, key_id: int):
     locale = get_request_locale(request, request.user)
     user_game = get_object_or_404(UserGame, id=user_game_id, user=request.user)
@@ -335,10 +321,8 @@ def reveal_share_key(request, token: str, payload: ShareRevealIn):
     if share.key.used:
         return 410, {"error": translate_message(KEY_ERROR_MESSAGES, 'key_already_used', locale)}
 
-    if not payload.turnstile_token:
-        return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'captcha_required', locale)}
-    if not validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR"), expected_action="share_key_reveal"):
-        return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'captcha_failed', locale)}
+    if err := require_turnstile(request, payload.turnstile_token, "share_key_reveal", locale, KEY_ERROR_MESSAGES, invalid_key='captcha_failed'):
+        return err
 
     share.revealed_at = now
     game = share.key.userGame
@@ -384,10 +368,8 @@ def send_share_message(request, token: str, payload: ShareMessageIn):
     if share.message_sent_at:
         return 410, {"error": translate_message(KEY_ERROR_MESSAGES, 'message_already_sent', locale)}
 
-    if not payload.turnstile_token:
-        return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'captcha_required', locale)}
-    if not validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR"), expected_action="share_key_message"):
-        return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'captcha_failed', locale)}
+    if err := require_turnstile(request, payload.turnstile_token, "share_key_message", locale, KEY_ERROR_MESSAGES, invalid_key='captcha_failed'):
+        return err
 
     message = (payload.message or '').strip()
     if len(message) < 3:

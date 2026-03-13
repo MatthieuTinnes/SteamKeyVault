@@ -11,6 +11,7 @@ import threading
 import logging
 from steamkeyvault.utils.i18n import get_request_locale, translate_message
 from steamkeyvault.utils.i18n_messages import JOB_ERROR_MESSAGES
+from steamkeyvault.utils.request_utils import read_request_file
 
 jobs_router = Router()
 
@@ -31,15 +32,7 @@ def create_import(request, file: bytes = None):
     max_size = 10 * 1024 * 1024
     user = request.user
     # Ninja may or may not populate `file` for multipart; fallback to Django FILES
-    if not file:
-        uploaded = getattr(request, 'FILES', None)
-        if uploaded:
-            f = uploaded.get('file')
-            if f:
-                try:
-                    file = f.read()
-                except Exception:
-                    file = None
+    file = read_request_file(request, initial_bytes=file)
     if not file:
         locale = get_request_locale(request, request.user)
         return 400, {"error": translate_message(JOB_ERROR_MESSAGES, 'file_missing', locale)}

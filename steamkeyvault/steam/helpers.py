@@ -9,6 +9,24 @@ from steamkeyvault.utils.i18n_messages import STEAM_ERROR_MESSAGES
 logger = logging.getLogger(__name__)
 
 
+def fetch_steam_app_data(appid: int) -> dict:
+    """Fetch the ``data`` dict for a single app from the Steam Store appdetails API.
+
+    Returns the parsed data dict on success, or an empty dict on any failure.
+    """
+    url = f"https://store.steampowered.com/api/appdetails?appids={appid}"
+    try:
+        resp = requests.get(url, timeout=8)
+        resp.raise_for_status()
+        payload = resp.json()
+    except Exception as exc:
+        logger.warning("Failed to fetch Steam app data for appid=%s: %s", appid, exc)
+        return {}
+    app_entry = payload.get(str(appid))
+    if not app_entry or not app_entry.get('success'):
+        return {}
+    return app_entry.get('data', {})
+
 
 def fetch_and_store_steam_apps(locale: str = 'en'):
     """Fetch Steam apps from Steam API and store/update them in the database.

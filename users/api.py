@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.middleware.csrf import get_token
 import logging
 from django.conf import settings
+from django.utils import timezone
 from datetime import datetime
 import re
 
@@ -20,7 +21,7 @@ from steamkeyvault.utils.mailer import Mailer
 from steamkeyvault.games.models import UserGame
 from steamkeyvault.keys.models import Key
 from steamkeyvault.utils.i18n import get_request_locale, translate_message, normalize_locale
-from steamkeyvault.utils.turnstile import validate_turnstile
+from steamkeyvault.utils.turnstile import require_turnstile
 from steamkeyvault.utils.i18n_messages import PASSWORD_ERROR_MESSAGES, USER_ERROR_MESSAGES
 from steamkeyvault.utils.rate_limit import rate_limit
 
@@ -56,10 +57,6 @@ EMAIL_SUBJECTS = {
     },
 }
 
-
-
-def get_user_locale(user: User) -> str:
-    return normalize_locale(getattr(user, 'preferred_language', None))
 
 
 def get_subject(key: str, locale: str) -> str:
@@ -153,19 +150,11 @@ def register(request, payload: schemas.SignUpSchema):
     locale = get_request_locale(request)
     addr = request.META.get("REMOTE_ADDR")
     logger.info(f"Register attempt username={payload.username} email={payload.email} from {addr}")
-    # Log headers for debugging CORS issues
-    logger.debug("Request headers: %s", {k: v for k, v in request.headers.items() if k.lower().startswith(('origin', 'referer', 'host', 'x-', 'access-', 'sec-'))})
-    
+
     # Validate Turnstile captcha
-    turnstile_secret = getattr(settings, 'TURNSTILE_SECRET_KEY')
-    if turnstile_secret:
-        token = payload.turnstile_token
-        if not token:
-            logger.warning(f"Registration failed: missing captcha token username={payload.username}")
-            return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'captcha_required', locale)}, status=400)
-        if not validate_turnstile(token, request.META.get("REMOTE_ADDR"), expected_action="register"):
-            logger.warning(f"Registration failed: invalid captcha username={payload.username}")
-            return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'captcha_invalid', locale)}, status=400)
+    if err := require_turnstile(request, payload.turnstile_token, "register", locale, USER_ERROR_MESSAGES):
+        logger.warning(f"Registration failed: captcha check failed username={payload.username}")
+        return err
 
     # Validate password strength
     is_valid, error_msg = validate_password_strength(payload.password)
@@ -267,7 +256,7 @@ def update_account(request, payload: schemas.UpdateEmailSchema):
         confirmation_url = f"{frontend_url}/confirm-email-change?token={token.token}"
         
         # Send confirmation email to NEW email address
-        locale = get_user_locale(user_obj)
+        locale = normalize_locale(user_obj.preferred_language)
         Mailer.send_template_email(
             subject=get_subject('email_change_confirmation', locale),
             template_name='emails/email_change_confirmation.html',
@@ -332,13 +321,13 @@ def change_password_view(request, payload: schemas.ChangePasswordSchema):
         log_user_action(UserActionLog.ACTION_PASSWORD_CHANGE, user_obj, request)
         
         # Send notification email about password change
-        locale = get_user_locale(user_obj)
+        locale = normalize_locale(user_obj.preferred_language)
         Mailer.send_template_email(
             subject=get_subject('password_changed', locale),
             template_name='emails/password_changed.html',
             context={
                 'username': user_obj.username,
-                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC'),
+                'timestamp': timezone.now().strftime('%Y-%m-%d %H:%M:%S UTC'),
             },
             to_emails=[user_obj.email],
             locale=locale,
@@ -355,12 +344,8 @@ def change_password_view(request, payload: schemas.ChangePasswordSchema):
 @rate_limit(limit=5, window=60)
 def recovery_info(request, payload: schemas.RecoveryInfoSchema):
     locale = get_request_locale(request)
-    turnstile_secret = getattr(settings, 'TURNSTILE_SECRET_KEY')
-    if turnstile_secret:
-        if not payload.turnstile_token:
-            return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'captcha_required', locale)}, status=400)
-        if not validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR"), expected_action="recovery"):
-            return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'captcha_invalid', locale)}, status=400)
+    if err := require_turnstile(request, payload.turnstile_token, "recovery", locale, USER_ERROR_MESSAGES):
+        return err
     user = User.objects.filter(email=payload.email).first()
     if not user or not user.wrapped_mk_recovery or not user.rk_salt:
         return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'recovery_data_unavailable', locale)}, status=400)
@@ -412,7 +397,7 @@ def verify_email(request, token: str):
         # Send welcome email after successful verification
         user = verification_token.user
         frontend_url = getattr(settings, 'FRONTEND_URL')
-        locale = get_user_locale(user)
+        locale = normalize_locale(user.preferred_language)
         Mailer.send_template_email(
             subject=get_subject('welcome', locale),
             template_name='emails/welcome.html',
@@ -501,7 +486,7 @@ def resend_verification_email(request):
         verification_url = f"{frontend_url}/verify-email?token={token.token}"
 
         # Send verification email
-        locale = get_user_locale(user)
+        locale = normalize_locale(user.preferred_language)
         Mailer.send_template_email(
             subject=get_subject('verify_email', locale),
             template_name='emails/verify_email.html',
@@ -523,12 +508,8 @@ def resend_verification_email(request):
 @rate_limit(limit=5, window=300)
 def forgot_password(request, payload: schemas.ForgotPasswordSchema):
     locale = get_request_locale(request)
-    turnstile_secret = getattr(settings, 'TURNSTILE_SECRET_KEY')
-    if turnstile_secret:
-        if not payload.turnstile_token:
-            return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'captcha_required', locale)}, status=400)
-        if not validate_turnstile(payload.turnstile_token, request.META.get("REMOTE_ADDR"), expected_action="forgot_password"):
-            return JsonResponse({"error": translate_message(USER_ERROR_MESSAGES, 'captcha_invalid', locale)}, status=400)
+    if err := require_turnstile(request, payload.turnstile_token, "forgot_password", locale, USER_ERROR_MESSAGES):
+        return err
     logger.info(f"Forgot password requested email={payload.email}")
     user = User.objects.filter(email=payload.email).first()
     if not user:
@@ -539,7 +520,7 @@ def forgot_password(request, payload: schemas.ForgotPasswordSchema):
     frontend_url = getattr(settings, 'FRONTEND_URL')
     reset_url = f"{frontend_url}/reset-password?token={token.token}"
 
-    locale = get_user_locale(user)
+    locale = normalize_locale(user.preferred_language)
     Mailer.send_template_email(
         subject=get_subject('password_reset_request', locale),
         template_name='emails/password_reset_request.html',
@@ -594,13 +575,13 @@ def reset_password(request, payload: schemas.ResetPasswordSchema):
         user.save(update_fields=["password", "wrapped_mk_password"])
         reset_token.mark_used()
         log_user_action(UserActionLog.ACTION_PASSWORD_RESET, user, request)
-        locale = get_user_locale(user)
+        locale = normalize_locale(user.preferred_language)
         Mailer.send_template_email(
             subject=get_subject('password_reset_success', locale),
             template_name='emails/password_reset_success.html',
             context={
                 'username': user.username,
-                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC'),
+                'timestamp': timezone.now().strftime('%Y-%m-%d %H:%M:%S UTC'),
             },
             to_emails=[user.email],
             locale=locale,

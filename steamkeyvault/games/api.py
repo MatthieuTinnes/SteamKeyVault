@@ -11,6 +11,7 @@ import json
 from steamkeyvault.keys.models import Key
 from steamkeyvault.utils.i18n import get_request_locale, translate_message
 from steamkeyvault.utils.i18n_messages import GAME_ERROR_MESSAGES
+from steamkeyvault.utils.request_utils import read_request_file
 
 router = Router()
 
@@ -53,6 +54,15 @@ class SteamKeyVaultImportIn(Schema):
     format: str
     version: int
     games: list[SteamKeyVaultGameIn]
+
+
+def _make_export_filename(user, suffix: str, ext: str) -> str:
+    """Build a safe, timestamped export filename based on the user's email."""
+    user_email = getattr(user, 'email', None) or 'user'
+    safe_email = re.sub(r'[^\w@.\-]', '_', user_email)
+    ts = timezone.localtime(timezone.now()).strftime('%Y-%m-%d_%H-%M-%S')
+    return f"{safe_email}_{suffix}_{ts}.{ext}"
+
 
 @router.post('/add', response={201: GameIdOut, 400: dict}, auth=django_auth)
 def add_game(request, data: GameIn):
@@ -122,12 +132,7 @@ def export_games_csv(request):
     # Build an in-memory CSV of the user's games and keys in format: gameName;key1;key2
     user_games = UserGame.objects.filter(user=request.user).prefetch_related('keys')
     # Create HttpResponse with CSV mimetype
-    # Build a safe filename using user's email if available and append timestamp
-    user_email = getattr(request.user, 'email', None) or 'user'
-    # sanitize: keep letters, numbers, @, dot, dash and replace others with underscore
-    safe_email = re.sub(r'[^\w@.\-]', '_', user_email)
-    ts = timezone.localtime(timezone.now()).strftime('%Y-%m-%d_%H-%M-%S')
-    filename = f"{safe_email}_games_{ts}.csv"
+    filename = _make_export_filename(request.user, 'games', 'csv')
 
     response = HttpResponse(content_type='text/csv; charset=utf-8')
     # Provide a simple header for JS to read the filename directly
@@ -169,10 +174,7 @@ def export_games_json(request):
             "keys": keys_payload,
         })
 
-    user_email = getattr(request.user, 'email', None) or 'user'
-    safe_email = re.sub(r'[^\w@.\-]', '_', user_email)
-    ts = timezone.localtime(timezone.now()).strftime('%Y-%m-%d_%H-%M-%S')
-    filename = f"{safe_email}_steamkeyvault_{ts}.json"
+    filename = _make_export_filename(request.user, 'steamkeyvault', 'json')
 
     response = HttpResponse(
         json.dumps(payload),
@@ -188,22 +190,8 @@ def import_games_json(request):
     locale = get_request_locale(request, request.user)
     max_size = 10 * 1024 * 1024
     payload = None
-    file_bytes = None
 
-    uploaded = getattr(request, 'FILES', None)
-    if uploaded:
-        f = uploaded.get('file')
-        if f:
-            try:
-                file_bytes = f.read()
-            except Exception:
-                file_bytes = None
-
-    if file_bytes is None:
-        try:
-            file_bytes = request.body
-        except Exception:
-            file_bytes = None
+    file_bytes = read_request_file(request, fallback_body=True)
 
     if not file_bytes:
         return 400, {"error": translate_message(GAME_ERROR_MESSAGES, 'no_json_payload', locale)}
