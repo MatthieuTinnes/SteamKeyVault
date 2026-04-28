@@ -22,17 +22,20 @@ MAX_IMPORT_KEYS_PER_GAME = 500
 class GameIn(Schema):
     name: str
     steamapp_id: Optional[int] = None
+    platform: Optional[str] = None
 
 
 class GameUpdateIn(Schema):
     name: Optional[str] = None
     steamapp_id: Optional[int] = None
+    platform: Optional[str] = None
 
 class GameOut(Schema):
     id: int
     user_game_id: int
     name: str
     steamapp_id: Optional[int] = None
+    platform: Optional[str] = None
 
 class GameIdOut(Schema):
     id: int
@@ -47,6 +50,7 @@ class SteamKeyVaultKeyIn(Schema):
 class SteamKeyVaultGameIn(Schema):
     name: str
     steamapp_id: Optional[int] = None
+    platform: Optional[str] = None
     keys: Optional[list[SteamKeyVaultKeyIn]] = None
 
 
@@ -73,10 +77,12 @@ def add_game(request, data: GameIn):
     if data.steamapp_id and UserGame.objects.filter(user=request.user, steamapp_id=data.steamapp_id).exists():
         return 400, {"error": translate_message(GAME_ERROR_MESSAGES, 'user_has_game', locale)}
 
+    platform = (data.platform or '').strip()[:100] if not data.steamapp_id else ''
     game = UserGame.objects.create(
         user=request.user,
         name=name,
         steamapp_id=data.steamapp_id,
+        platform=platform,
     )
     return 201, {"id": game.id}
 
@@ -89,6 +95,7 @@ def list_games(request):
             user_game_id=ug.id,
             name=ug.name,
             steamapp_id=ug.steamapp_id,
+            platform=ug.platform or None,
         )
         for ug in user_games
     ]
@@ -122,6 +129,13 @@ def update_user_game(request, user_game_id: int, data: GameUpdateIn):
         if not name:
             return 400, {"error": translate_message(GAME_ERROR_MESSAGES, 'name_empty', locale)}
         ug.name = name
+
+    if data.platform is not None:
+        ug.platform = data.platform.strip()[:100]
+
+    # A Steam-linked game cannot have a custom platform
+    if ug.steamapp_id:
+        ug.platform = ''
 
     ug.save()
     return 200, None
@@ -171,6 +185,7 @@ def export_games_json(request):
         payload["games"].append({
             "name": ug.name,
             "steamapp_id": ug.steamapp_id,
+            "platform": ug.platform or None,
             "keys": keys_payload,
         })
 
@@ -224,6 +239,8 @@ def import_games_json(request):
             summary["errors"].append({"game": game.name, "error": translate_message(GAME_ERROR_MESSAGES, 'name_required', locale)})
             continue
 
+        platform_value = (game.platform or '').strip()[:100]
+
         if game.steamapp_id is not None:
             user_game, created = UserGame.objects.get_or_create(
                 user=request.user,
@@ -238,7 +255,11 @@ def import_games_json(request):
                 user=request.user,
                 name=name,
                 steamapp_id=None,
+                defaults={"platform": platform_value},
             )
+            if not created and platform_value and user_game.platform != platform_value:
+                user_game.platform = platform_value
+                user_game.save(update_fields=["platform"])
 
         if created:
             summary["games_created"] += 1

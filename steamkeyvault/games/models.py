@@ -6,6 +6,7 @@ class UserGame(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_games')
     name = models.CharField(max_length=255)
     steamapp_id = models.IntegerField(null=True, blank=True)
+    platform = models.CharField(max_length=100, blank=True, default='')
     added_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
