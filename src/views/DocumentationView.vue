@@ -393,6 +393,7 @@ const qaItems           = computed(() => tm('docs.qa.items')                    
 .documentation-view {
   min-height: 100vh;
   background: var(--bg-secondary);
+  overflow-x: hidden;
 }
 
 /* ═══════════════════════════════════════════
@@ -450,6 +451,7 @@ const qaItems           = computed(() => tm('docs.qa.items')                    
   padding: 2.5rem 2rem 6rem;
   gap: 3rem;
   align-items: start;
+  min-width: 0;
 }
 
 /* ═══════════════════════════════════════════
@@ -528,6 +530,7 @@ const qaItems           = computed(() => tm('docs.qa.items')                    
   display: grid;
   gap: 3.5rem;
   min-width: 0;
+  max-width: 100%;
 }
 
 /* ── Section ── */
@@ -584,6 +587,9 @@ const qaItems           = computed(() => tm('docs.qa.items')                    
   border: 1px solid var(--border-color);
   padding: 1.35rem 1.5rem;
   box-shadow: var(--shadow-sm);
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;
 }
 
 .doc-card h3 {
@@ -688,6 +694,7 @@ const qaItems           = computed(() => tm('docs.qa.items')                    
   padding: 0.85rem;
   background: var(--bg-secondary);
   overflow-x: auto;
+  max-width: 100%;
 }
 
 .code-block code {
@@ -829,15 +836,66 @@ const qaItems           = computed(() => tm('docs.qa.items')                    
   .qa-list {
     grid-template-columns: 1fr;
   }
+
+  .doc-hero {
+    padding: 2.5rem 1rem 2rem;
+  }
 }
 
 @media (max-width: 600px) {
   .doc-hero {
-    padding: 2.5rem 1rem 2rem;
+    padding: 2rem 0.75rem 1.5rem;
+  }
+
+  .doc-hero-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .doc-layout {
+    padding: 1.25rem 0.75rem 3rem;
   }
 
   .doc-section h2 {
     font-size: 1.3rem;
+  }
+
+  .doc-card {
+    padding: 1rem 1rem;
+    border-radius: 0.75rem;
+  }
+
+  .section-heading {
+    gap: 0.5rem;
+  }
+
+  .section-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .section-icon .pi {
+    font-size: 0.9rem;
+  }
+
+  .toc-nav {
+    padding: 0.5rem;
+  }
+
+  .toc-link {
+    padding: 0.3rem 0.45rem;
+    font-size: 0.72rem;
+  }
+
+  .toc-link .pi {
+    display: none;
+  }
+
+  .code-block code {
+    font-size: 0.7rem;
+  }
+
+  .code-block pre {
+    padding: 0.6rem;
   }
 }
 </style>

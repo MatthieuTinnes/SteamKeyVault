@@ -487,4 +487,72 @@ function handleOpenDelete() {
   text-align: center;
   padding: 2rem;
 }
+
+/* ── Mobile responsive ── */
+@media (max-width: 768px) {
+  .game-info {
+    padding: 1rem;
+    min-height: auto;
+    border-radius: 0.5rem;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .content {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .header-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  .title {
+    font-size: 1.2rem;
+    word-break: break-word;
+  }
+
+  .publisher {
+    font-size: 0.8rem;
+  }
+
+  .details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .price {
+    font-size: 1rem;
+  }
+
+  .links-features {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .external-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .steam-link,
+  .steamdb-link,
+  .asf-button {
+    margin-left: 0;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}
 </style>

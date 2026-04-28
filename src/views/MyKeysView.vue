@@ -1,7 +1,7 @@
 <template>
-  <div class="my-keys-view">
+  <div class="my-keys-view" :class="{ 'mobile-detail-open': mobileShowDetail }">
     <!-- Sidebar -->
-    <aside class="sidebar-card">
+    <aside class="sidebar-card" :class="{ 'mobile-hidden': mobileShowDetail }">
       <div class="sidebar-header">
         <h3><i class="pi pi-list"></i> {{ t('myKeys.yourGames') }}</h3>
         <div class="header-actions">
@@ -34,7 +34,13 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="content-card">
+    <main class="content-card" :class="{ 'mobile-hidden': !mobileShowDetail }">
+      <!-- Mobile back button -->
+      <button v-if="selectedGameId" class="mobile-back-btn" @click="mobileGoBack">
+        <i class="pi pi-arrow-left"></i>
+        <span>{{ t('myKeys.yourGames') }}</span>
+      </button>
+
       <div v-if="selectedGameId" class="game-details-container">
         <template v-if="selectedSteamAppId">
           <GameInfo :steamAppId="selectedSteamAppId" :userGameId="selectedGameId" :gameName="selectedGameName" @deleted="onGameDeleted" />
@@ -87,6 +93,9 @@ const selectedGameId = ref<number | null>(null)
 const selectedSteamAppId = ref<number | null>(null)
 const selectedGameName = ref<string | null>(null)
 const selectedPlatform = ref<string | null>(null)
+const mobileShowDetail = ref(false)
+
+const isMobile = () => window.innerWidth <= 768
 
 onMounted(async () => {
   document.title = 'My Keys — SteamKeyVault'
@@ -180,7 +189,14 @@ function handleGameSelected(game: Game) {
   selectedSteamAppId.value = game.steamapp_id
   selectedGameName.value = game.name ?? null
   selectedPlatform.value = game.platform ?? null
+  if (isMobile()) {
+    mobileShowDetail.value = true
+  }
   refreshKeys()
+}
+
+function mobileGoBack() {
+  mobileShowDetail.value = false
 }
 
 async function refreshKeys() {
@@ -239,6 +255,7 @@ async function onGameDeleted() {
   selectedGameName.value = null
   selectedPlatform.value = null
   keys.value = []
+  mobileShowDetail.value = false
 }
 </script>
 
@@ -394,11 +411,14 @@ async function onGameDeleted() {
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
   min-height: 30rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .game-details-container {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .keys-section {
@@ -451,7 +471,12 @@ async function onGameDeleted() {
   max-width: 20rem;
 }
 
-/* Responsive */
+/* Mobile back button — hidden on desktop */
+.mobile-back-btn {
+  display: none;
+}
+
+/* Responsive — tablet */
 @media (max-width: 64rem) {
   .my-keys-view {
     grid-template-columns: 1fr;
@@ -462,6 +487,118 @@ async function onGameDeleted() {
     height: auto;
     max-height: 30rem;
     position: static;
+  }
+}
+
+/* Responsive — mobile: view-switching pattern */
+@media (max-width: 768px) {
+  .my-keys-view {
+    grid-template-columns: 1fr;
+    padding: 0 0.75rem;
+    margin-top: 1rem;
+    gap: 0;
+    min-height: auto;
+  }
+
+  .sidebar-card {
+    height: auto;
+    max-height: none;
+    position: static;
+    border-radius: 0.75rem;
+    padding: 1rem;
+  }
+
+  .sidebar-header h3 {
+    font-size: 1.1rem;
+    gap: 0.5rem;
+  }
+
+  .games-list-container {
+    max-height: calc(100vh - 16rem);
+    margin: 0 -0.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .sidebar-actions {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+  }
+
+  .content-card {
+    padding: 1rem;
+    min-height: auto;
+    border-radius: 0.75rem;
+    overflow-x: hidden;
+  }
+
+  .game-details-container {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .empty-state {
+    min-height: 12rem;
+  }
+
+  .empty-icon-wrap {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .empty-icon-wrap .pi {
+    font-size: 1.35rem;
+  }
+
+  .empty-state h3 {
+    font-size: 1.2rem;
+  }
+
+  .empty-state p {
+    font-size: 0.875rem;
+  }
+
+  /* View switching: show list OR detail, not both */
+  .mobile-hidden {
+    display: none !important;
+  }
+
+  /* When detail is open, content takes full space */
+  .my-keys-view.mobile-detail-open {
+    gap: 0;
+  }
+
+  .my-keys-view.mobile-detail-open .content-card {
+    margin-top: 0;
+  }
+
+  /* Mobile back button */
+  .mobile-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    padding: 0.4rem 0;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    transition: opacity 0.15s;
+  }
+
+  .mobile-back-btn:hover {
+    opacity: 0.8;
+  }
+
+  .mobile-back-btn .pi {
+    font-size: 0.8rem;
+  }
+
+  .keys-section {
+    margin-top: 0.75rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
 </style>

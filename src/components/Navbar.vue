@@ -270,6 +270,12 @@ function toggleUserMenu() {
     transition: all 0.3s ease;
   }
 
+  .navbar-links :deep(.theme-toggle-btn),
+  .navbar-links :deep(.locale-dropdown-wrapper) {
+    align-self: flex-start;
+    width: auto;
+  }
+
   .navbar-links.open {
     opacity: 1;
     pointer-events: auto;

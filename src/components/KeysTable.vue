@@ -24,19 +24,19 @@
           <span class="key-text">{{ data.key }}</span>
         </template>
       </Column>
-      <Column sortable field="date_added" :header="t('keys.columnDateAdded')">
+      <Column sortable field="date_added" :header="t('keys.columnDateAdded')" class="hide-on-mobile">
         <template #body="{ data }">
           {{ formatDate(data.date_added) }}
         </template>
       </Column>
-      <Column sortable field="current_use" :header="t('keys.columnUsage')">
+      <Column sortable field="current_use" :header="t('keys.columnUsage')" class="hide-on-mobile">
         <template #body="{ data }">
           <span class="usage-badge" :class="getUsageClass(data.current_use)">
             {{ getCurrentUseLabel(data.current_use) }}
           </span>
         </template>
       </Column>
-      <Column sortable field="used" :header="t('keys.columnStatus')" style="width: 8rem; text-align: center">
+      <Column sortable field="used" :header="t('keys.columnStatus')" style="width: 8rem; text-align: center" class="hide-on-mobile">
         <template #body="{ data }">
           <div class="status-stack">
             <span v-if="data.share_in_progress" class="status-badge sharing">
@@ -311,6 +311,7 @@ function getUsageClass(value: string | undefined) {
   border-radius: 0.5rem;
   overflow: hidden;
   border: 1px solid var(--border-color);
+  max-width: 100%;
 }
 
 .key-text {
@@ -318,6 +319,7 @@ function getUsageClass(value: string | undefined) {
   font-weight: 600;
   font-size: 1rem;
   color: var(--text-primary);
+  word-break: break-all;
 }
 
 .usage-badge {
@@ -413,5 +415,11 @@ function getUsageClass(value: string | undefined) {
   display: inline-block;
   margin-top: 0.5rem;
   color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  :deep(.hide-on-mobile) {
+    display: none !important;
+  }
 }
 </style>
