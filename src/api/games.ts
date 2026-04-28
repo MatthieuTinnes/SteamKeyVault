@@ -17,6 +17,7 @@ const importKeySchema = z.object({
 const importGameSchema = z.object({
   name: z.string().min(1).max(200),
   steamapp_id: z.number().int().positive().optional().nullable(),
+  platform: z.string().max(100).optional().nullable(),
   keys: z.array(importKeySchema).max(500).optional().default([]),
 })
 
@@ -32,10 +33,11 @@ export async function searchSteamGames(query: string) {
     .then(response => response.data);
 }
 
-export async function addUserGame({ name, steamappid }: { name: string; steamappid?: number }) {
+export async function addUserGame({ name, steamappid, platform }: { name: string; steamappid?: number; platform?: string }) {
   // send backend field name as steamapp_id when present
   const payload: any = { name }
   if (typeof steamappid !== 'undefined') payload.steamapp_id = steamappid
+  if (typeof platform !== 'undefined') payload.platform = platform
   return axios.post(`${API_BASE_URL}/games/add`, payload, getAxiosConfig())
 }
 
@@ -210,7 +212,7 @@ export async function importUserGamesJson(file: File) {
   })
 }
 
-export async function updateUserGame(user_game_id: number, payload: { name?: string; steamapp_id?: number | null }) {
+export async function updateUserGame(user_game_id: number, payload: { name?: string; steamapp_id?: number | null; platform?: string }) {
   const url = `${API_BASE_URL}/games/${user_game_id}/update`
   return axios.patch(url, payload, getAxiosConfig())
 }

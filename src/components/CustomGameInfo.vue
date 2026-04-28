@@ -23,6 +23,52 @@
             </div>
           </div>
           <div class="publisher">{{ t('games.customPublisher') }}</div>
+
+          <div class="platform-row">
+            <template v-if="!editingPlatform">
+              <span class="platform-label">{{ t('games.platformLabel') }}:</span>
+              <span v-if="platform" class="platform-tag">
+                <i class="pi pi-tag"></i>
+                <span>{{ platform }}</span>
+              </span>
+              <span v-else class="platform-empty">{{ t('games.platformNotSet') }}</span>
+              <Button
+                :icon="platform ? 'pi pi-pencil' : 'pi pi-plus'"
+                :aria-label="platform ? t('games.platformEdit') : t('games.platformAdd')"
+                v-tooltip.bottom="platform ? t('games.platformEdit') : t('games.platformAdd')"
+                class="p-button-sm p-button-text p-button-rounded"
+                @click="startEditPlatform"
+              />
+            </template>
+            <template v-else>
+              <AutoComplete
+                v-model="platformDraft"
+                :suggestions="platformSuggestions"
+                @complete="onPlatformComplete"
+                :placeholder="t('games.platformPlaceholder')"
+                class="platform-input"
+                inputClass="platform-input-inner"
+                :maxlength="100"
+                dropdown
+              />
+              <Button
+                icon="pi pi-check"
+                :aria-label="t('common.save') || 'Save'"
+                v-tooltip.bottom="t('common.save') || 'Save'"
+                class="p-button-sm p-button-success p-button-rounded"
+                :loading="savingPlatform"
+                @click="savePlatform"
+              />
+              <Button
+                icon="pi pi-times"
+                :aria-label="t('common.cancel')"
+                v-tooltip.bottom="t('common.cancel')"
+                class="p-button-sm p-button-text p-button-rounded"
+                :disabled="savingPlatform"
+                @click="cancelEditPlatform"
+              />
+            </template>
+          </div>
           <div v-if="steamRemoved" class="steam-removed-message">
             <i class="pi pi-info-circle"></i>
             <span>{{ t('games.steamRemovedMessage') }}</span>
@@ -43,27 +89,100 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import Button from 'primevue/button'
+import AutoComplete from 'primevue/autocomplete'
 import DeleteGameModal from './DeleteGameModal.vue'
 import ConvertGameModal from './ConvertGameModal.vue'
 import { useDeleteGame } from '@/composables/useDeleteGame'
 import placeholderCustom from '@/assets/placeholder_custom-game.svg'
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'primevue/usetoast'
+import { updateUserGame } from '@/api/games'
+import { CUSTOM_GAME_PLATFORMS } from '@/utils/customGamePlatforms'
 
 const props = defineProps<{ 
   gameName: string; 
   userGameId: number;
   steamRemoved?: boolean;
+  platform?: string | null;
 }>()
 const emit = defineEmits<{
   (e: 'converted'): void
   (e: 'deleted'): void
+  (e: 'platformUpdated', platform: string): void
 }>()
 
 const convertVisible = ref(false)
 const { showDeleteModal, hasKeys, openDelete, confirmDelete, onModalUpdate } = useDeleteGame()
 const { t } = useI18n()
+const toast = useToast()
+
+const platform = ref<string>(props.platform ?? '')
+const editingPlatform = ref(false)
+const platformDraft = ref<string>('')
+const platformSuggestions = ref<string[]>([])
+const savingPlatform = ref(false)
+
+watch(
+  () => [props.userGameId, props.platform],
+  () => {
+    platform.value = props.platform ?? ''
+    editingPlatform.value = false
+    platformDraft.value = ''
+  }
+)
+
+function startEditPlatform() {
+  platformDraft.value = platform.value
+  platformSuggestions.value = [...CUSTOM_GAME_PLATFORMS]
+  editingPlatform.value = true
+}
+
+function cancelEditPlatform() {
+  editingPlatform.value = false
+  platformDraft.value = ''
+}
+
+function onPlatformComplete(event: { query: string }) {
+  const q = (event.query || '').trim().toLowerCase()
+  if (!q) {
+    platformSuggestions.value = [...CUSTOM_GAME_PLATFORMS]
+    return
+  }
+  platformSuggestions.value = CUSTOM_GAME_PLATFORMS.filter((p) => p.toLowerCase().includes(q))
+}
+
+async function savePlatform() {
+  const value = (typeof platformDraft.value === 'string' ? platformDraft.value : '').trim().slice(0, 100)
+  if (value === platform.value) {
+    editingPlatform.value = false
+    return
+  }
+  savingPlatform.value = true
+  try {
+    await updateUserGame(props.userGameId, { platform: value })
+    platform.value = value
+    editingPlatform.value = false
+    emit('platformUpdated', value)
+    toast.add({
+      severity: 'success',
+      summary: t('games.platformSavedSummary'),
+      detail: t('games.platformSavedDetail'),
+      life: 2500,
+    })
+  } catch (err) {
+    console.error('Failed to update platform:', err)
+    toast.add({
+      severity: 'error',
+      summary: t('common.error'),
+      detail: t('games.platformSaveFailed'),
+      life: 3000,
+    })
+  } finally {
+    savingPlatform.value = false
+  }
+}
 
 function openConvert() {
   convertVisible.value = true
@@ -158,6 +277,46 @@ function localOnModalUpdate(v: boolean) {
   color: var(--text-secondary);
   font-size: 0.9rem;
   font-style: italic;
+}
+
+.platform-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.platform-label {
+  font-weight: 600;
+}
+
+.platform-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 999px;
+  padding: 0.15rem 0.65rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.platform-empty {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.platform-input {
+  min-width: 14rem;
+}
+
+.platform-input :deep(.platform-input-inner) {
+  width: 100%;
 }
 
 .steam-removed-message {

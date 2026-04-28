@@ -3,4 +3,5 @@ export interface Game {
   user_game_id: number
   name: string
   steamapp_id: number | null
+  platform?: string | null
 }

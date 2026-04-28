@@ -39,6 +39,22 @@
           </template>
         </div>
 
+        <div v-if="isCustom" class="field mb-4">
+          <label for="platform" class="field-label">{{ t('games.platformLabel') }}</label>
+          <AutoComplete
+            inputId="platform"
+            v-model="manualPlatform"
+            :suggestions="platformSuggestions"
+            @complete="onPlatformComplete"
+            :placeholder="t('games.platformPlaceholder')"
+            class="w-full"
+            inputClass="w-full"
+            :maxlength="100"
+            dropdown
+          />
+          <small class="field-hint">{{ t('games.platformHint') }}</small>
+        </div>
+
         <div v-if="selectedGame || isCustom" class="selected-preview">
           <div class="preview-label">{{ t('games.preview') }}</div>
           <div class="preview-card">
@@ -48,7 +64,9 @@
             <div class="preview-details">
               <div class="preview-name">{{ isCustom ? (manualName || t('games.newCustomGame')) : selectedGame.name }}</div>
               <div class="preview-id" v-if="!isCustom && selectedGame">{{ t('games.appId', { id: selectedGame.appid }) }}</div>
-              <div class="preview-id" v-else>{{ t('games.customGame') }}</div>
+              <div class="preview-id" v-else>
+                {{ t('games.customGame') }}<template v-if="isCustom && manualPlatform.trim()"> &middot; {{ manualPlatform.trim() }}</template>
+              </div>
             </div>
           </div>
         </div>
@@ -74,6 +92,7 @@ import Checkbox from 'primevue/checkbox';
 import placeholderDefault from '../assets/placeholder-460x215.svg'
 import placeholderCustom from '../assets/placeholder_custom-game.svg'
 import { useI18n } from 'vue-i18n'
+import { CUSTOM_GAME_PLATFORMS } from '@/utils/customGamePlatforms'
 
 const searchQuery = ref('')
 const results = ref<any[]>([])
@@ -82,6 +101,8 @@ const debounceTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 const selectedGame = ref<any | null>(null)
 const isCustom = ref(false)
 const manualName = ref('')
+const manualPlatform = ref('')
+const platformSuggestions = ref<string[]>([])
 const { t } = useI18n()
 
 const canAdd = computed(() => {
@@ -99,6 +120,7 @@ function openModal() {
   visible.value = true
   isCustom.value = false
   manualName.value = ''
+  manualPlatform.value = ''
   selectedGame.value = null
   searchQuery.value = ''
   results.value = []
@@ -108,6 +130,7 @@ function closeModal() {
   selectedGame.value = null
   isCustom.value = false
   manualName.value = ''
+  manualPlatform.value = ''
   searchQuery.value = ''
   results.value = []
   visible.value = false
@@ -144,22 +167,37 @@ function onToggleNonSteam(val: boolean) {
     results.value = []
   } else {
     manualName.value = ''
+    manualPlatform.value = ''
   }
+}
+
+function onPlatformComplete(event: { query: string }) {
+  const q = (event.query || '').trim().toLowerCase()
+  if (!q) {
+    platformSuggestions.value = [...CUSTOM_GAME_PLATFORMS]
+    return
+  }
+  platformSuggestions.value = CUSTOM_GAME_PLATFORMS.filter((p) =>
+    p.toLowerCase().includes(q)
+  )
 }
 
 async function handleAddGame() {
   let nameToSend = ''
   let appid: number | undefined = undefined
+  let platform: string | undefined = undefined
   if (isCustom.value) {
     if (!manualName.value) return
     nameToSend = manualName.value.trim()
+    const platformStr = (typeof manualPlatform.value === 'string' ? manualPlatform.value : '').trim()
+    platform = platformStr.slice(0, 100)
   } else {
     if (!selectedGame.value) return
     nameToSend = selectedGame.value.name
     appid = selectedGame.value.appid
   }
 
-  const response = await addUserGame({ name: nameToSend, steamappid: appid })
+  const response = await addUserGame({ name: nameToSend, steamappid: appid, platform })
   if (response && response.status === 201) {
     emit('added', response.data)
   }
@@ -195,6 +233,19 @@ function getGameImage(appid: number) {
 .field {
   display: flex;
   flex-direction: column;
+}
+
+.field-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.field-hint {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.35rem;
 }
 
 .w-full {

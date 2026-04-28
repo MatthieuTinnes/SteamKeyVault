@@ -40,7 +40,7 @@
           <GameInfo :steamAppId="selectedSteamAppId" :userGameId="selectedGameId" :gameName="selectedGameName" @deleted="onGameDeleted" />
         </template>
         <template v-else>
-          <CustomGameInfo v-if="selectedGameName" :gameName="selectedGameName" :userGameId="selectedGameId" @converted="reloadGamesAndRefreshSelection" @deleted="onGameDeleted" />
+          <CustomGameInfo v-if="selectedGameName" :gameName="selectedGameName" :userGameId="selectedGameId" :platform="selectedPlatform" @converted="reloadGamesAndRefreshSelection" @deleted="onGameDeleted" @platformUpdated="onPlatformUpdated" />
         </template>
         
         <div class="keys-section">
@@ -86,6 +86,7 @@ const keys = ref<any[]>([])
 const selectedGameId = ref<number | null>(null)
 const selectedSteamAppId = ref<number | null>(null)
 const selectedGameName = ref<string | null>(null)
+const selectedPlatform = ref<string | null>(null)
 
 onMounted(async () => {
   document.title = 'My Keys — SteamKeyVault'
@@ -178,6 +179,7 @@ function handleGameSelected(game: Game) {
   selectedGameId.value = game.user_game_id
   selectedSteamAppId.value = game.steamapp_id
   selectedGameName.value = game.name ?? null
+  selectedPlatform.value = game.platform ?? null
   refreshKeys()
 }
 
@@ -213,8 +215,18 @@ async function reloadGamesAndRefreshSelection() {
     if (found) {
       selectedSteamAppId.value = (found as any).steamapp_id
       selectedGameName.value = (found as any).name ?? null
+      selectedPlatform.value = (found as any).platform ?? null
     }
     await refreshKeys()
+  }
+}
+
+async function onPlatformUpdated(newPlatform: string) {
+  selectedPlatform.value = newPlatform || null
+  // Keep the in-memory list in sync so the sidebar / next selection reflect the change
+  const idx = (games.value as any[]).findIndex((g: any) => g.user_game_id === selectedGameId.value)
+  if (idx !== -1) {
+    ;(games.value as any[])[idx] = { ...(games.value as any[])[idx], platform: newPlatform || null }
   }
 }
 
@@ -225,6 +237,7 @@ async function onGameDeleted() {
   selectedGameId.value = null
   selectedSteamAppId.value = null
   selectedGameName.value = null
+  selectedPlatform.value = null
   keys.value = []
 }
 </script>
