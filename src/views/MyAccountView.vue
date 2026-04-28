@@ -110,6 +110,19 @@
         </div>
       </section>
 
+      <!-- Support -->
+      <section class="settings-card">
+        <div class="card-header">
+          <h3><i class="pi pi-question-circle"></i> {{ t('account.support.title') }}</h3>
+          <p class="section-desc">{{ t('account.support.desc') }}</p>
+        </div>
+        <div class="actions-column">
+          <a href="mailto:support@steamkeyvault.com" class="support-link">
+            <Button :label="t('account.support.contactButton')" icon="pi pi-envelope" outlined class="w-full" />
+          </a>
+        </div>
+      </section>
+
       <section class="settings-card">
         <div class="card-header">
           <h3><i class="pi pi-sliders-h"></i> {{ t('account.preferences.title') }}</h3>
@@ -574,6 +587,10 @@ async function onLocaleChange(event: { value: string }) {
   line-height: 1.4;
   margin-top: 0.25rem;
   display: block;
+}
+
+.support-link {
+  text-decoration: none;
 }
 
 /* Responsive adjustments */

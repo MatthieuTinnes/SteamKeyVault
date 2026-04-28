@@ -584,6 +584,11 @@ const messages = {
         updatePassword: 'Update Password',
         passwordRequirements: "Password must: be 12+ characters, contain lowercase, uppercase, digit, and special character"
       },
+      support: {
+        title: 'Support',
+        desc: 'Need help? Contact us and we will get back to you as soon as possible. We also welcome any feedback or feature requests to make SteamKeyVault better for everyone.',
+        contactButton: 'Contact support'
+      },
       preferences: {
         title: 'Preferences',
         desc: 'Adjust your account preferences.',
@@ -1554,6 +1559,11 @@ const messages = {
         confirmPassword: 'Confirmer le mot de passe',
         updatePassword: 'Mettre à jour le mot de passe',
         passwordRequirements: "Le mot de passe doit : contenir au moins 12 caractères, une minuscule, une majuscule, un chiffre et un caractère spécial"
+      },
+      support: {
+        title: 'Support',
+        desc: 'Besoin d\'aide ? Contactez-nous et nous vous répondrons dans les plus brefs délais. Nous accueillons également vos commentaires et suggestions pour améliorer SteamKeyVault.',
+        contactButton: 'Contacter le support'
       },
       preferences: {
         title: 'Préférences',
