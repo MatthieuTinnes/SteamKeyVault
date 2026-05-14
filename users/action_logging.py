@@ -8,10 +8,13 @@ logger = logging.getLogger(__name__)
 
 def log_user_action(action_type: str, user, request, metadata: dict | None = None) -> None:
     try:
+        forwarded_for = request.headers.get("X-Forwarded-For")
+        ip_address = forwarded_for.split(",")[0].strip() if forwarded_for else None
+
         UserActionLog.objects.create(
             user=user,
             action_type=action_type,
-            ip_address=request.headers.get("X-Forwarded-For"),
+            ip_address=ip_address,
             user_agent=request.headers.get("User-Agent", ""),
             metadata=metadata,
         )
