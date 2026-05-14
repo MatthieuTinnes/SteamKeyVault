@@ -13,6 +13,7 @@ jobs:
       environment: ${{ steps.set-env.outputs.environment }}
       image_tag:   ${{ steps.set-env.outputs.image_tag }}
       app_dir:     ${{ steps.set-env.outputs.app_dir }}
+      image_name:  ${{ steps.set-env.outputs.image_name }}
 
     steps:
       - name: Set environment variables
@@ -29,6 +30,7 @@ jobs:
             echo "image_tag=develop"      >> $GITHUB_OUTPUT
             echo "app_dir=/app/preprod"   >> $GITHUB_OUTPUT
           fi
+          echo "image_name=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
 
   # ─── Build & Push ─────────────────────────────────────────────
   build:
@@ -53,7 +55,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}:${{ needs.setup.outputs.image_tag }}
+          tags: ${{ needs.setup.outputs.image_name }}:${{ needs.setup.outputs.image_tag }}
           cache-from: type=gha,scope=${{ needs.setup.outputs.environment }}
           cache-to:   type=gha,scope=${{ needs.setup.outputs.environment }},mode=max
 
@@ -67,7 +69,7 @@ jobs:
       - name: Deploy
         uses: appleboy/ssh-action@v1
         env:
-          IMAGE:   ghcr.io/${{ github.repository }}:${{ needs.setup.outputs.image_tag }}
+          IMAGE:   ${{ needs.setup.outputs.image_name }}:${{ needs.setup.outputs.image_tag }}
           APP_DIR: ${{ needs.setup.outputs.app_dir }}
           ACTOR:   ${{ github.actor }}
           TOKEN:   ${{ secrets.GITHUB_TOKEN }}
