@@ -170,6 +170,14 @@ const messages = {
           a: 'Yes. SteamKeyVault is completely free to use.'
         },
         {
+          q: 'Can I store keys from platforms other than Steam?',
+          a: 'Yes. Despite its name, SteamKeyVault lets you store keys for any platform — GOG, Epic Games, Ubisoft Connect, EA App, and more. You can specify the platform for each game so your library stays organized.'
+        },
+        {
+          q: 'Can I use SteamKeyVault to manage bundle keys?',
+          a: 'Absolutely. SteamKeyVault is perfect for organizing game keys from Humble Bundle, Fanatical, or any other bundle. Simply add each game and attach its key — you can see at a glance which ones you have already activated and which are still available.'
+        },
+        {
           q: 'What happens to my keys if I lose my password?',
           a: 'At registration you receive a 12-word recovery phrase. Keep it safe, it\'s the only way to recover your encrypted data.'
         }
@@ -1153,6 +1161,14 @@ const messages = {
         {
           q: 'SteamKeyVault est-il vraiment gratuit ?',
           a: 'Oui. SteamKeyVault est entièrement gratuit.'
+        },
+        {
+          q: 'Peut-on stocker des clés provenant d\'autres plateformes que Steam ?',
+          a: 'Oui. Malgré son nom, SteamKeyVault vous permet de stocker des clés pour n\'importe quelle plateforme — GOG, Epic Games, Ubisoft Connect, EA App, et bien d\'autres. Vous pouvez préciser la plateforme pour chaque jeu afin de garder votre bibliothèque bien organisée.'
+        },
+        {
+          q: 'Puis-je utiliser SteamKeyVault pour gérer mes clés de bundles ?',
+          a: 'Absolument. SteamKeyVault est idéal pour organiser les clés de jeux issues de bundles comme Humble Bundle, Fanatical ou tout autre bundle. Ajoutez simplement chaque jeu et associez-lui sa clé — vous visualisez en un coup d\'œil celles déjà activées et celles encore disponibles.'
         },
         {
           q: 'Que se passe-t-il si j\'oublie mon mot de passe ?',
