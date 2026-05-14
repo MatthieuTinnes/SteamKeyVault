@@ -4,8 +4,10 @@ FROM node:24-alpine AS builder
 
 WORKDIR /app
 
+ENV CI=true
+
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Install pnpm and dependencies
 RUN npm install -g pnpm && \
