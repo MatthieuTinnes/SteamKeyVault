@@ -1,3 +1,4 @@
+from django.conf import settings
 from ninja import NinjaAPI
 from users.api import users_router
 from users.admin_api import admin_router
@@ -7,7 +8,7 @@ from steamkeyvault.games.api import router as games_router
 from steamkeyvault.keys.api import router as keys_router
 from steamkeyvault.jobs.api import jobs_router
 
-api = NinjaAPI()
+api = NinjaAPI(docs_url="/docs" if settings.DEBUG else None)
 api.add_router("/users/", users_router)
 api.add_router("/admin/", admin_router)
 api.add_router("/admin/steam/", steam_admin_router)
