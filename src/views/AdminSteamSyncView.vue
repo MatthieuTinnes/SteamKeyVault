@@ -2,7 +2,7 @@
   <div class="admin-steam">
     <div class="header">
       <h2><i class="pi pi-cloud-download"></i> {{ t('admin.steam.title') }}</h2>
-      <Button :label="t('admin.users.backToDashboard')" icon="pi pi-arrow-left" @click="router.push('/admin')" severity="secondary" />
+      <Button :label="t('admin.users.backToDashboard')" icon="pi pi-arrow-left" @click="router.push(`/${locale}/admin`)" severity="secondary" />
     </div>
 
     <div class="stats-section">
@@ -73,7 +73,7 @@ const steamStats = ref<SteamStats>({
 const refreshing = ref(false)
 const showRefreshDialog = ref(false)
 const refreshResult = ref<any>(null)
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 onMounted(async () => {
   await loadSteamStats()

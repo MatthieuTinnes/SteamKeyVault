@@ -12,14 +12,14 @@
         <h2>{{ t('auth.confirmEmail.successTitle') }}</h2>
         <p>{{ message }}</p>
         <p>{{ t('auth.confirmEmail.successDesc') }}</p>
-        <Button :label="t('auth.confirmEmail.goToAccount')" icon="pi pi-user" @click="router.push('/my-account')" class="mt-3" />
+        <Button :label="t('auth.confirmEmail.goToAccount')" icon="pi pi-user" @click="router.push(`/${locale}/my-account`)" class="mt-3" />
       </div>
 
       <div v-else class="status-content error">
         <i class="pi pi-times-circle" style="font-size: 3rem; color: #dc2626;"></i>
         <h2>{{ t('auth.confirmEmail.failedTitle') }}</h2>
         <p>{{ errorMessage }}</p>
-        <Button :label="t('common.backToHome')" icon="pi pi-home" @click="router.push('/')" class="mt-3" severity="secondary" />
+        <Button :label="t('common.backToHome')" icon="pi pi-home" @click="router.push(`/${locale}/`)" class="mt-3" severity="secondary" />
       </div>
     </div>
   </div>
@@ -39,7 +39,7 @@ const userStore = useUserStore()
 const loading = ref(true)
 const success = ref(false)
 const message = ref('')
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const errorMessage = ref(t('auth.confirmEmail.failedDefault'))
 
 onMounted(async () => {

@@ -12,14 +12,14 @@
         <h2>{{ t('auth.verify.successTitle') }}</h2>
         <p>{{ message }}</p>
         <p>{{ t('auth.verify.successDesc') }}</p>
-        <Button :label="t('auth.verify.goToLogin')" icon="pi pi-sign-in" @click="router.push('/login')" class="mt-3" />
+        <Button :label="t('auth.verify.goToLogin')" icon="pi pi-sign-in" @click="router.push(`/${locale}/login`)" class="mt-3" />
       </div>
 
       <div v-else class="status-content error">
         <i class="pi pi-times-circle" style="font-size: 3rem; color: #dc2626;"></i>
         <h2>{{ t('auth.verify.failedTitle') }}</h2>
         <p>{{ errorMessage }}</p>
-        <Button :label="t('common.backToHome')" icon="pi pi-home" @click="router.push('/')" class="mt-3" severity="secondary" />
+        <Button :label="t('common.backToHome')" icon="pi pi-home" @click="router.push(`/${locale}/`)" class="mt-3" severity="secondary" />
       </div>
     </div>
   </div>
@@ -37,7 +37,7 @@ const router = useRouter()
 const loading = ref(true)
 const success = ref(false)
 const message = ref('')
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const errorMessage = ref(t('auth.verify.failedDefault'))
 
 onMounted(async () => {

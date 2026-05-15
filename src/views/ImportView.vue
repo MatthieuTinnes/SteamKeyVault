@@ -2,7 +2,7 @@
   <div class="import-view">
     <div class="header">
       <h2><i class="pi pi-upload"></i> {{ t('import.title') }}</h2>
-      <Button :label="t('import.backToAccount')" icon="pi pi-arrow-left" @click="router.push('/my-account')" severity="secondary" />
+      <Button :label="t('import.backToAccount')" icon="pi pi-arrow-left" @click="router.push(`/${locale}/my-account`)" severity="secondary" />
     </div>
 
     <div class="content-card">
@@ -88,7 +88,7 @@ const total = ref<number>(0)
 const error = ref<string | null>(null)
 const result = ref<any[] | null>(null)
 const isDragOver = ref(false)
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const toast = { success: (s: any) => showSuccessToast(s.summary || t('common.info'), s.detail), error: (s: any) => showErrorToast(s.summary || t('import.error'), s.detail) }
 let pollTimer: number | null = null

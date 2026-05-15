@@ -43,7 +43,9 @@ function toggleOpen() {
 function selectLocale(loc: (typeof SUPPORTED_LOCALES)[number]) {
   setLocale(loc)
   isOpen.value = false
-  router.replace({ ...route, query: { ...route.query, lang: loc } })
+  // Replace locale prefix in the current path
+  const newPath = route.path.replace(/^\/(en|fr)/, `/${loc}`)
+  router.replace({ path: newPath, query: route.query })
 }
 
 function onClickOutside(e: MouseEvent) {

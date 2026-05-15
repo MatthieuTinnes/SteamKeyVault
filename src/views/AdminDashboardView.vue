@@ -45,19 +45,19 @@
     </div>
 
     <div class="admin-sections">
-      <div class="section-card" @click="router.push('/admin/users')">
+      <div class="section-card" @click="router.push(`/${locale}/admin/users`)">
         <i class="pi pi-users"></i>
         <h3>{{ t('admin.sections.userManagement') }}</h3>
         <p>{{ t('admin.sections.userManagementDesc') }}</p>
       </div>
       
-      <div class="section-card" @click="router.push('/admin/steam')">
+      <div class="section-card" @click="router.push(`/${locale}/admin/steam`)">
         <i class="pi pi-cloud-download"></i>
         <h3>{{ t('admin.sections.steamSync') }}</h3>
         <p>{{ t('admin.sections.steamSyncDesc') }}</p>
       </div>
 
-      <div class="section-card" @click="router.push('/admin/logs')">
+      <div class="section-card" @click="router.push(`/${locale}/admin/logs`)">
         <i class="pi pi-book"></i>
         <h3>{{ t('admin.sections.actionLogs') }}</h3>
         <p>{{ t('admin.sections.actionLogsDesc') }}</p>
@@ -75,7 +75,7 @@ import { showErrorToast } from '@/utils/toast'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const stats = ref<AdminStats>({
   total_users: 0,
   verified_users: 0,

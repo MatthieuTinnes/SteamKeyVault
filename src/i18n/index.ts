@@ -7,6 +7,12 @@ type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
 
 const messages = {
   en: {
+    seo: {
+      title: 'SteamKeyVault — Secure Steam Key Manager for Collectors and Traders',
+      description: 'SteamKeyVault is a free vault to securely store, organize, and share your Steam game keys and bundle keys. Perfect for collectors and traders. End-to-end encrypted.',
+      ogTitle: 'SteamKeyVault — Secure Steam Key Manager for Collectors and Traders',
+      ogDescription: 'Store, organize, and share your Steam game keys and bundle keys securely. The ultimate vault for game collectors and key traders. End-to-end encrypted.',
+    },
     app: {
       name: 'SteamKeyVault',
       logoAlt: 'Logo'
@@ -1000,6 +1006,12 @@ const messages = {
     }
   },
   fr: {
+    seo: {
+      title: 'SteamKeyVault — Gestionnaire sécurisé de clés Steam pour collectionneurs et traders',
+      description: 'SteamKeyVault est un coffre-fort gratuit pour stocker, organiser et partager vos clés de jeux Steam et vos clés de bundles en toute sécurité. Chiffrement de bout en bout.',
+      ogTitle: 'SteamKeyVault — Gestionnaire sécurisé de clés Steam pour collectionneurs et traders',
+      ogDescription: 'Stockez, organisez et partagez vos clés de jeux Steam et vos clés de bundles en toute sécurité. Le coffre-fort ultime pour collectionneurs et traders. Chiffré de bout en bout.',
+    },
     app: {
       name: 'SteamKeyVault',
       logoAlt: 'Logo'
@@ -2036,5 +2048,7 @@ export const i18n = createI18n({
   fallbackLocale: 'en',
   messages
 })
+
+export const DEFAULT_LOCALE: SupportedLocale = 'en'
 
 export { SUPPORTED_LOCALES, LOCALE_STORAGE_KEY }

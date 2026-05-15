@@ -42,7 +42,7 @@ import { useI18n } from 'vue-i18n'
 const email = ref('')
 const password = ref('')
 const router = useRouter()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const handleLogin = async () => {
   const loginData = await loginUser(email.value, password.value)
@@ -58,15 +58,15 @@ const handleLogin = async () => {
     hash: loginData.kdf_hash
   })
   await useUserStore().fetchUser()
-  router.push('/my-keys')
+  router.push(`/${locale.value}/my-keys`)
 }
 
 function goToRegister() {
-  router.push('/register')
+  router.push(`/${locale.value}/register`)
 }
 
 function goToForgot() {
-  router.push('/forgot-password')
+  router.push(`/${locale.value}/forgot-password`)
 }
 </script>
 

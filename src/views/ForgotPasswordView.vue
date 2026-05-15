@@ -43,7 +43,7 @@ const submitting = ref(false)
 const success = ref(false)
 const error = ref('')
 const router = useRouter()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const turnstileEnabled = !!TURNSTILE_SITE_KEY
 const turnstileToken = ref('')
@@ -123,7 +123,7 @@ async function handleSubmit() {
 }
 
 function goToLogin() {
-  router.push('/login')
+  router.push(`/${locale.value}/login`)
 }
 </script>
 

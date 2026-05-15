@@ -205,7 +205,7 @@ const handleRegister = async () => {
 }
 
 function goToLogin() {
-  router.push('/login')
+  router.push(`/${locale.value}/login`)
 }
 
 async function copyRecoveryPhrase() {
@@ -219,7 +219,7 @@ async function copyRecoveryPhrase() {
 
 function confirmRecoverySaved() {
   showRecoveryDialog.value = false
-  setTimeout(() => router.push('/login'), 500)
+  setTimeout(() => router.push(`/${locale.value}/login`), 500)
 }
 </script>
 

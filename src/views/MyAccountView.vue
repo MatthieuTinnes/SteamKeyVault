@@ -43,7 +43,7 @@
           <p class="section-desc">{{ t('account.data.desc') }}</p>
         </div>
         <div class="actions-column">
-          <Button :label="t('account.data.importCsv')" icon="pi pi-upload" @click="router.push('/import')" outlined class="w-full" />
+          <Button :label="t('account.data.importCsv')" icon="pi pi-upload" @click="router.push(`/${locale}/import`)" outlined class="w-full" />
           <Button :label="t('account.data.exportCsv')" icon="pi pi-download" @click="exportCsv" outlined class="w-full" />
           <Button :label="t('account.data.importJson')" icon="pi pi-upload" @click="openJsonPicker" outlined class="w-full" />
           <Button :label="t('account.data.exportJson')" icon="pi pi-download" @click="exportJson" outlined class="w-full" />

@@ -6,7 +6,7 @@
         <Button
           :label="t('admin.users.backToDashboard')"
           icon="pi pi-arrow-left"
-          @click="router.push('/admin')"
+          @click="router.push(`/${locale}/admin`)"
           severity="secondary"
         />
         <Button :label="t('admin.logs.refresh')" icon="pi pi-refresh" @click="loadAll" :loading="loading" />
@@ -168,7 +168,7 @@ const startInput = ref('')
 const endInput = ref('')
 const actionFilter = ref('')
 const userQuery = ref('')
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const actionOptions = computed(() => [
   { label: t('admin.logs.allActionsOption'), value: '' },

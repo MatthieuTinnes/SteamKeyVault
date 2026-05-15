@@ -43,7 +43,7 @@
           </section>
 
           <div class="legal-back">
-            <RouterLink to="/">
+            <RouterLink :to="`/${locale}/`">
               <Button :label="t('common.backToHome')" icon="pi pi-arrow-left" text />
             </RouterLink>
           </div>
@@ -60,7 +60,7 @@ import Divider from 'primevue/divider'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 </script>
 
 <style scoped>

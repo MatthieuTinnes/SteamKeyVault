@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <div class="navbar-left">
-      <RouterLink to="/" class="navbar-logo-link">
+      <RouterLink :to="`/${locale}/`" class="navbar-logo-link">
         <img src="../assets/logo.png" :alt="t('app.logoAlt')" class="navbar-logo" />
         <span class="navbar-title">{{ t('app.name') }}</span>
       </RouterLink>
@@ -89,12 +89,12 @@ const isLoggedIn = computed(() => !!userStore.user && !!userStore.user.username)
 const isAdmin = computed(() => !!userStore.user && !!userStore.user.is_admin)
 const menuOpen = ref(false)
 const userMenuOpen = ref(false)
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 function goTo(path: string) {
   menuOpen.value = false
   userMenuOpen.value = false
-  router.push(path)
+  router.push(`/${locale.value}${path}`)
 }
 function isActive(path: string) {
   return route.path === path
@@ -102,7 +102,7 @@ function isActive(path: string) {
 async function handleLogout() {
   await logoutUser()
   cookieStore.delete('csrftoken')
-  router.push('/login')
+  router.push(`/${locale.value}/login`)
   menuOpen.value = false
   userMenuOpen.value = false
 }

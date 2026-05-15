@@ -239,13 +239,13 @@ function toggleFaq(index: number) {
 }
 
 function goToMyKeys() {
-  router.push('/my-keys')
+  router.push(`/${locale.value}/my-keys`)
 }
 function goToDocs() {
-  router.push('/documentation')
+  router.push(`/${locale.value}/documentation`)
 }
 function goToRegister() {
-  router.push('/register')
+  router.push(`/${locale.value}/register`)
 }
 </script>
 

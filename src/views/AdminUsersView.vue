@@ -2,7 +2,7 @@
   <div class="admin-users">
     <div class="header">
       <h2><i class="pi pi-users"></i> {{ t('admin.users.title') }}</h2>
-      <Button :label="t('admin.users.backToDashboard')" icon="pi pi-arrow-left" @click="router.push('/admin')" severity="secondary" />
+      <Button :label="t('admin.users.backToDashboard')" icon="pi pi-arrow-left" @click="router.push(`/${locale}/admin`)" severity="secondary" />
     </div>
 
     <div class="search-bar">
@@ -152,7 +152,7 @@ const clearingUser = ref<AdminUser | null>(null)
 const saving = ref(false)
 const deleting = ref(false)
 const clearing = ref(false)
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const { rowsPerPage, containerRef: tableContainer } = useTableRowsPerPage(350)
 

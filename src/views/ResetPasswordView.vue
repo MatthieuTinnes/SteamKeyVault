@@ -60,7 +60,7 @@ const loadError = ref('')
 const submitting = ref(false)
 const success = ref(false)
 const error = ref('')
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const recoveryPhrase = ref('')
 const newPassword = ref('')
@@ -130,7 +130,7 @@ async function handleReset() {
 }
 
 function goToLogin() {
-  router.push('/login')
+  router.push(`/${locale.value}/login`)
 }
 </script>
 

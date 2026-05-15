@@ -124,7 +124,7 @@ const revealWidgetId = ref<string | null>(null)
 const turnstileReady = ref(false)
 const message = ref('')
 const revealing = ref(false)
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const shareToken = computed(() => String(route.params.token || ''))
 const canReveal = computed(() => {
@@ -143,7 +143,7 @@ const publicGameInfo = computed(() => {
 })
 
 function goToRegister() {
-  router.push('/register')
+  router.push(`/${locale.value}/register`)
 }
 
 const storageKey = computed(() => `shared-key:${shareToken.value}`)

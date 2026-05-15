@@ -6,9 +6,9 @@
     <RouterView />
   </main>
   <footer v-if="showFooter" class="app-footer">
-    <RouterLink to="/terms" class="footer-link">{{ t('footer.terms') }}</RouterLink>
+    <RouterLink :to="`/${locale}/terms`" class="footer-link">{{ t('footer.terms') }}</RouterLink>
     <span class="footer-sep">·</span>
-    <RouterLink to="/privacy" class="footer-link">{{ t('footer.privacy') }}</RouterLink>
+    <RouterLink :to="`/${locale}/privacy`" class="footer-link">{{ t('footer.privacy') }}</RouterLink>
   </footer>
 </template>
 
@@ -22,9 +22,10 @@ import { setGlobalToast } from './utils/toast'
 import { useTheme } from './composables/useTheme'
 import { useUserStore } from './stores/user'
 import { useI18n } from 'vue-i18n'
-import { setLocale, SUPPORTED_LOCALES } from './i18n'
+import { useHreflang } from './composables/useHreflang'
+import { useDocumentMeta } from './composables/useDocumentMeta'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const route = useRoute()
 
 const FOOTER_ROUTES = new Set(['home', 'login', 'register', 'documentation'])
@@ -34,15 +35,12 @@ const toastRef = ref<any | null>(null)
 const { initTheme } = useTheme()
 const userStore = useUserStore()
 
+useHreflang()
+useDocumentMeta()
+
 onMounted(async () => {
   if (toastRef.value) setGlobalToast(toastRef.value)
   initTheme()
-
-  // Apply locale from URL ?lang= param if present and supported
-  const langParam = route.query.lang as string | undefined
-  if (langParam && (SUPPORTED_LOCALES as readonly string[]).includes(langParam)) {
-    setLocale(langParam as 'en' | 'fr')
-  }
 
   // Si l'utilisateur n'est pas déjà chargé (par exemple par le router guard), on tente de le récupérer
   if (!userStore.user) {

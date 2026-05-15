@@ -20,7 +20,8 @@ export async function requireAuth(to: RouteLocationNormalized, from: RouteLocati
   if (userStore.user && userStore.user.username) {
     next()
   } else {
-    next('/login')
+    const locale = to.params.locale || 'en'
+    next(`/${locale}/login`)
   }
 }
 
@@ -30,6 +31,7 @@ export async function requireAdmin(to: RouteLocationNormalized, from: RouteLocat
   if (userStore.user && userStore.user.is_admin) {
     next()
   } else {
-    next('/')
+    const locale = to.params.locale || 'en'
+    next(`/${locale}/`)
   }
 }
