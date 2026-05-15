@@ -24,11 +24,11 @@ jobs:
           if [[ "$REF" == "refs/heads/main" ]]; then
             echo "environment=prod" >> $GITHUB_OUTPUT
             echo "image_tag=latest"       >> $GITHUB_OUTPUT
-            echo "app_dir=/app/steamkeyvault/prod" >> $GITHUB_OUTPUT
+            echo "app_dir=/app/SteamKeyVault/prod" >> $GITHUB_OUTPUT
           else
             echo "environment=preprod"    >> $GITHUB_OUTPUT
             echo "image_tag=develop"      >> $GITHUB_OUTPUT
-            echo "app_dir=/app/steamkeyvault/preprod" >> $GITHUB_OUTPUT
+            echo "app_dir=/app/SteamKeyVault/preprod" >> $GITHUB_OUTPUT
           fi
           echo "image_name=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
 
