@@ -7,6 +7,7 @@ from django.http import HttpResponse
 import csv
 import re
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 import json
 from steamkeyvault.keys.models import Key
 from steamkeyvault.utils.i18n import get_request_locale, translate_message
@@ -45,6 +46,8 @@ class SteamKeyVaultKeyIn(Schema):
     key: str
     used: Optional[bool] = False
     current_use: Optional[str] = None
+    date_added: Optional[str] = None
+    date_used: Optional[str] = None
 
 
 class SteamKeyVaultGameIn(Schema):
@@ -181,6 +184,8 @@ def export_games_json(request):
                 "key": k.key,
                 "used": k.used,
                 "current_use": k.current_use,
+                "date_added": k.date_added.isoformat() if k.date_added else None,
+                "date_used": k.date_used.isoformat() if k.date_used else None,
             })
         payload["games"].append({
             "name": ug.name,
@@ -277,12 +282,24 @@ def import_games_json(request):
             if Key.objects.filter(userGame=user_game, key=key_value).exists():
                 summary["keys_skipped"] += 1
                 continue
-            Key.objects.create(
+            new_key = Key.objects.create(
                 key=key_value,
                 userGame=user_game,
                 used=bool(k.used) if k.used is not None else False,
                 current_use=k.current_use,
             )
+            # Preserve original timestamps if provided
+            date_overrides = {}
+            if k.date_added:
+                parsed_date_added = parse_datetime(k.date_added)
+                if parsed_date_added:
+                    date_overrides['date_added'] = parsed_date_added
+            if k.date_used:
+                parsed_date_used = parse_datetime(k.date_used)
+                if parsed_date_used:
+                    date_overrides['date_used'] = parsed_date_used
+            if date_overrides:
+                Key.objects.filter(pk=new_key.pk).update(**date_overrides)
             summary["keys_created"] += 1
 
     return 200, summary
