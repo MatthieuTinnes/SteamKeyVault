@@ -344,15 +344,7 @@ async function importJson(file: File) {
 
 async function exportJson() {
   try {
-    const res = await exportUserGamesJson()
-    const blob = res.data
-    let filename = 'steamkeyvault_export.json'
-    const headers = res.headers || {}
-    if (headers['x-filename']) {
-      filename = headers['x-filename']
-    } else if (headers['X-Filename']) {
-      filename = headers['X-Filename']
-    }
+    const { blob, filename } = await exportUserGamesJson()
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url

@@ -12,6 +12,8 @@ const importKeySchema = z.object({
   key: z.string().max(500),
   used: z.boolean().optional().nullable(),
   current_use: z.string().max(50).optional().nullable(),
+  date_added: z.string().optional().nullable(),
+  date_used: z.string().optional().nullable(),
 })
 
 const importGameSchema = z.object({
@@ -137,9 +139,30 @@ function parseCsvLine(line: string) {
 }
 
 export async function exportUserGamesJson() {
+  const store = useCryptoStore()
+  if (!store.masterKeyBytes) {
+    await handleMissingMasterKey()
+    throw new Error('Missing master key. Please log in again.')
+  }
+
   const url = `${API_BASE_URL}/games/export_json`
   const res = await axios.get(url, { ...getAxiosConfig(), responseType: 'blob' })
-  return res
+  const jsonText = await res.data.text()
+  const payload = JSON.parse(jsonText)
+
+  for (const game of payload.games ?? []) {
+    for (const k of game.keys ?? []) {
+      const raw = String(k.key ?? '')
+      if (raw.trim()) {
+        k.key = await decryptValue(raw, store.masterKeyBytes as Uint8Array)
+      }
+    }
+  }
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' })
+  const headerFilename = res.headers?.['x-filename'] || res.headers?.['X-Filename']
+  const filename = headerFilename || `steamkeyvault_export_${new Date().toISOString().slice(0, 10)}.json`
+  return { blob, filename }
 }
 
 export async function importUserGamesJson(file: File) {

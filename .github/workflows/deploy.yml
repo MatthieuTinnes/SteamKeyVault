@@ -83,3 +83,19 @@ jobs:
             docker pull $IMAGE
             docker compose -f $APP_DIR/docker-compose.yml up -d --no-deps --pull always frontend
             docker image prune -f
+
+      - name: Notify Gotify
+        if: always()
+        env:
+          GOTIFY_HOST: ${{ secrets.GOTIFY_HOST }}
+          GOTIFY_TOKEN: ${{ secrets.GOTIFY_TOKEN }}
+          ENVIRONMENT: ${{ needs.setup.outputs.environment }}
+          STATUS: ${{ job.status }}
+        run: |
+          curl -s -X POST "https://${GOTIFY_HOST}/message?token=${GOTIFY_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            -d "{
+              \"title\": \"[Frontend] 🚀 Deploy to ${ENVIRONMENT} — ${STATUS}\",
+              \"message\": \"Commit: ${{ github.sha }}\\nAuthor: ${{ github.actor }}\\nRef: ${{ github.ref_name }}\",
+              \"priority\": 5
+            }"
