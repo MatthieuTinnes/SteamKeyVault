@@ -25,6 +25,17 @@ export async function requireAuth(to: RouteLocationNormalized, from: RouteLocati
   }
 }
 
+export async function redirectIfAuthenticated(to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) {
+  const userStore = await ensureUserLoaded()
+
+  if (userStore.user && userStore.user.username) {
+    const locale = to.params.locale || 'en'
+    next(`/${locale}/my-keys`)
+  } else {
+    next()
+  }
+}
+
 export async function requireAdmin(to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) {
   const userStore = await ensureUserLoaded()
 

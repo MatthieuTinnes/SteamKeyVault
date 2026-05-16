@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import { requireAuth, requireAdmin } from './guards'
+import { requireAuth, requireAdmin, redirectIfAuthenticated } from './guards'
 import { i18n, SUPPORTED_LOCALES, getInitialLocale } from '../i18n'
 import type { RouteLocationNormalized } from 'vue-router'
 import { setLocale } from '../i18n'
@@ -25,11 +25,13 @@ const localeChildren = [
       path: 'login',
       name: 'login',
       component: () => import('../views/LoginView.vue'),
+      beforeEnter: redirectIfAuthenticated,
     },
     {
       path: 'register',
       name: 'register',
       component: () => import('../views/RegisterView.vue'),
+      beforeEnter: redirectIfAuthenticated,
     },
     {
       path: 'forgot-password',
