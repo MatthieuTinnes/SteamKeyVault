@@ -1,3 +1,8 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 def read_request_file(
     request,
     initial_bytes: bytes | None = None,
@@ -21,10 +26,10 @@ def read_request_file(
             try:
                 return f.read()
             except Exception:
-                pass
+                logger.warning("Failed to read uploaded file", exc_info=True)
     if fallback_body:
         try:
             return request.body or None
         except Exception:
-            pass
+            logger.warning("Failed to read request body", exc_info=True)
     return None

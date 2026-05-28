@@ -20,7 +20,7 @@ def fetch_steam_app_data(appid: int) -> dict:
         resp.raise_for_status()
         payload = resp.json()
     except Exception as exc:
-        logger.warning("Failed to fetch Steam app data for appid=%s: %s", appid, exc)
+        logger.warning("Failed to fetch Steam app data for appid=%s: %s", appid, exc, exc_info=True)
         return {}
     app_entry = payload.get(str(appid))
     if not app_entry or not app_entry.get('success'):

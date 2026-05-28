@@ -38,7 +38,7 @@ def refresh_steam_apps(request):
         
     except Exception as e:
         logger.exception(f"Error refreshing Steam apps: {e}")
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({'error': 'Internal server error'}, status=500)
 
 
 @steam_admin_router.get('/steam-stats', auth=django_auth)

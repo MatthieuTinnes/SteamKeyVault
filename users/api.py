@@ -174,7 +174,7 @@ def register(request, payload: schemas.SignUpSchema):
         verification_url = f"{frontend_url}/verify-email?token={token.token}"
         
         # Send verification email
-        Mailer.send_template_email(
+        sent = Mailer.send_template_email(
             subject=get_subject('verify_email', preferred_language),
             template_name='emails/verify_email.html',
             context={
@@ -184,7 +184,10 @@ def register(request, payload: schemas.SignUpSchema):
             to_emails=[user.email],
             locale=preferred_language,
         )
-        logger.info(f"Sent verification email to user_id={user.id} email={user.email}")
+        if not sent:
+            logger.error("Failed to send verification email to user_id=%s email=%s", user.id, user.email)
+        else:
+            logger.info(f"Sent verification email to user_id={user.id} email={user.email}")
         return Response({"success": True, "message": "Registration successful. Please check your email to verify your account."}, status=201)
     except Exception as e:
         logger.exception(f"Error registering user username={payload.username} email={payload.email}: {e}")
@@ -230,7 +233,7 @@ def update_account(request, payload: schemas.UpdateEmailSchema):
         
         # Send confirmation email to NEW email address
         locale = normalize_locale(user_obj.preferred_language)
-        Mailer.send_template_email(
+        sent = Mailer.send_template_email(
             subject=get_subject('email_change_confirmation', locale),
             template_name='emails/email_change_confirmation.html',
             context={
@@ -241,7 +244,10 @@ def update_account(request, payload: schemas.UpdateEmailSchema):
             to_emails=[new_email],
             locale=locale,
         )
-        logger.info(f"Sent email change confirmation to new_email={new_email} for user_id={user_obj.pk}")
+        if not sent:
+            logger.error("Failed to send email change confirmation to new_email=%s for user_id=%s", new_email, user_obj.pk)
+        else:
+            logger.info(f"Sent email change confirmation to new_email={new_email} for user_id={user_obj.pk}")
         return Response({"success": True, "message": "Please check your new email address to confirm the change."})
     except Exception as e:
         logger.exception(f"Error processing email change for user_id={user_obj.pk}: {e}")
@@ -295,7 +301,7 @@ def change_password_view(request, payload: schemas.ChangePasswordSchema):
         
         # Send notification email about password change
         locale = normalize_locale(user_obj.preferred_language)
-        Mailer.send_template_email(
+        sent = Mailer.send_template_email(
             subject=get_subject('password_changed', locale),
             template_name='emails/password_changed.html',
             context={
@@ -305,7 +311,10 @@ def change_password_view(request, payload: schemas.ChangePasswordSchema):
             to_emails=[user_obj.email],
             locale=locale,
         )
-        logger.info(f"Sent password change notification to user_id={user_obj.pk}")
+        if not sent:
+            logger.error("Failed to send password change notification to user_id=%s", user_obj.pk)
+        else:
+            logger.info(f"Sent password change notification to user_id={user_obj.pk}")
         return Response({"success": True})
     except Exception as e:
         logger.exception(f"Error changing password for user_id={user_obj.pk}: {e}")
@@ -344,7 +353,7 @@ def user_stats(request):
         })
     except Exception as e:
         logger.exception(f"Error fetching stats for user_id={getattr(user_obj, 'pk', None)}: {e}")
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({'error': 'Internal server error'}, status=500)
 
 
 @users_router.get('/verify-email')
@@ -370,7 +379,7 @@ def verify_email(request, token: str):
         # Send welcome email after successful verification
         frontend_url = getattr(settings, 'FRONTEND_URL')
         locale = normalize_locale(user.preferred_language)
-        Mailer.send_template_email(
+        sent = Mailer.send_template_email(
             subject=get_subject('welcome', locale),
             template_name='emails/welcome.html',
             context={
@@ -380,6 +389,8 @@ def verify_email(request, token: str):
             to_emails=[user.email],
             locale=locale,
         )
+        if not sent:
+            logger.error("Failed to send welcome email to user_id=%s", user.id)
         
         logger.info(f"Email verified successfully for user_id={user.id}")
         return Response({"success": True, "message": "Email verified successfully! You can now log in."})
@@ -459,7 +470,7 @@ def resend_verification_email(request):
 
         # Send verification email
         locale = normalize_locale(user.preferred_language)
-        Mailer.send_template_email(
+        sent = Mailer.send_template_email(
             subject=get_subject('verify_email', locale),
             template_name='emails/verify_email.html',
             context={
@@ -469,7 +480,10 @@ def resend_verification_email(request):
             to_emails=[user.email],
             locale=locale,
         )
-        logger.info(f"Resent verification email to user_id={user.id} email={user.email}")
+        if not sent:
+            logger.error("Failed to resend verification email to user_id=%s email=%s", user.id, user.email)
+        else:
+            logger.info(f"Resent verification email to user_id={user.id} email={user.email}")
         return Response({"success": True, "message": "Verification email sent."})
     except Exception as e:
         logger.exception(f"Error resending verification email for user_id={user.id}: {e}")
@@ -493,7 +507,7 @@ def forgot_password(request, payload: schemas.ForgotPasswordSchema):
     reset_url = f"{frontend_url}/reset-password?token={token.token}"
 
     locale = normalize_locale(user.preferred_language)
-    Mailer.send_template_email(
+    sent = Mailer.send_template_email(
         subject=get_subject('password_reset_request', locale),
         template_name='emails/password_reset_request.html',
         context={
@@ -503,7 +517,10 @@ def forgot_password(request, payload: schemas.ForgotPasswordSchema):
         to_emails=[user.email],
         locale=locale,
     )
-    logger.info(f"Password reset email sent user_id={user.id}")
+    if not sent:
+        logger.error("Failed to send password reset email to user_id=%s", user.id)
+    else:
+        logger.info(f"Password reset email sent user_id={user.id}")
     return Response({"success": True})
 
 
@@ -548,7 +565,7 @@ def reset_password(request, payload: schemas.ResetPasswordSchema):
         reset_token.mark_used()
         log_user_action(UserActionLog.ACTION_PASSWORD_RESET, user, request)
         locale = normalize_locale(user.preferred_language)
-        Mailer.send_template_email(
+        sent = Mailer.send_template_email(
             subject=get_subject('password_reset_success', locale),
             template_name='emails/password_reset_success.html',
             context={
@@ -558,6 +575,8 @@ def reset_password(request, payload: schemas.ResetPasswordSchema):
             to_emails=[user.email],
             locale=locale,
         )
+        if not sent:
+            logger.error("Failed to send password reset success email to user_id=%s", user.id)
         logger.info(f"Password reset completed for user_id={user.id}")
         return Response({"success": True})
     except Exception as e:

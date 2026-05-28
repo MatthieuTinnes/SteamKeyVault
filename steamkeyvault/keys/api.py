@@ -346,6 +346,8 @@ def reveal_share_key(request, token: str, payload: ShareRevealIn):
         )
         if sent:
             share.message_sent_at = now
+        else:
+            logger.error("Failed to send share message email to donor user_id=%s for token=%s", donor.pk, token)
 
     share.save(update_fields=["revealed_at", "message_sent_at"])
     share.key.used = True
@@ -393,6 +395,7 @@ def send_share_message(request, token: str, payload: ShareMessageIn):
         locale=locale,
     )
     if not sent:
+        logger.error("Failed to send share message email to donor user_id=%s for token=%s", donor.pk, token)
         return 400, {"error": translate_message(KEY_ERROR_MESSAGES, 'email_send_failed', locale)}
 
     share.message_sent_at = timezone.now()

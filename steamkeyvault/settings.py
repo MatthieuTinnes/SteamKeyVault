@@ -170,14 +170,19 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
         },
+        'gotify': {
+            'class': 'steamkeyvault.utils.gotify_handler.GotifyHandler',
+            'level': 'ERROR',
+            'formatter': 'verbose',
+        },
     },
     'root': {
-        'handlers': ['console'],
+        'handlers': ['console', 'gotify'],
         'level': os.environ.get('LOG_LEVEL', 'INFO'),
     },
     'loggers': {
         'steamkeyvault.steam': {
-            'handlers': ['console'],
+            'handlers': ['console', 'gotify'],
             'level': 'INFO',
             'propagate': False,
         },
@@ -196,6 +201,10 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 # Steam API Key
 STEAM_API_KEY = os.environ.get('STEAM_API_KEY')
 FRONTEND_URL = os.getenv('FRONTEND_URL')
+
+# Gotify notifications
+GOTIFY_URL = os.environ.get('GOTIFY_URL')
+GOTIFY_TOKEN = os.environ.get('GOTIFY_TOKEN')
 
 # Cloudflare Turnstile
 TURNSTILE_SECRET_KEY = os.environ.get('TURNSTILE_SECRET_KEY')

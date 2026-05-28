@@ -1,18 +1,21 @@
-from ninja import Router
+import csv
+import json
+import logging
+import re
+
+from ninja import Router, Schema
 from .models import UserGame
-from ninja import Schema
 from typing import Optional
 from ninja.security import django_auth
 from django.http import HttpResponse
-import csv
-import re
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-import json
 from steamkeyvault.keys.models import Key
 from steamkeyvault.utils.i18n import get_request_locale, translate_message
 from steamkeyvault.utils.i18n_messages import GAME_ERROR_MESSAGES
 from steamkeyvault.utils.request_utils import read_request_file
+
+logger = logging.getLogger(__name__)
 
 router = Router()
 
@@ -222,6 +225,7 @@ def import_games_json(request):
         raw = json.loads(file_bytes.decode('utf-8'))
         payload = SteamKeyVaultImportIn(**raw)
     except Exception:
+        logger.warning("JSON import parsing failed for user_id=%s", request.user.pk, exc_info=True)
         return 400, {"error": translate_message(GAME_ERROR_MESSAGES, 'invalid_json_payload', locale)}
 
     if payload.format != "SteamKeyVault" or payload.version != 1:
