@@ -32,9 +32,27 @@ jobs:
           fi
           echo "image_name=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
 
+  # ─── Tests ─────────────────────────────────────────────────────
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm run test:unit --run
+
   # ─── Build & Push ─────────────────────────────────────────────
   build:
-    needs: setup
+    needs: [setup, test]
     runs-on: ubuntu-latest
     permissions:
       contents: read
