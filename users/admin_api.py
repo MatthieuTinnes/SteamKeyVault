@@ -67,12 +67,18 @@ class UpdateUserAdminSchema(Schema):
 
 @admin_router.get('/users', auth=django_auth)
 @admin_required
-def list_users(request, limit: int = 25, offset: int = 0, search: str | None = None):
+def list_users(request, limit: int = 25, offset: int = 0, search: str | None = None, sort_by: str = 'date_joined', sort_order: str = 'desc'):
     """List all users with their statistics, with pagination and optional search."""
     logger.info(f"Admin {request.user.email} listing all users (limit={limit}, offset={offset})")
 
     limit = min(max(limit, 1), 200)
     offset = max(offset, 0)
+
+    allowed_sort_fields = {'id', 'username', 'email', 'email_verified', 'is_admin', 'date_joined', 'last_login', 'games_count', 'keys_count'}
+    if sort_by not in allowed_sort_fields:
+        sort_by = 'date_joined'
+    if sort_order not in ('asc', 'desc'):
+        sort_order = 'desc'
 
     users_qs = User.objects.all()
 
@@ -86,7 +92,8 @@ def list_users(request, limit: int = 25, offset: int = 0, search: str | None = N
         keys_count=Count('user_games__keys', distinct=True),
     )
     total = users_qs.count()
-    users_page = users_qs.order_by('-date_joined')[offset:offset + limit]
+    order_field = sort_by if sort_order == 'asc' else f'-{sort_by}'
+    users_page = users_qs.order_by(order_field)[offset:offset + limit]
 
     result = []
     for user in users_page:
