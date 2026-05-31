@@ -63,12 +63,17 @@ export async function getBackendVersion() {
   return axios.get<VersionInfo>(`${API_BASE_URL}/admin/version`, getAxiosConfig())
 }
 
-export async function getAllUsers(limit = 25, offset = 0, search?: string) {
+export async function getAllUsers(limit = 25, offset = 0, search?: string, sortBy?: string, sortOrder?: string) {
   return axios.get<{ users: AdminUser[]; total: number }>(
     `${API_BASE_URL}/admin/users`,
     {
       ...getAxiosConfig(),
-      params: { limit, offset, ...(search ? { search } : {}) },
+      params: {
+        limit,
+        offset,
+        ...(search ? { search } : {}),
+        ...(sortBy ? { sort_by: sortBy, sort_order: sortOrder || 'asc' } : {}),
+      },
     }
   )
 }

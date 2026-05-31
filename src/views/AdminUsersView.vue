@@ -21,7 +21,10 @@
         paginator
         :rows="rowsPerPage"
         :totalRecords="totalRecords"
+        :sortField="sortField"
+        :sortOrder="sortOrder"
         @page="onPage"
+        @sort="onSort"
       >
         <Column field="id" :header="t('admin.users.id')" sortable style="width: 5rem"></Column>
         <Column field="username" :header="t('admin.users.username')" sortable></Column>
@@ -147,6 +150,8 @@ const loading = ref(false)
 const totalRecords = ref(0)
 const currentOffset = ref(0)
 const searchQuery = ref('')
+const sortField = ref('date_joined')
+const sortOrder = ref(-1)
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 const showEditDialog = ref(false)
 const showDeleteDialog = ref(false)
@@ -174,7 +179,7 @@ onMounted(async () => {
 async function loadUsers() {
   loading.value = true
   try {
-    const response = await getAllUsers(rowsPerPage.value, currentOffset.value, searchQuery.value || undefined)
+    const response = await getAllUsers(rowsPerPage.value, currentOffset.value, searchQuery.value || undefined, sortField.value, sortOrder.value === 1 ? 'asc' : 'desc')
     users.value = response.data.users
     totalRecords.value = response.data.total
   } catch (error: any) {
@@ -195,6 +200,13 @@ function onSearch() {
     currentOffset.value = 0
     loadUsers()
   }, 300)
+}
+
+function onSort(event: { sortField: string; sortOrder: number }) {
+  sortField.value = event.sortField
+  sortOrder.value = event.sortOrder
+  currentOffset.value = 0
+  loadUsers()
 }
 
 function editUser(user: AdminUser) {
