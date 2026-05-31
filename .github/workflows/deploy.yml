@@ -75,6 +75,9 @@ jobs:
           context: .
           push: true
           tags: ${{ needs.setup.outputs.image_name }}:${{ needs.setup.outputs.image_tag }}
+          build-args: |
+            COMMIT_HASH=${{ github.sha }}
+            DEPLOY_DATE=${{ github.event.head_commit.timestamp }}
           cache-from: type=gha,scope=${{ needs.setup.outputs.environment }}
           cache-to:   type=gha,scope=${{ needs.setup.outputs.environment }},mode=max
 

@@ -25,6 +25,12 @@ RUN pip install --upgrade pip && \
 # Copy project files
 COPY . .
 
+# Version info (injected at build time)
+ARG COMMIT_HASH=""
+ARG DEPLOY_DATE=""
+ENV COMMIT_HASH=${COMMIT_HASH}
+ENV DEPLOY_DATE=${DEPLOY_DATE}
+
 # Create static files directory
 RUN mkdir -p /app/staticfiles
 

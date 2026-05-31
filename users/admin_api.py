@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import datetime, timedelta
 import logging
+import os
 
 from users.admin_decorators import admin_required
 from users.models import UserActionLog
@@ -266,6 +267,16 @@ def get_admin_stats(request):
         'admin_users': admin_users,
         'total_games': total_games,
         'total_keys': total_keys,
+    }
+
+
+@admin_router.get('/version', auth=django_auth)
+@admin_required
+def get_version_info(request):
+    """Get backend version information (commit hash and deploy date)."""
+    return {
+        'commit_hash': os.environ.get('COMMIT_HASH', ''),
+        'deploy_date': os.environ.get('DEPLOY_DATE', ''),
     }
 
 
