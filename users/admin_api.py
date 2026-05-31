@@ -96,6 +96,7 @@ def list_users(request, limit: int = 25, offset: int = 0, search: str | None = N
             'email_verified': user.email_verified,
             'is_admin': user.is_admin,
             'date_joined': user.date_joined.isoformat(),
+            'last_login': user.last_login.isoformat() if user.last_login else None,
             'games_count': user.games_count,
             'keys_count': user.keys_count,
         })
