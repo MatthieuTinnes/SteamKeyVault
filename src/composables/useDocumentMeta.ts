@@ -1,9 +1,11 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useHead } from '@unhead/vue'
+import { useRoute } from 'vue-router'
 
 export function useDocumentMeta() {
   const { t, locale } = useI18n()
+  const route = useRoute()
 
   useHead({
     title: computed(() => t('seo.title')),
@@ -14,6 +16,9 @@ export function useDocumentMeta() {
       { property: 'og:description', content: computed(() => t('seo.ogDescription')) },
       { name: 'twitter:title', content: computed(() => t('seo.ogTitle')) },
       { name: 'twitter:description', content: computed(() => t('seo.ogDescription')) },
+    ],
+    link: [
+      { rel: 'canonical', href: computed(() => `${window.location.origin}${route.path}`) },
     ],
   })
 }

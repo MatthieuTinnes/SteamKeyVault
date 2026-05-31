@@ -8,10 +8,10 @@ type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
 const messages = {
   en: {
     seo: {
-      title: 'SteamKeyVault — Secure Steam Key Manager for Collectors and Traders',
-      description: 'SteamKeyVault is a free vault to securely store, organize, and share your Steam game keys and bundle keys. Perfect for collectors and traders. End-to-end encrypted.',
-      ogTitle: 'SteamKeyVault — Secure Steam Key Manager for Collectors and Traders',
-      ogDescription: 'Store, organize, and share your Steam game keys and bundle keys securely. The ultimate vault for game collectors and key traders. End-to-end encrypted.',
+      title: 'SteamKeyVault — Secure & Encrypted Steam Key Manager',
+      description: 'Free encrypted vault to store, organize and share your Steam game keys. Ideal for collectors and traders.',
+      ogTitle: 'SteamKeyVault — Secure & Encrypted Steam Key Manager',
+      ogDescription: 'Store, organize and share your Steam keys securely. Free encrypted vault for game collectors and traders.',
     },
     app: {
       name: 'SteamKeyVault',
@@ -1007,10 +1007,10 @@ const messages = {
   },
   fr: {
     seo: {
-      title: 'SteamKeyVault — Gestionnaire sécurisé de clés Steam pour collectionneurs et traders',
-      description: 'SteamKeyVault est un coffre-fort gratuit pour stocker, organiser et partager vos clés de jeux Steam et vos clés de bundles en toute sécurité. Chiffrement de bout en bout.',
-      ogTitle: 'SteamKeyVault — Gestionnaire sécurisé de clés Steam pour collectionneurs et traders',
-      ogDescription: 'Stockez, organisez et partagez vos clés de jeux Steam et vos clés de bundles en toute sécurité. Le coffre-fort ultime pour collectionneurs et traders. Chiffré de bout en bout.',
+      title: 'SteamKeyVault — Gestionnaire de clés Steam chiffré',
+      description: 'Coffre-fort gratuit et chiffré pour stocker, organiser et partager vos clés Steam. Idéal pour collectionneurs.',
+      ogTitle: 'SteamKeyVault — Gestionnaire de clés Steam chiffré',
+      ogDescription: 'Stockez, organisez et partagez vos clés Steam en toute sécurité. Coffre-fort chiffré pour collectionneurs et traders.',
     },
     app: {
       name: 'SteamKeyVault',

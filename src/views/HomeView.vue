@@ -898,6 +898,22 @@ function goToRegister() {
     display: none;
   }
 
+  .flow-arrow-badge {
+    font-size: 0.75rem;
+  }
+
+  .flow-label {
+    font-size: 0.8rem;
+  }
+
+  .security-card-note {
+    font-size: 0.8rem;
+  }
+
+  .step-number {
+    font-size: 0.8rem;
+  }
+
   .section-inner {
     padding: 3.5rem 1rem;
   }
