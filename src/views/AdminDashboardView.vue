@@ -63,14 +63,52 @@
         <p>{{ t('admin.sections.actionLogsDesc') }}</p>
       </div>
     </div>
+
+    <div class="version-section">
+      <h3><i class="pi pi-info-circle"></i> {{ t('admin.version.title') }}</h3>
+      <div class="version-grid">
+        <div class="version-card">
+          <div class="version-label">{{ t('admin.version.frontend') }}</div>
+          <div class="version-details">
+            <div v-if="frontendVersion.commit_hash" class="version-hash">
+              <span class="version-key">{{ t('admin.version.commit') }}</span>
+              <code>{{ frontendVersion.commit_hash.substring(0, 7) }}</code>
+            </div>
+            <div v-if="frontendVersion.deploy_date" class="version-date">
+              <span class="version-key">{{ t('admin.version.deployDate') }}</span>
+              <span>{{ formatDate(frontendVersion.deploy_date) }}</span>
+            </div>
+            <div v-if="!frontendVersion.commit_hash && !frontendVersion.deploy_date" class="version-unknown">
+              {{ t('admin.version.unknown') }}
+            </div>
+          </div>
+        </div>
+        <div class="version-card">
+          <div class="version-label">{{ t('admin.version.backend') }}</div>
+          <div class="version-details">
+            <div v-if="backendVersion.commit_hash" class="version-hash">
+              <span class="version-key">{{ t('admin.version.commit') }}</span>
+              <code>{{ backendVersion.commit_hash.substring(0, 7) }}</code>
+            </div>
+            <div v-if="backendVersion.deploy_date" class="version-date">
+              <span class="version-key">{{ t('admin.version.deployDate') }}</span>
+              <span>{{ formatDate(backendVersion.deploy_date) }}</span>
+            </div>
+            <div v-if="!backendVersion.commit_hash && !backendVersion.deploy_date" class="version-unknown">
+              {{ t('admin.version.unknown') }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getAdminStats } from '@/api/admin'
-import type { AdminStats } from '@/api/admin'
+import { getAdminStats, getBackendVersion } from '@/api/admin'
+import type { AdminStats, VersionInfo } from '@/api/admin'
 import { showErrorToast } from '@/utils/toast'
 import { useI18n } from 'vue-i18n'
 
@@ -84,10 +122,39 @@ const stats = ref<AdminStats>({
   total_keys: 0,
 })
 
+const frontendVersion = ref<VersionInfo>({
+  commit_hash: window.config?.VITE_COMMIT_HASH || import.meta.env.VITE_COMMIT_HASH || '',
+  deploy_date: window.config?.VITE_DEPLOY_DATE || import.meta.env.VITE_DEPLOY_DATE || '',
+})
+
+const backendVersion = ref<VersionInfo>({
+  commit_hash: '',
+  deploy_date: '',
+})
+
+function formatDate(dateStr: string): string {
+  if (!dateStr) return ''
+  try {
+    return new Date(dateStr).toLocaleString(locale.value, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  } catch {
+    return dateStr
+  }
+}
+
 onMounted(async () => {
   try {
-    const response = await getAdminStats()
-    stats.value = response.data
+    const [statsRes, versionRes] = await Promise.all([
+      getAdminStats(),
+      getBackendVersion(),
+    ])
+    stats.value = statsRes.data
+    backendVersion.value = versionRes.data
   } catch (error) {
     showErrorToast(t('admin.statsFailed'))
   }
@@ -198,5 +265,72 @@ onMounted(async () => {
   .stats-grid {
     grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
   }
+}
+
+.version-section {
+  margin-top: 2rem;
+}
+
+.version-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.version-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+}
+
+.version-card {
+  background: var(--bg-primary);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  box-shadow: var(--shadow-md);
+  transition: background-color 0.3s ease;
+}
+
+.version-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.version-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.version-hash,
+.version-date {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.version-key {
+  font-weight: 500;
+}
+
+.version-details code {
+  background: var(--bg-secondary, #f3f4f6);
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.85rem;
+  font-family: monospace;
+}
+
+.version-unknown {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-style: italic;
 }
 </style>

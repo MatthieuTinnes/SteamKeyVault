@@ -913,6 +913,14 @@ const messages = {
         actionLogs: 'Action Logs',
         actionLogsDesc: 'Review logins and account changes with filters'
       },
+      version: {
+        title: 'Version Information',
+        frontend: 'Frontend',
+        backend: 'Backend',
+        commit: 'Commit:',
+        deployDate: 'Deployed:',
+        unknown: 'Version info not available'
+      },
       users: {
         title: 'User Management',
         backToDashboard: 'Back to Dashboard',
@@ -1912,6 +1920,14 @@ const messages = {
         steamSyncDesc: 'Rafraîchir la base Steam et voir les statistiques',
         actionLogs: 'Journaux d\'actions',
         actionLogsDesc: 'Vérifier les connexions et changements de compte avec filtres'
+      },
+      version: {
+        title: 'Informations de version',
+        frontend: 'Frontend',
+        backend: 'Backend',
+        commit: 'Commit :',
+        deployDate: 'Déployé le :',
+        unknown: 'Informations de version non disponibles'
       },
       users: {
         title: 'Gestion des utilisateurs',

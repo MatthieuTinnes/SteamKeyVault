@@ -50,8 +50,17 @@ export interface ActionLogStats {
   end: string
 }
 
+export interface VersionInfo {
+  commit_hash: string
+  deploy_date: string
+}
+
 export async function getAdminStats() {
   return axios.get<AdminStats>(`${API_BASE_URL}/admin/stats`, getAxiosConfig())
+}
+
+export async function getBackendVersion() {
+  return axios.get<VersionInfo>(`${API_BASE_URL}/admin/version`, getAxiosConfig())
 }
 
 export async function getAllUsers(limit = 25, offset = 0, search?: string) {

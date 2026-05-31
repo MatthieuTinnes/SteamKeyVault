@@ -20,7 +20,9 @@ fi
 echo "window.config = {" > "$CONFIG_FILE"
 
 echo "  VITE_API_BASE_URL: \"${api_base}\"," >> "$CONFIG_FILE"
-echo "  VITE_TURNSTILE_SITE_KEY: \"${turnstile_key}\"" >> "$CONFIG_FILE"
+echo "  VITE_TURNSTILE_SITE_KEY: \"${turnstile_key}\"," >> "$CONFIG_FILE"
+echo "  VITE_COMMIT_HASH: \"${COMMIT_HASH:-}\"," >> "$CONFIG_FILE"
+echo "  VITE_DEPLOY_DATE: \"${DEPLOY_DATE:-}\"" >> "$CONFIG_FILE"
 echo "};" >> "$CONFIG_FILE"
 
 echo "Generated config.js at $CONFIG_FILE"
