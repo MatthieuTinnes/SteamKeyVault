@@ -39,6 +39,7 @@ import {
   refreshSteamApps,
   getSteamStats,
 } from '../admin'
+import type { AdminUser } from '../admin'
 
 describe('admin API', () => {
   beforeEach(() => {
@@ -71,6 +72,42 @@ describe('admin API', () => {
         params: { limit: 10, offset: 5, search: 'alice' },
       })
     })
+
+    it('returns users with last_login field', async () => {
+      const mockUser: AdminUser = {
+        id: 1,
+        username: 'alice',
+        email: 'alice@test.com',
+        email_verified: true,
+        is_admin: false,
+        date_joined: '2026-01-01T00:00:00Z',
+        last_login: '2026-05-30T14:30:00Z',
+        games_count: 3,
+        keys_count: 5,
+      }
+      vi.mocked(axios.get).mockResolvedValue({ data: { users: [mockUser], total: 1 } })
+      const result = await getAllUsers()
+      const user = result.data.users[0]
+      expect(user.last_login).toBe('2026-05-30T14:30:00Z')
+    })
+
+    it('returns null last_login for users who never logged in', async () => {
+      const mockUser: AdminUser = {
+        id: 2,
+        username: 'bob',
+        email: 'bob@test.com',
+        email_verified: false,
+        is_admin: false,
+        date_joined: '2026-01-01T00:00:00Z',
+        last_login: null,
+        games_count: 0,
+        keys_count: 0,
+      }
+      vi.mocked(axios.get).mockResolvedValue({ data: { users: [mockUser], total: 1 } })
+      const result = await getAllUsers()
+      const user = result.data.users[0]
+      expect(user.last_login).toBeNull()
+    })
   })
 
   describe('getUserDetails', () => {
@@ -78,6 +115,34 @@ describe('admin API', () => {
       vi.mocked(axios.get).mockResolvedValue({ data: { id: 1 } })
       await getUserDetails(1)
       expect(axios.get).toHaveBeenCalledWith('http://test/api/admin/users/1', { withCredentials: true })
+    })
+
+    it('returns last_login when set', async () => {
+      vi.mocked(axios.get).mockResolvedValue({
+        data: {
+          id: 1, username: 'alice', email: 'alice@test.com',
+          email_verified: true, is_admin: false,
+          date_joined: '2026-01-01T00:00:00Z',
+          last_login: '2026-05-30T14:30:00Z',
+          games_count: 0, keys_count: 0,
+        },
+      })
+      const result = await getUserDetails(1)
+      expect(result.data.last_login).toBe('2026-05-30T14:30:00Z')
+    })
+
+    it('returns null last_login when never logged in', async () => {
+      vi.mocked(axios.get).mockResolvedValue({
+        data: {
+          id: 1, username: 'bob', email: 'bob@test.com',
+          email_verified: false, is_admin: false,
+          date_joined: '2026-01-01T00:00:00Z',
+          last_login: null,
+          games_count: 0, keys_count: 0,
+        },
+      })
+      const result = await getUserDetails(1)
+      expect(result.data.last_login).toBeNull()
     })
   })
 

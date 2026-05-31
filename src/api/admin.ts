@@ -8,6 +8,7 @@ export interface AdminUser {
   email_verified: boolean
   is_admin: boolean
   date_joined: string
+  last_login: string | null
   games_count: number
   keys_count: number
 }

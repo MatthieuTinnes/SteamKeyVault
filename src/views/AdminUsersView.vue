@@ -44,6 +44,11 @@
             {{ formatDate(data.date_joined) }}
           </template>
         </Column>
+        <Column field="last_login" :header="t('admin.users.lastLogin')" sortable style="width: 10rem">
+          <template #body="{ data }">
+            {{ data.last_login ? formatDate(data.last_login) : '—' }}
+          </template>
+        </Column>
         <Column :header="t('admin.users.actions')" style="width: 10rem">
           <template #body="{ data }">
             <div class="action-buttons">
@@ -282,7 +287,7 @@ async function clearUserGamesAndKeys() {
 }
 
 function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString()
+  return new Date(dateString).toLocaleString(locale.value, { dateStyle: 'short', timeStyle: 'short' })
 }
 </script>
 
