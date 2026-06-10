@@ -1,5 +1,4 @@
 # Python
-__pycache__/
 **/__pycache__/
 *.py[cod]
 *.pyo
@@ -7,24 +6,22 @@ __pycache__/
 *.pyc
 
 # Django
-*.log
 *.pot
-*.pyc
-*.pyo
 *.db
 *.sqlite3
 /static/
 /media/
 
 # VSCode
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 
 # Environments
 venv/
 .env
 .env.*
 !.env.local
-
+!.env.example
 # OS
 .DS_Store
 Thumbs.db
@@ -41,3 +38,31 @@ Thumbs.db
 # Bruno/Postman collections
 *.bruno.json
 *.postman.json
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+coverage
+*.local
+
+/cypress/videos/
+/cypress/screenshots/
+
+# Editor directories and files
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+*.tsbuildinfo
