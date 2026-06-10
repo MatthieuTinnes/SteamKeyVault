@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Home -->
+  <url>
+    <loc>https://steamkeyvault.com/en/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://steamkeyvault.com/en/" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://steamkeyvault.com/fr/" />
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://steamkeyvault.com/fr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://steamkeyvault.com/en/" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://steamkeyvault.com/fr/" />
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- About -->
+  <url>
+    <loc>https://steamkeyvault.com/en/about</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://steamkeyvault.com/en/about" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://steamkeyvault.com/fr/about" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://steamkeyvault.com/fr/about</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://steamkeyvault.com/en/about" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://steamkeyvault.com/fr/about" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Documentation -->
+  <url>
+    <loc>https://steamkeyvault.com/en/documentation</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://steamkeyvault.com/en/documentation" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://steamkeyvault.com/fr/documentation" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://steamkeyvault.com/fr/documentation</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://steamkeyvault.com/en/documentation" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://steamkeyvault.com/fr/documentation" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Login -->
+  <url>
+    <loc>https://steamkeyvault.com/en/login</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://steamkeyvault.com/en/login" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://steamkeyvault.com/fr/login" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://steamkeyvault.com/fr/login</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://steamkeyvault.com/en/login" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://steamkeyvault.com/fr/login" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Register -->
+  <url>
+    <loc>https://steamkeyvault.com/en/register</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://steamkeyvault.com/en/register" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://steamkeyvault.com/fr/register" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://steamkeyvault.com/fr/register</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://steamkeyvault.com/en/register" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://steamkeyvault.com/fr/register" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Forgot Password -->
+  <url>
+    <loc>https://steamkeyvault.com/en/forgot-password</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://steamkeyvault.com/en/forgot-password" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://steamkeyvault.com/fr/forgot-password" />
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://steamkeyvault.com/fr/forgot-password</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://steamkeyvault.com/en/forgot-password" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://steamkeyvault.com/fr/forgot-password" />
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <!-- Terms of Service -->
+  <url>
+    <loc>https://steamkeyvault.com/en/terms</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://steamkeyvault.com/en/terms" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://steamkeyvault.com/fr/terms" />
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://steamkeyvault.com/fr/terms</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://steamkeyvault.com/en/terms" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://steamkeyvault.com/fr/terms" />
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <!-- Privacy Policy -->
+  <url>
+    <loc>https://steamkeyvault.com/en/privacy</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://steamkeyvault.com/en/privacy" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://steamkeyvault.com/fr/privacy" />
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://steamkeyvault.com/fr/privacy</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://steamkeyvault.com/en/privacy" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://steamkeyvault.com/fr/privacy" />
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+</urlset>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Primary SEO -->
+    <title>SteamKeyVault — Secure, Open-Source & Encrypted Steam Key Manager</title>
+    <meta name="description" content="Free open-source encrypted vault to store, organize and share your Steam game keys. Ideal for collectors and traders.">
+    <meta name="keywords" content="Steam keys, key manager, Steam key vault, game keys, secure key storage, key organizer, bundle keys, Humble Bundle keys, game collector, key trader, Steam key trading, key collection manager">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="SteamKeyVault">
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://steamkeyvault.com/en/">
+
+    <!-- Hreflang -->
+    <link rel="alternate" hreflang="en" href="https://steamkeyvault.com/en/">
+    <link rel="alternate" hreflang="fr" href="https://steamkeyvault.com/fr/">
+    <link rel="alternate" hreflang="x-default" href="https://steamkeyvault.com/en/">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="SteamKeyVault — Secure, Open-Source & Encrypted Steam Key Manager">
+    <meta property="og:description" content="Store, organize and share your Steam keys securely. Free open-source encrypted vault for game collectors and traders.">
+    <meta property="og:image" content="/og-image.png">
+    <meta property="og:site_name" content="SteamKeyVault">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SteamKeyVault — Secure, Open-Source & Encrypted Steam Key Manager">
+    <meta name="twitter:description" content="Store, organize and share your Steam keys securely. Free open-source encrypted vault for game collectors and traders.">
+    <meta name="twitter:image" content="/og-image.png">
+
+    <!-- JSON-LD structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "SteamKeyVault",
+      "description": "A free open-source vault to securely store, organize, and share your Steam game keys and bundle keys. Designed for game collectors and key traders. End-to-end encrypted.",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web",
+      "inLanguage": ["en", "fr"],
+      "audience": [
+        { "@type": "Audience", "audienceType": "Game Collectors" },
+        { "@type": "Audience", "audienceType": "Key Traders" }
+      ],
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "100% open source",
+        "End-to-end encryption",
+        "Steam key organization",
+        "Bundle key management",
+        "Collector-friendly key tracking",
+        "Key trading support",
+        "Secure key sharing",
+        "CSV and JSON import/export"
+      ]
+    }
+    </script>
+  </head>
+  <body>
+    <script src="/config.js"></script>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+
+    <!-- SEO fallback for crawlers that do not execute JavaScript -->
+    <noscript>
+      <div style="max-width:900px;margin:0 auto;padding:2rem;font-family:system-ui,sans-serif">
+        <h1>SteamKeyVault — Secure, Open-Source &amp; Encrypted Steam Key Manager</h1>
+        <p>SteamKeyVault is a free and open-source web application designed to help gamers securely store, organize, and share their Steam game keys. Whether you are a collector managing hundreds of unused keys, a trader looking for a safe place to keep your inventory, or simply someone who wants to stop losing activation codes, SteamKeyVault provides an intuitive and privacy-focused solution that puts you in control of your data.</p>
+
+        <h2>Key Features</h2>
+
+        <h3>End-to-End Encryption</h3>
+        <p>Every Steam key you store is encrypted directly in your browser using AES-256 before it ever reaches the server. Your encryption key is derived from your password and never leaves your device. This means that even the server administrators cannot read your keys. Your data remains private and protected at all times, even in the unlikely event of a server breach.</p>
+
+        <h3>Smart Key Organization</h3>
+        <p>Organize your entire Steam key collection by game title, activation status, source, and custom tags. SteamKeyVault automatically fetches game information from the Steam Store API — including names, header images, and metadata — so you can browse a rich, visual library instead of a plain text list. Quickly search, sort, and filter to find exactly the key you need.</p>
+
+        <h3>Secure Key Sharing</h3>
+        <p>Need to send a key to a friend or a trading partner? Generate a unique, time-limited sharing link that grants one-time access to a specific key. You control who can view your key and for how long. Shared keys remain encrypted during transit and are automatically revoked after use or expiration.</p>
+
+        <h3>Flexible Import and Export</h3>
+        <p>Easily import your existing key collection from CSV or JSON files, whether your keys come from Humble Bundle, Fanatical, or any other source. Export your entire vault at any time in multiple formats. SteamKeyVault never locks you in — your data is always yours to take wherever you want.</p>
+
+        <h3>Steam Store Integration</h3>
+        <p>SteamKeyVault integrates seamlessly with the Steam Store API to automatically fetch and display game details, including official names, descriptions, header images, and pricing information. This makes it easy to identify games at a glance and manage your collection without manual data entry.</p>
+
+        <h2>How It Works</h2>
+
+        <h3>Step 1 — Create Your Free Account</h3>
+        <p>Sign up in seconds with just an email address and a password. During registration your unique encryption keys are generated locally in your browser and never transmitted to the server. Your vault is ready to use immediately.</p>
+
+        <h3>Step 2 — Add Your Steam Keys</h3>
+        <p>Add keys one by one or bulk-import them from a file. For each key you can specify the game, the source, notes, and any custom tags. SteamKeyVault encrypts every key client-side before storing it securely in your personal vault.</p>
+
+        <h3>Step 3 — Manage, Search, and Share</h3>
+        <p>Browse your key collection with powerful search and filtering options. Mark keys as used, gift them to friends via secure sharing links, or export your vault for backup. Everything stays encrypted and under your control.</p>
+
+        <h2>Security You Can Trust</h2>
+        <p>Security is the foundation of SteamKeyVault. We use industry-standard AES-256 client-side encryption so that your Steam keys are never exposed in plain text outside your browser. The encryption key is derived from your password using a strong key derivation function, ensuring that brute-force attacks are impractical. Even if the database were leaked, attackers would only find ciphertext that is useless without your password. We also enforce HTTPS everywhere, use secure HTTP-only cookies, and follow OWASP best practices for web application security.</p>
+
+        <h2>Frequently Asked Questions</h2>
+
+        <h3>Is SteamKeyVault free to use?</h3>
+        <p>Yes, SteamKeyVault is completely free. There are no hidden fees, premium tiers, or advertisements.</p>
+
+        <h3>Is my data safe?</h3>
+        <p>Absolutely. Your keys are encrypted end-to-end using AES-256 directly in your browser. Only you hold the decryption key, which is derived from your password. We cannot read or access your stored keys under any circumstances.</p>
+
+        <h3>Can I export my data?</h3>
+        <p>Yes. You can export all your keys and associated game data at any time in CSV or JSON format. Your data belongs to you and you can take it with you whenever you want.</p>
+
+        <h3>What sources of keys are supported?</h3>
+        <p>SteamKeyVault supports keys from any source — Humble Bundle, Fanatical, Steam gifts, giveaways, retail purchases, and more. If it is a Steam activation key, you can store and manage it here.</p>
+
+        <h2>Get Started Today</h2>
+        <p>Join thousands of gamers who trust SteamKeyVault to protect their Steam key collections. Create your free account now and start organizing your keys securely. No credit card required, no strings attached.</p>
+        <p><a href="/en/register">Create a free account</a> | <a href="/en/documentation">Read the documentation</a></p>
+      </div>
+    </noscript>
+  </body>
+</html>
