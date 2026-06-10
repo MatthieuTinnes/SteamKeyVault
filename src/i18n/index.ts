@@ -54,7 +54,7 @@ const messages = {
       unknownError: 'Unknown error'
     },
     home: {
-      eyebrow: 'Free to Use · Secure by Design · Privacy-Focused',
+      eyebrow: 'Free to Use · Secure by Design · Open Source · Privacy-Focused',
       heroTitle: 'Your Steam Keys, Safe and Organized',
       heroSubtitle: 'SteamKeyVault keeps your entire game key library encrypted, searchable, and shareable, all under your control.',
       getStarted: 'Get started free',
@@ -64,7 +64,8 @@ const messages = {
         { icon: 'pi-lock', label: 'End-to-end encrypted' },
         { icon: 'pi-file-export', label: 'Full control of your data' },
         { icon: 'pi-eye-slash', label: 'Zero trackers' },
-        { icon: 'pi-globe', label: 'Works on any device' }
+        { icon: 'pi-globe', label: 'Works on any device' },
+        { icon: 'pi-github', label: '100% open source' }
       ],
       featuresTitle: 'Everything you need to manage your keys',
       featuresDesc: 'Built for collectors, traders, and gamers who care about privacy and control.',
@@ -1062,7 +1063,7 @@ const messages = {
       unknownError: 'Erreur inconnue'
     },
     home: {
-      eyebrow: 'Gratuit · Sécurisé · Centré sur la vie privée',
+      eyebrow: 'Gratuit · Sécurisé · Open Source · Centré sur la vie privée',
       heroTitle: 'Vos clés Steam, en sécurité et bien organisées',
       heroSubtitle: 'SteamKeyVault chiffre, organise et vous permet de partager vos clés de jeux, le tout sous votre contrôle.',
       getStarted: 'Commencer gratuitement',
@@ -1072,7 +1073,8 @@ const messages = {
         { icon: 'pi-lock', label: 'Chiffrement de bout en bout' },
         { icon: 'pi-file-export', label: 'Contrôle total de vos données' },
         { icon: 'pi-eye-slash', label: 'Zéro traceur' },
-        { icon: 'pi-globe', label: 'Disponible sur tous vos appareils' }
+        { icon: 'pi-globe', label: 'Disponible sur tous vos appareils' },
+        { icon: 'pi-github', label: '100 % open source' }
       ],
       featuresTitle: 'Tout ce qu\'il faut pour gérer vos clés',
       featuresDesc: 'Conçu pour les collectionneurs, traders et joueurs qui tiennent à leur vie privée.',
