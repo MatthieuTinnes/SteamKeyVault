@@ -1,0 +1,123 @@
+# .github/workflows/deploy.yml
+name: Build & Deploy
+
+on:
+  push:
+    branches: [main, develop]
+
+jobs:
+  # ─── Déterminer l'environnement ───────────────────────────────
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.set-env.outputs.environment }}
+      image_tag:   ${{ steps.set-env.outputs.image_tag }}
+      app_dir:     ${{ steps.set-env.outputs.app_dir }}
+      image_name:  ${{ steps.set-env.outputs.image_name }}
+
+    steps:
+      - name: Set environment variables
+        id: set-env
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          if [[ "$REF" == "refs/heads/main" ]]; then
+            echo "environment=prod" >> $GITHUB_OUTPUT
+            echo "image_tag=latest"       >> $GITHUB_OUTPUT
+            echo "app_dir=/app/SteamKeyVault/prod" >> $GITHUB_OUTPUT
+          else
+            echo "environment=preprod"    >> $GITHUB_OUTPUT
+            echo "image_tag=develop"      >> $GITHUB_OUTPUT
+            echo "app_dir=/app/SteamKeyVault/preprod" >> $GITHUB_OUTPUT
+          fi
+          echo "image_name=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
+
+  # ─── Tests ─────────────────────────────────────────────────────
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Run tests
+        env:
+          DJANGO_SETTINGS_MODULE: steamkeyvault.test_settings
+        run: python manage.py test users steamkeyvault.games.tests steamkeyvault.keys.tests steamkeyvault.utils.tests steamkeyvault.steam.tests --verbosity=2
+
+  # ─── Build & Push ─────────────────────────────────────────────
+  build:
+    needs: [setup, test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ needs.setup.outputs.image_name }}:${{ needs.setup.outputs.image_tag }}
+          build-args: |
+            COMMIT_HASH=${{ github.sha }}
+            DEPLOY_DATE=${{ github.event.head_commit.timestamp }}
+          cache-from: type=gha,scope=${{ needs.setup.outputs.environment }}
+          cache-to:   type=gha,scope=${{ needs.setup.outputs.environment }},mode=max
+
+  # ─── Deploy ───────────────────────────────────────────────────
+  deploy:
+    needs: [setup, build]
+    runs-on: ubuntu-latest
+    environment: ${{ needs.setup.outputs.environment }}
+
+    steps:
+      - name: Deploy
+        uses: appleboy/ssh-action@v1
+        env:
+          IMAGE:   ${{ needs.setup.outputs.image_name }}:${{ needs.setup.outputs.image_tag }}
+          APP_DIR: ${{ needs.setup.outputs.app_dir }}
+          ACTOR:   ${{ github.actor }}
+          TOKEN:   ${{ secrets.GITHUB_TOKEN }}
+        with:
+          host:     ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key:      ${{ secrets.VPS_SSH_KEY }}
+          envs:     IMAGE,APP_DIR,ACTOR,TOKEN
+          script: |
+            echo $TOKEN | docker login ghcr.io -u $ACTOR --password-stdin
+            docker pull $IMAGE
+            docker compose -f $APP_DIR/docker-compose.yml up -d --no-deps --pull always backend
+            docker image prune -f
+
+      - name: Notify Gotify
+        if: always()
+        env:
+          GOTIFY_HOST: ${{ secrets.GOTIFY_HOST }}
+          GOTIFY_TOKEN: ${{ secrets.GOTIFY_TOKEN }}
+          ENVIRONMENT: ${{ needs.setup.outputs.environment }}
+          STATUS: ${{ job.status }}
+        run: |
+          curl -s -X POST "https://${GOTIFY_HOST}/message?token=${GOTIFY_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            -d "{
+              \"title\": \"[Backend] 🚀 Deploy to ${ENVIRONMENT} — ${STATUS}\",
+              \"message\": \"Commit: ${{ github.sha }}\\nAuthor: ${{ github.actor }}\\nRef: ${{ github.ref_name }}\",
+              \"priority\": 5
+            }"

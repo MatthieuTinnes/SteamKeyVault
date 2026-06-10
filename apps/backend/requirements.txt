@@ -1,0 +1,8 @@
+Django>=5.2.3
+django-ninja>=1.4.3
+django-cors-headers>=4.3.0
+psycopg2-binary>=2.9.10
+python-dotenv>=1.0.0
+requests>=2.31.0
+django-apscheduler>=0.6.2
+whitenoise>=6.12.0
