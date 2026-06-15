@@ -30,7 +30,29 @@ jobs:
           fi
           echo "image_base=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
 
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend:  ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'apps/backend/**'
+              - '.github/workflows/deploy.yml'
+            frontend:
+              - 'apps/frontend/**'
+              - '.github/workflows/deploy.yml'
+
   test-backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -52,6 +74,8 @@ jobs:
         run: python manage.py test users steamkeyvault.games.tests steamkeyvault.keys.tests steamkeyvault.utils.tests steamkeyvault.steam.tests --verbosity=2
 
   test-frontend:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -74,7 +98,8 @@ jobs:
         working-directory: apps/frontend
 
   build-backend:
-    needs: [setup, test-backend]
+    needs: [setup, changes, test-backend]
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -103,7 +128,8 @@ jobs:
           cache-to:   type=gha,scope=backend-${{ needs.setup.outputs.environment }},mode=max
 
   build-frontend:
-    needs: [setup, test-frontend]
+    needs: [setup, changes, test-frontend]
+    if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -132,12 +158,17 @@ jobs:
           cache-to:   type=gha,scope=frontend-${{ needs.setup.outputs.environment }},mode=max
 
   deploy:
-    needs: [setup, build-backend, build-frontend]
+    needs: [setup, changes, build-backend, build-frontend]
+    if: |
+      always() &&
+      !failure() && !cancelled() &&
+      (needs.changes.outputs.backend == 'true' || needs.changes.outputs.frontend == 'true')
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.environment }}
 
     steps:
       - name: Deploy backend
+        if: needs.changes.outputs.backend == 'true'
         uses: appleboy/ssh-action@v1
         env:
           IMAGE:   ${{ needs.setup.outputs.image_base }}/backend:${{ needs.setup.outputs.image_tag }}
@@ -156,6 +187,7 @@ jobs:
             docker image prune -f
 
       - name: Deploy frontend
+        if: needs.changes.outputs.frontend == 'true'
         uses: appleboy/ssh-action@v1
         env:
           IMAGE:   ${{ needs.setup.outputs.image_base }}/frontend:${{ needs.setup.outputs.image_tag }}
