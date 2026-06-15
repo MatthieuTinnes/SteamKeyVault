@@ -25,6 +25,20 @@
               icon="pi pi-book"
               @click="goToDocs"
             />
+            <a
+              href="https://github.com/MatthieuTinnes/SteamKeyVault"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="github-btn"
+            >
+              <Button
+                label="Source"
+                class="p-button-lg"
+                severity="secondary"
+                outlined
+                icon="pi pi-github"
+              />
+            </a>
           </div>
         </div>
 
