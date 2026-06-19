@@ -35,7 +35,7 @@ Try it now ! [steamkeyvault.com](https://steamkeyvault.com)
 ## Architecture
 
 ```
-Frontend (Vue 3 + Vite)    Backend (Django + Ninja)    Database (PostgreSQL)
+Frontend (Vue 3 + Vite)    Backend (Django Ninja)    Database (PostgreSQL)
      :5173                       :8000                       :5432
        |                            |                          |
   ┌────┴────┐                ┌──────┴──────┐            ┌─────┴─────┐
@@ -44,12 +44,10 @@ Frontend (Vue 3 + Vite)    Backend (Django + Ninja)    Database (PostgreSQL)
   └─────────┘                └─────────────┘            └───────────┘
        │                            │
        │  Client-side               │  Steam API
-       │  encryption                 │  Background jobs
+       │  encryption                │  APScheduler
        │  (KDF + AES)               │  Email
        │                            │  Gotify
 ```
-
-In production, the frontend is served as static files via nginx.
 
 ---
 
