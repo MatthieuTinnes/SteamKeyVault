@@ -1,42 +1,106 @@
 name: Build & Deploy
 
+# develop → preprod, main → prod.
+# A manual run (workflow_dispatch) rebuilds and redeploys everything: that's
+# how an environment is deployed for the first time.
 on:
   push:
     branches: [main, develop]
+  workflow_dispatch:
+
+# Two deploys of the same environment must never overlap; the second one waits
+# for the first instead of cancelling it in the middle of `up`.
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  # Number of `<env>-<sha>` images kept per environment and per image, on top
+  # of the currently deployed one.
+  IMAGES_TO_KEEP: 10
 
 jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
       environment: ${{ steps.set-env.outputs.environment }}
-      image_tag:   ${{ steps.set-env.outputs.image_tag }}
-      image_base:  ${{ steps.set-env.outputs.image_base }}
-      app_dir:     ${{ steps.set-env.outputs.app_dir }}
+      image_tag: ${{ steps.set-env.outputs.image_tag }}
+      version_tag: ${{ steps.set-env.outputs.version_tag }}
+      image_base: ${{ steps.set-env.outputs.image_base }}
 
     steps:
       - name: Set environment variables
         id: set-env
         env:
           REF: ${{ github.ref }}
+          SHA: ${{ github.sha }}
         run: |
-          if [[ "$REF" == "refs/heads/main" ]]; then
-            echo "environment=prod" >> $GITHUB_OUTPUT
-            echo "image_tag=latest"       >> $GITHUB_OUTPUT
-            echo "app_dir=/app/SteamKeyVault/prod" >> $GITHUB_OUTPUT
-          else
-            echo "environment=preprod"    >> $GITHUB_OUTPUT
-            echo "image_tag=develop"      >> $GITHUB_OUTPUT
-            echo "app_dir=/app/SteamKeyVault/preprod" >> $GITHUB_OUTPUT
-          fi
-          echo "image_base=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
+          case "$REF" in
+            refs/heads/main)    environment=prod;    image_tag=latest ;;
+            refs/heads/develop) environment=preprod; image_tag=preprod ;;
+            *) echo "::error::Only main and develop can be deployed (ref: $REF)"; exit 1 ;;
+          esac
+          echo "environment=$environment"                 >> "$GITHUB_OUTPUT"
+          echo "image_tag=$image_tag"                     >> "$GITHUB_OUTPUT"
+          echo "version_tag=$environment-${SHA::7}"       >> "$GITHUB_OUTPUT"
+          echo "image_base=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      backend: ${{ github.event_name == 'workflow_dispatch' && 'true' || steps.filter.outputs.backend }}
+      frontend: ${{ github.event_name == 'workflow_dispatch' && 'true' || steps.filter.outputs.frontend }}
+      deploy: ${{ github.event_name == 'workflow_dispatch' && 'true' || steps.filter.outputs.deploy }}
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Full history: the comparison base can be several commits back.
+          fetch-depth: 0
+
+      # Comparison base: the last commit successfully deployed on this branch,
+      # not the previous push. Otherwise a push whose deploy fails (red tests)
+      # "consumes" its changes: the next push, touching only the backend for
+      # instance, would retag the old frontend image and deploy a frontend
+      # lagging behind the API. No known successful deploy: paths-filter falls
+      # back to the previous push.
+      - name: Last successful deploy
+        id: last-deploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sha=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow deploy.yml \
+            --branch "$GITHUB_REF_NAME" --status success --limit 1 \
+            --json headSha --jq '.[0].headSha // ""')
+          echo "Last successful deploy: ${sha:-none}"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          base: ${{ steps.last-deploy.outputs.sha }}
+          filters: |
+            backend:
+              - 'apps/backend/**'
+              - '.github/workflows/deploy.yml'
+            frontend:
+              - 'apps/frontend/**'
+              - '.github/workflows/deploy.yml'
+            deploy:
+              - 'deploy/**'
 
   test-backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.13'
           cache: pip
@@ -52,16 +116,18 @@ jobs:
         run: python manage.py test users steamkeyvault.games.tests steamkeyvault.keys.tests steamkeyvault.utils.tests steamkeyvault.steam.tests --verbosity=2
 
   test-frontend:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 10
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -73,105 +139,103 @@ jobs:
       - run: pnpm run test:unit --run
         working-directory: apps/frontend
 
-  build-backend:
-    needs: [setup, test-backend]
+  build:
+    needs: [setup, changes, test-backend, test-frontend]
+    # A skipped test job (unchanged app) doesn't block the other app's build.
+    if: |
+      always() && !failure() && !cancelled() &&
+      (needs.changes.outputs.backend == 'true' || needs.changes.outputs.frontend == 'true')
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        app: [backend, frontend]
+
+    env:
+      IMAGE: ${{ needs.setup.outputs.image_base }}/${{ matrix.app }}
+      IMAGE_TAG: ${{ needs.setup.outputs.image_tag }}
+      VERSION_TAG: ${{ needs.setup.outputs.version_tag }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        if: needs.changes.outputs[matrix.app] == 'true'
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
 
-      - uses: docker/login-action@v3
+      - uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: docker/build-push-action@v5
+      # provenance/sbom disabled: they add untagged manifests that the cleanup
+      # below would delete, which would break the image.
+      - name: Build & push
+        if: needs.changes.outputs[matrix.app] == 'true'
+        uses: docker/build-push-action@v7
         with:
-          context: apps/backend
+          context: apps/${{ matrix.app }}
           push: true
-          tags: ${{ needs.setup.outputs.image_base }}/backend:${{ needs.setup.outputs.image_tag }}
+          provenance: false
+          sbom: false
+          tags: |
+            ${{ env.IMAGE }}:${{ env.IMAGE_TAG }}
+            ${{ env.IMAGE }}:${{ env.VERSION_TAG }}
           build-args: |
             COMMIT_HASH=${{ github.sha }}
             DEPLOY_DATE=${{ github.event.head_commit.timestamp }}
-          cache-from: type=gha,scope=backend-${{ needs.setup.outputs.environment }}
-          cache-to:   type=gha,scope=backend-${{ needs.setup.outputs.environment }},mode=max
+          cache-from: type=gha,scope=${{ matrix.app }}-${{ needs.setup.outputs.environment }}
+          cache-to: type=gha,scope=${{ matrix.app }}-${{ needs.setup.outputs.environment }},mode=max
 
-  build-frontend:
-    needs: [setup, test-frontend]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: docker/setup-buildx-action@v3
-
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: docker/build-push-action@v5
-        with:
-          context: apps/frontend
-          push: true
-          tags: ${{ needs.setup.outputs.image_base }}/frontend:${{ needs.setup.outputs.image_tag }}
-          build-args: |
-            COMMIT_HASH=${{ github.sha }}
-            DEPLOY_DATE=${{ github.event.head_commit.timestamp }}
-          cache-from: type=gha,scope=frontend-${{ needs.setup.outputs.environment }}
-          cache-to:   type=gha,scope=frontend-${{ needs.setup.outputs.environment }},mode=max
+      # Unchanged image: still give it this commit's tag (without rebuilding),
+      # so that every `<env>-<sha>` exists for both backend AND frontend and a
+      # rollback can target a single tag.
+      - name: Tag unchanged image
+        if: needs.changes.outputs[matrix.app] != 'true'
+        run: docker buildx imagetools create --tag "$IMAGE:$VERSION_TAG" "$IMAGE:$IMAGE_TAG"
 
   deploy:
-    needs: [setup, build-backend, build-frontend]
+    needs: [setup, changes, build]
+    if: |
+      always() && !failure() && !cancelled() &&
+      (needs.changes.outputs.backend == 'true' ||
+       needs.changes.outputs.frontend == 'true' ||
+       needs.changes.outputs.deploy == 'true')
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.environment }}
 
     steps:
-      - name: Deploy backend
-        uses: appleboy/ssh-action@v1
+      # Komodo redeploys the `steamkeyvault-<env>` stack: it fetches the
+      # branch's compose (deploy/), pulls the images, then runs `up`. The
+      # request is signed with HMAC SHA-256 like a GitHub webhook: without the
+      # signature Komodo does nothing, and it only accepts deploying this
+      # stack. The secret is specific to each GitHub environment; the Komodo
+      # host is a secret too, to keep it out of this public repository.
+      # Komodo replies as soon as the signature is validated: the deploy
+      # result is followed in Komodo, not here.
+      - name: Trigger Komodo deploy
         env:
-          IMAGE:   ${{ needs.setup.outputs.image_base }}/backend:${{ needs.setup.outputs.image_tag }}
-          APP_DIR: ${{ needs.setup.outputs.app_dir }}
-          ACTOR:   ${{ github.actor }}
-          TOKEN:   ${{ secrets.GITHUB_TOKEN }}
-        with:
-          host:     ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key:      ${{ secrets.VPS_SSH_KEY }}
-          envs:     IMAGE,APP_DIR,ACTOR,TOKEN
-          script: |
-            echo $TOKEN | docker login ghcr.io -u $ACTOR --password-stdin
-            docker pull $IMAGE
-            docker compose -f $APP_DIR/docker-compose.yml up -d --no-deps --pull always backend
-            docker image prune -f
-
-      - name: Deploy frontend
-        uses: appleboy/ssh-action@v1
-        env:
-          IMAGE:   ${{ needs.setup.outputs.image_base }}/frontend:${{ needs.setup.outputs.image_tag }}
-          APP_DIR: ${{ needs.setup.outputs.app_dir }}
-          ACTOR:   ${{ github.actor }}
-          TOKEN:   ${{ secrets.GITHUB_TOKEN }}
-        with:
-          host:     ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key:      ${{ secrets.VPS_SSH_KEY }}
-          envs:     IMAGE,APP_DIR,ACTOR,TOKEN
-          script: |
-            echo $TOKEN | docker login ghcr.io -u $ACTOR --password-stdin
-            docker pull $IMAGE
-            docker compose -f $APP_DIR/docker-compose.yml up -d --no-deps --pull always frontend
-            docker image prune -f
+          STACK: steamkeyvault-${{ needs.setup.outputs.environment }}
+          KOMODO_HOST: ${{ secrets.KOMODO_HOST }}
+          SECRET: ${{ secrets.KOMODO_WEBHOOK_SECRET }}
+          REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          if [ -z "$KOMODO_HOST" ] || [ -z "$SECRET" ]; then
+            echo "::error::KOMODO_HOST and KOMODO_WEBHOOK_SECRET must be set in the ${{ needs.setup.outputs.environment }} environment"
+            exit 1
+          fi
+          # Komodo only triggers if `ref` is the branch tracked by the stack
+          # (main for prod, develop for preprod).
+          body="{\"ref\":\"$REF\"}"
+          signature=$(printf '%s' "$body" | openssl dgst -sha256 -hmac "$SECRET" | awk '{print $NF}')
+          curl -fsS --retry 3 -X POST \
+            "https://${KOMODO_HOST}/listener/github/stack/$STACK/deploy" \
+            -H 'Content-Type: application/json' \
+            -H "X-Hub-Signature-256: sha256=$signature" \
+            -d "$body"
 
       - name: Notify Gotify
         if: always()
@@ -181,10 +245,56 @@ jobs:
           ENVIRONMENT: ${{ needs.setup.outputs.environment }}
           STATUS: ${{ job.status }}
         run: |
+          if [ -z "$GOTIFY_HOST" ]; then
+            echo "GOTIFY_HOST not set, skipping notification"
+            exit 0
+          fi
           curl -s -X POST "https://${GOTIFY_HOST}/message?token=${GOTIFY_TOKEN}" \
             -H 'Content-Type: application/json' \
             -d "{
-              \"title\": \"🚀 Deploy to ${ENVIRONMENT} — ${STATUS}\",
+              \"title\": \"🚀 SteamKeyVault — deploy to ${ENVIRONMENT} triggered — ${STATUS}\",
               \"message\": \"Commit: ${{ github.sha }}\\nAuthor: ${{ github.actor }}\\nRef: ${{ github.ref_name }}\",
               \"priority\": 5
             }"
+
+  # Keep only the IMAGES_TO_KEEP latest versions of each environment, plus the
+  # ones carrying the current tags (latest, preprod).
+  cleanup-images:
+    needs: [build, deploy]
+    if: always() && needs.build.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+
+    steps:
+      - name: Delete old image versions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          set -euo pipefail
+          repo="${REPO,,}"
+          for app in backend frontend; do
+            endpoint="/users/$OWNER/packages/container/${repo}%2F${app}/versions"
+
+            # Versions to delete: untagged (orphans), or beyond the
+            # IMAGES_TO_KEEP most recent of their environment. A version
+            # carrying a current tag is never deleted.
+            ids=$(gh api --paginate "$endpoint" \
+              --jq '.[] | {id, created_at, tags: .metadata.container.tags}' \
+              | jq -rs --argjson keep "$IMAGES_TO_KEEP" '
+                  sort_by(.created_at) | reverse
+                  | ( map(select(.tags == [])) ),
+                    ( map(select(any(.tags[]; startswith("prod-")))) | .[$keep:] ),
+                    ( map(select(any(.tags[]; startswith("preprod-")))) | .[$keep:] )
+                  | .[]
+                  | select((.tags | index("latest") or index("preprod")) | not)
+                  | .id' \
+              | sort -u)
+
+            for id in $ids; do
+              echo "Deleting $app, version $id"
+              gh api --method DELETE "$endpoint/$id"
+            done
+          done

@@ -1,0 +1,49 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    container_name: steamkeyvault-db
+    image: postgres:15-alpine
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U steamkeyvault"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend Django (using pre-built image from GHCR)
+  backend:
+    container_name: steamkeyvault-backend
+    image: ghcr.io/matthieutinnes/steamkeyvault/backend:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  scheduler:
+    container_name: steamkeyvault-scheduler
+    image: ghcr.io/matthieutinnes/steamkeyvault/backend:latest
+    restart: unless-stopped
+    command: python manage.py runapscheduler
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Frontend Vue (using pre-built image from GHCR)
+  frontend:
+    container_name: steamkeyvault-frontend
+    image: ghcr.io/matthieutinnes/steamkeyvault/frontend:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+
+volumes:
+  postgres_data:
+    driver: local
