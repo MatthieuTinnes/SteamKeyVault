@@ -1,0 +1,142 @@
+# SteamKeyVault deployment (preprod and prod) — one file for both
+# environments: everything that differs comes from the environment of the
+# Komodo stack `steamkeyvault-<env>` (see .env.example). Komodo reads this file
+# from the environment's branch on every deploy: don't edit it directly on the
+# server.
+#
+# Plugs into the server stack: Traefik (external `web` network, `https`
+# entrypoint, `letsEncrypt` certificates, file-declared middlewares) terminates
+# TLS and routes the domains to `frontend` and `backend`. The database and the
+# scheduler stay on the project's internal network.
+#
+# For local development, see the docker-compose.yml at the repository root.
+
+# Explicit project name: without it, compose would use the directory name,
+# shared with the other applications on the server, and `--remove-orphans`
+# would remove their containers.
+name: steamkeyvault-${ENVIRONMENT:?ENVIRONMENT is required (prod | preprod)}
+
+x-backend-image: &backend-image ghcr.io/matthieutinnes/steamkeyvault/backend:${IMAGE_TAG:?IMAGE_TAG is required}
+
+# Django configuration, shared by the backend and the scheduler.
+x-backend-environment: &backend-environment
+  TZ: Europe/Paris
+  DEBUG: "False"
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  SECRET_KEY: ${SECRET_KEY:?SECRET_KEY is required}
+  ALLOWED_HOSTS: ${API_DOMAIN:?API_DOMAIN is required}
+  FRONTEND_URL: https://${DOMAIN:?DOMAIN is required}
+  CORS_ALLOWED_ORIGINS: https://${DOMAIN}
+  CSRF_TRUSTED_ORIGINS: https://${DOMAIN}
+  CSRF_COOKIE_DOMAIN: ${CSRF_COOKIE_DOMAIN:-}
+  DB_ENGINE: django.db.backends.postgresql
+  # Database alias on the internal network (see the postgres service).
+  DB_HOST: steamkeyvault-db
+  DB_PORT: "5432"
+  DB_NAME: ${POSTGRES_DB:?}
+  DB_USER: ${POSTGRES_USER:?}
+  DB_PASSWORD: ${POSTGRES_PASSWORD:?}
+  STEAM_API_KEY: ${STEAM_API_KEY:?STEAM_API_KEY is required}
+  TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY:-}
+  TURNSTILE_VERIFY_URL: https://challenges.cloudflare.com/turnstile/v0/siteverify
+  EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+  EMAIL_HOST: ${EMAIL_HOST:-}
+  EMAIL_PORT: ${EMAIL_PORT:-587}
+  EMAIL_HOST_USER: ${EMAIL_HOST_USER:-}
+  EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD:-}
+  EMAIL_USE_TLS: ${EMAIL_USE_TLS:-True}
+  DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-}
+  GOTIFY_URL: ${GOTIFY_URL:-}
+  GOTIFY_TOKEN: ${GOTIFY_TOKEN:-}
+
+services:
+  postgres:
+    container_name: steamkeyvault-db-${ENVIRONMENT}
+    # Existing data is on 15: a major upgrade requires a dump/restore.
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ${DATA_DIR:?DATA_DIR is required}/postgres_data:/var/lib/postgresql/data
+    networks:
+      internal:
+        # Name the backend uses to reach the database. Not `postgres`: the
+        # backend is also on the shared network, where other containers use
+        # that generic name.
+        aliases:
+          - steamkeyvault-db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Django (gunicorn). Applies the migrations on startup.
+  backend:
+    container_name: steamkeyvault-backend-${ENVIRONMENT}
+    image: *backend-image
+    restart: unless-stopped
+    environment: *backend-environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - web
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.services.steamkeyvault-backend-${ENVIRONMENT}.loadbalancer.server.port=8000"
+      - "traefik.http.routers.steamkeyvault-backend-${ENVIRONMENT}.rule=Host(`${API_DOMAIN}`)"
+      - "traefik.http.routers.steamkeyvault-backend-${ENVIRONMENT}.entrypoints=https"
+      - "traefik.http.routers.steamkeyvault-backend-${ENVIRONMENT}.tls.certresolver=letsEncrypt"
+      - "traefik.http.routers.steamkeyvault-backend-${ENVIRONMENT}.service=steamkeyvault-backend-${ENVIRONMENT}"
+      - "traefik.http.routers.steamkeyvault-backend-${ENVIRONMENT}.middlewares=${TRAEFIK_MIDDLEWARES:?TRAEFIK_MIDDLEWARES is required}"
+      # Django admin: longer rule, so it takes priority over the API router.
+      - "traefik.http.routers.steamkeyvault-backend-admin-${ENVIRONMENT}.rule=Host(`${API_DOMAIN}`) && PathPrefix(`/admin`)"
+      - "traefik.http.routers.steamkeyvault-backend-admin-${ENVIRONMENT}.entrypoints=https"
+      - "traefik.http.routers.steamkeyvault-backend-admin-${ENVIRONMENT}.tls.certresolver=letsEncrypt"
+      - "traefik.http.routers.steamkeyvault-backend-admin-${ENVIRONMENT}.service=steamkeyvault-backend-${ENVIRONMENT}"
+      - "traefik.http.routers.steamkeyvault-backend-admin-${ENVIRONMENT}.middlewares=${TRAEFIK_ADMIN_MIDDLEWARES:?TRAEFIK_ADMIN_MIDDLEWARES is required}"
+
+  # Scheduled jobs (APScheduler): same image, not exposed.
+  scheduler:
+    container_name: steamkeyvault-scheduler-${ENVIRONMENT}
+    image: *backend-image
+    restart: unless-stopped
+    command: ["python", "manage.py", "runapscheduler"]
+    environment: *backend-environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - internal
+
+  # nginx: serves the SPA; config.js is generated on startup from VITE_*.
+  frontend:
+    container_name: steamkeyvault-frontend-${ENVIRONMENT}
+    image: ghcr.io/matthieutinnes/steamkeyvault/frontend:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      VITE_API_BASE_URL: https://${API_DOMAIN}/api
+      VITE_TURNSTILE_SITE_KEY: ${TURNSTILE_SITE_KEY:-}
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.services.steamkeyvault-frontend-${ENVIRONMENT}.loadbalancer.server.port=80"
+      - "traefik.http.routers.steamkeyvault-frontend-${ENVIRONMENT}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.steamkeyvault-frontend-${ENVIRONMENT}.entrypoints=https"
+      - "traefik.http.routers.steamkeyvault-frontend-${ENVIRONMENT}.tls.certresolver=letsEncrypt"
+      - "traefik.http.routers.steamkeyvault-frontend-${ENVIRONMENT}.service=steamkeyvault-frontend-${ENVIRONMENT}"
+      - "traefik.http.routers.steamkeyvault-frontend-${ENVIRONMENT}.middlewares=${TRAEFIK_MIDDLEWARES}"
+
+networks:
+  web:
+    external: true
+  internal:
+    external: false
