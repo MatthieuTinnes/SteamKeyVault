@@ -1,0 +1,114 @@
+name: Release
+
+# Manual run from main: computes the next (semver) version from the last tag,
+# generates the release notes from the Conventional Commits (cliff.toml), pushes
+# the tag and publishes the GitHub release, then dispatches the prod deploy of
+# that tag (deploy.yml).
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump type
+        required: true
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+      dry_run:
+        description: "Dry run: compute the version and the notes without creating a tag, a release or a deploy. Can be run from any branch."
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  # To dispatch deploy.yml on the tag.
+  actions: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require dispatch from main
+        if: github.ref != 'refs/heads/main' && !inputs.dry_run
+        run: |
+          echo "::error::Releases can only be dispatched from main (got $GITHUB_REF). Use dry_run to try from another branch."
+          exit 1
+
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # The current version is the highest x.y.z tag (0.0.0 before the first
+      # release): no version file to commit.
+      - name: Compute next version
+        id: version
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: |
+          set -euo pipefail
+          current=$(git tag --list '[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname \
+            | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n1 || true)
+          current=${current:-0.0.0}
+          IFS=. read -r major minor patch <<< "$current"
+          case "$BUMP" in
+            major) major=$((major + 1)); minor=0; patch=0 ;;
+            minor) minor=$((minor + 1)); patch=0 ;;
+            patch) patch=$((patch + 1)) ;;
+          esac
+          version="$major.$minor.$patch"
+          if git rev-parse -q --verify "refs/tags/$version" >/dev/null; then
+            echo "::error::Tag $version already exists"
+            exit 1
+          fi
+          echo "Version: $current → $version"
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Generate release notes
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --unreleased --tag ${{ steps.version.outputs.version }} --strip all -o RELEASE_NOTES.md
+
+      - name: Summary
+        env:
+          CURRENT: ${{ steps.version.outputs.current }}
+          VERSION: ${{ steps.version.outputs.version }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          {
+            if [ "$DRY_RUN" = true ]; then
+              echo "### Dry run: no tag, no release, no deploy"
+              echo "Would have released **$VERSION** (previous: $CURRENT)."
+            else
+              echo "### Release $VERSION (previous: $CURRENT)"
+            fi
+            echo
+            cat RELEASE_NOTES.md
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # A tag pushed with GITHUB_TOKEN doesn't trigger other workflows: the prod
+      # deploy is dispatched explicitly in the next step.
+      - name: Tag and publish release
+        if: "!inputs.dry_run"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git tag -a "$VERSION" -m "Release $VERSION"
+          git push origin "refs/tags/$VERSION"
+          gh release create "$VERSION" --verify-tag --title "$VERSION" --notes-file RELEASE_NOTES.md
+
+      - name: Deploy to prod
+        if: "!inputs.dry_run"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: gh workflow run deploy.yml --ref "$VERSION" -f environment=prod
