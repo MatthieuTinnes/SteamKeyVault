@@ -111,4 +111,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.version.outputs.version }}
-        run: gh workflow run deploy.yml --ref "$VERSION" -f environment=prod
+        run: gh workflow run deploy.yml --ref "$VERSION"
