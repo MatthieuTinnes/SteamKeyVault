@@ -1,22 +1,25 @@
 name: Build & Deploy
 
-# develop → preprod, main → prod.
-# A manual run (workflow_dispatch) rebuilds and redeploys everything: that's
-# how an environment is deployed for the first time.
+# Push to main → preprod, version tag x.y.z → prod. Tags are created by
+# release.yml, which dispatches this workflow on the tag itself (a tag pushed
+# with GITHUB_TOKEN doesn't trigger `push`); a tag pushed by hand triggers it.
+# A manual run (workflow_dispatch) on main or on a tag rebuilds and redeploys
+# everything: that's how an environment is deployed for the first time.
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
+    tags: ['[0-9]+.[0-9]+.[0-9]+']
   workflow_dispatch:
 
 # Two deploys of the same environment must never overlap; the second one waits
 # for the first instead of cancelling it in the middle of `up`.
 concurrency:
-  group: deploy-${{ github.ref_name }}
+  group: deploy-${{ startsWith(github.ref, 'refs/tags/') && 'prod' || 'preprod' }}
   cancel-in-progress: false
 
 env:
-  # Number of `<env>-<sha>` images kept per environment and per image, on top
-  # of the currently deployed one.
+  # Number of images kept per environment and per image (`<version>` in prod,
+  # `preprod-<sha>` in preprod), on top of the currently deployed one.
   IMAGES_TO_KEEP: 10
 
 jobs:
@@ -27,6 +30,7 @@ jobs:
       image_tag: ${{ steps.set-env.outputs.image_tag }}
       version_tag: ${{ steps.set-env.outputs.version_tag }}
       image_base: ${{ steps.set-env.outputs.image_base }}
+      deploy_date: ${{ steps.set-env.outputs.deploy_date }}
 
     steps:
       - name: Set environment variables
@@ -34,16 +38,23 @@ jobs:
         env:
           REF: ${{ github.ref }}
           SHA: ${{ github.sha }}
+          # Empty on workflow_dispatch (release and manual runs): the build
+          # date is used instead.
+          COMMIT_DATE: ${{ github.event.head_commit.timestamp }}
         run: |
-          case "$REF" in
-            refs/heads/main)    environment=prod;    image_tag=latest ;;
-            refs/heads/develop) environment=preprod; image_tag=preprod ;;
-            *) echo "::error::Only main and develop can be deployed (ref: $REF)"; exit 1 ;;
-          esac
+          if [ "$REF" = refs/heads/main ]; then
+            environment=preprod; image_tag=preprod; version_tag="preprod-${SHA::7}"
+          elif [[ "$REF" =~ ^refs/tags/[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            environment=prod; image_tag=latest; version_tag=${REF#refs/tags/}
+          else
+            echo "::error::Only main and x.y.z version tags can be deployed (ref: $REF)"
+            exit 1
+          fi
           echo "environment=$environment"                 >> "$GITHUB_OUTPUT"
           echo "image_tag=$image_tag"                     >> "$GITHUB_OUTPUT"
-          echo "version_tag=$environment-${SHA::7}"       >> "$GITHUB_OUTPUT"
+          echo "version_tag=$version_tag"                 >> "$GITHUB_OUTPUT"
           echo "image_base=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+          echo "deploy_date=${COMMIT_DATE:-$(date -Iseconds)}" >> "$GITHUB_OUTPUT"
 
   changes:
     runs-on: ubuntu-latest
@@ -51,9 +62,9 @@ jobs:
       contents: read
       actions: read
     outputs:
-      backend: ${{ github.event_name == 'workflow_dispatch' && 'true' || steps.filter.outputs.backend }}
-      frontend: ${{ github.event_name == 'workflow_dispatch' && 'true' || steps.filter.outputs.frontend }}
-      deploy: ${{ github.event_name == 'workflow_dispatch' && 'true' || steps.filter.outputs.deploy }}
+      backend: ${{ steps.filter.outcome == 'skipped' && 'true' || steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outcome == 'skipped' && 'true' || steps.filter.outputs.frontend }}
+      deploy: ${{ steps.filter.outcome == 'skipped' && 'true' || steps.filter.outputs.deploy }}
 
     steps:
       - uses: actions/checkout@v7
@@ -61,6 +72,9 @@ jobs:
           # Full history: the comparison base can be several commits back.
           fetch-depth: 0
 
+      # Manual run or version tag (prod): everything is rebuilt, without change
+      # detection.
+      #
       # Comparison base: the last commit successfully deployed on this branch,
       # not the previous push. Otherwise a push whose deploy fails (red tests)
       # "consumes" its changes: the next push, touching only the backend for
@@ -69,6 +83,7 @@ jobs:
       # back to the previous push.
       - name: Last successful deploy
         id: last-deploy
+        if: github.event_name == 'push' && github.ref_type == 'branch'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -80,6 +95,7 @@ jobs:
 
       - uses: dorny/paths-filter@v4
         id: filter
+        if: github.event_name == 'push' && github.ref_type == 'branch'
         with:
           base: ${{ steps.last-deploy.outputs.sha }}
           filters: |
@@ -185,12 +201,14 @@ jobs:
             ${{ env.IMAGE }}:${{ env.VERSION_TAG }}
           build-args: |
             COMMIT_HASH=${{ github.sha }}
-            DEPLOY_DATE=${{ github.event.head_commit.timestamp }}
-          cache-from: type=gha,scope=${{ matrix.app }}-${{ needs.setup.outputs.environment }}
-          cache-to: type=gha,scope=${{ matrix.app }}-${{ needs.setup.outputs.environment }},mode=max
+            DEPLOY_DATE=${{ needs.setup.outputs.deploy_date }}
+          # Cache shared by both environments: a tag points to a main commit
+          # that preprod already built.
+          cache-from: type=gha,scope=${{ matrix.app }}
+          cache-to: type=gha,scope=${{ matrix.app }},mode=max
 
       # Unchanged image: still give it this commit's tag (without rebuilding),
-      # so that every `<env>-<sha>` exists for both backend AND frontend and a
+      # so that every `preprod-<sha>` exists for both backend AND frontend and a
       # rollback can target a single tag.
       - name: Tag unchanged image
         if: needs.changes.outputs[matrix.app] != 'true'
@@ -208,7 +226,8 @@ jobs:
 
     steps:
       # Komodo redeploys the `steamkeyvault-<env>` stack: it fetches the
-      # branch's compose (deploy/), pulls the images, then runs `up`. The
+      # compose (deploy/) of main, tracked by both stacks, pulls the images,
+      # then runs `up`. The
       # request is signed with HMAC SHA-256 like a GitHub webhook: without the
       # signature Komodo does nothing, and it only accepts deploying this
       # stack. The secret is specific to each GitHub environment; the Komodo
@@ -220,16 +239,14 @@ jobs:
           STACK: steamkeyvault-${{ needs.setup.outputs.environment }}
           KOMODO_HOST: ${{ secrets.KOMODO_HOST }}
           SECRET: ${{ secrets.KOMODO_WEBHOOK_SECRET }}
-          REF: ${{ github.ref }}
         run: |
           set -euo pipefail
           if [ -z "$KOMODO_HOST" ] || [ -z "$SECRET" ]; then
             echo "::error::KOMODO_HOST and KOMODO_WEBHOOK_SECRET must be set in the ${{ needs.setup.outputs.environment }} environment"
             exit 1
           fi
-          # Komodo only triggers if `ref` is the branch tracked by the stack
-          # (main for prod, develop for preprod).
-          body="{\"ref\":\"$REF\"}"
+          # Komodo only triggers if `ref` is the branch tracked by the stack.
+          body='{"ref":"refs/heads/main"}'
           signature=$(printf '%s' "$body" | openssl dgst -sha256 -hmac "$SECRET" | awk '{print $NF}')
           curl -fsS --retry 3 -X POST \
             "https://${KOMODO_HOST}/listener/github/stack/$STACK/deploy" \
@@ -258,7 +275,8 @@ jobs:
             }"
 
   # Keep only the IMAGES_TO_KEEP latest versions of each environment, plus the
-  # ones carrying the current tags (latest, preprod).
+  # ones carrying the current tags (latest, preprod). Legacy `prod-<sha>`
+  # images (before versions) count as prod ones.
   cleanup-images:
     needs: [build, deploy]
     if: always() && needs.build.result == 'success'
@@ -278,17 +296,19 @@ jobs:
           for app in backend frontend; do
             endpoint="/users/$OWNER/packages/container/${repo}%2F${app}/versions"
 
-            # Versions to delete: untagged (orphans), or beyond the
-            # IMAGES_TO_KEEP most recent of their environment. A version
-            # carrying a current tag is never deleted.
+            # Versions to delete: untagged (orphans), or outside the
+            # IMAGES_TO_KEEP most recent of each of their environments (one
+            # image can carry preprod-<sha> and the version that promoted it).
+            # A version carrying a current tag is never deleted.
             ids=$(gh api --paginate "$endpoint" \
               --jq '.[] | {id, created_at, tags: .metadata.container.tags}' \
               | jq -rs --argjson keep "$IMAGES_TO_KEEP" '
+                  def prod: any(.tags[]; test("^[0-9]+\\.[0-9]+\\.[0-9]+$") or startswith("prod-"));
+                  def preprod: any(.tags[]; startswith("preprod-"));
                   sort_by(.created_at) | reverse
-                  | ( map(select(.tags == [])) ),
-                    ( map(select(any(.tags[]; startswith("prod-")))) | .[$keep:] ),
-                    ( map(select(any(.tags[]; startswith("preprod-")))) | .[$keep:] )
+                  | ([map(select(prod))[:$keep][], map(select(preprod))[:$keep][]] | map(.id)) as $kept
                   | .[]
+                  | select(.tags == [] or ((prod or preprod) and (.id | IN($kept[]) | not)))
                   | select((.tags | index("latest") or index("preprod")) | not)
                   | .id' \
               | sort -u)
