@@ -111,5 +111,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.version.outputs.version }}
-        # deploy.yml has no inputs: it deploys a version tag to prod.
         run: gh workflow run deploy.yml --ref "$VERSION"
